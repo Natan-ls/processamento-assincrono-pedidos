@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.7"
 
 services:
   # ======= Banco De Dados PostgreSQL =======
@@ -19,9 +19,9 @@ services:
       - pedidos_network
 
   # ======= Broker Celery =======
-#  redis:
+#  redis ou rabbitmq:
 #    image: (serviço de mensageria a ser definido)
-#    container_name: redis_broker
+#    container_name: broker_celery
 #    restart: always
 #    ports:
 #      - "6379:6379"
@@ -30,7 +30,7 @@ services:
 
   # ======= Zookeeper (Kafka depende dele p funcionar) =======
   zookeeper:
-    image: bitnami/zookeeper:3.9
+    image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     restart: always
     environment:
@@ -42,7 +42,7 @@ services:
 
   # ======= Apache Kafka =======
   kafka:
-    image: bitnami/kafka:3.7
+    image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
     restart: always
     depends_on:
