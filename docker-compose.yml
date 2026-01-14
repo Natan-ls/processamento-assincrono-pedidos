@@ -35,6 +35,8 @@ services:
     restart: always
     environment:
       ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
     networks:
@@ -49,9 +51,10 @@ services:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1 #obs: checar a qtd de brokers a ser usada
-      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       ALLOW_PLAINTEXT_LISTENER: "yes"
       #Tem q adicionar as outras configs do KAFKA, ofsets, replicação, topicos e vê se tem a necessidade de criar mais brokers ou não
     ports:
@@ -66,7 +69,7 @@ services:
     restart: always
     depends_on:
       - postgres
-      - kafka
+      #- kafka //remover o hashtag dps
       # adiconar o serviço do broker q será usado pelo CELERY
     volumes:
       - ./api:/app
