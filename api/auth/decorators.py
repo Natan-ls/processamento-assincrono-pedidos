@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import request, jsonify
-from auth.service import decode_token
+from api.auth.service import decode_token
 
 def jwt_required(fn):
     @wraps(fn)

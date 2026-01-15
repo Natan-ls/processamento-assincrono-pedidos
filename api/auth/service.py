@@ -1,6 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 from flask import current_app
+from config import Config
 
 def generate_token(user_id: int) -> str:
     payload = {

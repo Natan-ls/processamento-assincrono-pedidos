@@ -3,4 +3,5 @@ psycopg2-binary==2.9.9
 pyjwt==2.8.0
 bcrypt==4.1.2
 werkzeug==3.0.1
-
+flask-sqlalchemy==3.1.1
+confluent-kafka==2.3.0

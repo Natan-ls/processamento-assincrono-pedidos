@@ -54,7 +54,7 @@ services:
       - postgres
       - kafka
     volumes:
-      - ./api:/app
+      - .:/app
     ports:
       - "5000:5000"
     networks:
