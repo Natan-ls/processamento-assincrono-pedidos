@@ -1,17 +1,11 @@
-from flask import Flask
+from flask import Flask, jsonify
+from auth import auth_bp
+from jwt_utils import jwt_required
 from config import Config
-from extensions import db
-from models.user import User
-from auth.routes import auth_bp
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-
-    db.init_app(app)
-
-    with app.app_context():
-        db.create_all()
 
     app.register_blueprint(auth_bp)
 
@@ -19,11 +13,15 @@ def create_app():
     def health():
         return {"status": "ok"}
 
+    @app.route("/rota-protegida")
+    @jwt_required
+    def rota_protegida():
+        return jsonify({"mensagem": "JWT funcionando corretamente"})
+
     return app
 
 
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
+    app.run(host="0.0.0.0", port=5000)

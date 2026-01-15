@@ -1,13 +1,13 @@
 CREATE TABLE usuario (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,        -- Email ou outro meio de login
-    password_hash TEXT NOT NULL,                -- Senha do usuário (HASH, não criptografia)
+    email VARCHAR(255) UNIQUE NOT NULL,        -- Email
+    password_hash TEXT NOT NULL,                -- Senha do lclient (HASH, não criptrografado)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE pedidos (
     id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL,                -- Usuário que realizou o pedido
+    usuario_id INTEGER NOT NULL,                -- Cliente que realizou o pedido
     status VARCHAR(50) NOT NULL,                -- Status atual do pedido
     valor_total NUMERIC(10,2),                  -- Valor total do pedido
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -35,8 +35,8 @@ CREATE TABLE itens_pedido (
 CREATE TABLE ordem_dos_eventos (
     id SERIAL PRIMARY KEY,
     pedido_id INTEGER NOT NULL,                 -- Pedido relacionado ao evento
-    tipo_evento VARCHAR(100) NOT NULL,           -- Ex: pagamento_aprovado
-    criador_evento VARCHAR(100) NOT NULL,        -- Ex: kafka, worker, api
+    tipo_evento VARCHAR(100) NOT NULL,           -- Exempl: pagamento_aprovado
+    criador_evento VARCHAR(100) NOT NULL,        -- Exemplo: kafka, worker, api
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_eventos_pedido
@@ -48,7 +48,7 @@ CREATE TABLE ordem_dos_eventos (
 CREATE TABLE pagamento (
     id SERIAL PRIMARY KEY,
     pedido_id INTEGER NOT NULL,                 -- Pedido ao qual o pagamento pertence
-    status VARCHAR(50) NOT NULL,                -- Ex: aprovado, falha, pendente
+    status VARCHAR(50) NOT NULL,                -- Exemplo: aprovado, falha, pendente
     valor NUMERIC(10,2) NOT NULL CHECK (valor >= 0),
     processed_at TIMESTAMP,
 

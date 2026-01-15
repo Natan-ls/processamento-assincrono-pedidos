@@ -1,15 +1,14 @@
 version: "3.7"
 
 services:
-  # ======= Banco De Dados PostgreSQL =======
   postgres:
     image: postgres:16
     container_name: postgres_db
     restart: always
     environment:
-      POSTGRES_DB: pedidos_db #nome do bd q será criado de forma automatica 
-      POSTGRES_USER: pedidos_user #acesso do usuario administrador do db
-      POSTGRES_PASSWORD: pedidos_passwd #senha de acesso
+      POSTGRES_DB: pedidos_db
+      POSTGRES_USER: pedidos_user
+      POSTGRES_PASSWORD: pedidos_passwd
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -18,23 +17,11 @@ services:
     networks:
       - pedidos_network
 
-  # ======= Broker Celery =======
-#  redis ou rabbitmq:
-#    image: (serviço de mensageria a ser definido)
-#    container_name: broker_celery
-#    restart: always
-#    ports:
-#      - "6379:6379"
-#    networks:
-#      - pedidos_network
-
-  # ======= Zookeeper (Kafka depende dele p funcionar) =======
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     restart: always
     environment:
-      ALLOW_ANONYMOUS_LOGIN: "yes"
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
@@ -42,7 +29,6 @@ services:
     networks:
       - pedidos_network
 
-  # ======= Apache Kafka =======
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
@@ -50,27 +36,23 @@ services:
     depends_on:
       - zookeeper
     environment:
-      KAFKA_BROKER_ID: 1 #obs: checar a qtd de brokers a ser usada
+      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      ALLOW_PLAINTEXT_LISTENER: "yes"
-      #Tem q adicionar as outras configs do KAFKA, ofsets, replicação, topicos e vê se tem a necessidade de criar mais brokers ou não
     ports:
       - "9092:9092"
     networks:
       - pedidos_network
 
-  # ======= API Flask =======
   api:
     build: ./api
     container_name: api_flask
     restart: always
     depends_on:
       - postgres
-      #- kafka //remover o hashtag dps
-      # adiconar o serviço do broker q será usado pelo CELERY
+      - kafka
     volumes:
       - ./api:/app
     ports:
@@ -78,26 +60,21 @@ services:
     networks:
       - pedidos_network
 
-  # ======= Worker do Celery =======
   worker:
     build: ./worker
     container_name: worker
     restart: always
     depends_on:
-      # adiconar o serviço do broker q será usado pelo CELERY
       - kafka
-      - postgres
     volumes:
       - ./worker:/app
     networks:
       - pedidos_network
 
-# ======= Persistencia de Dadios =======
 volumes:
   postgres_data:
 
-
-# ======= Rede De Comunicaçõa Interna entre os Serviços =======
 networks:
   pedidos_network:
     driver: bridge
+
