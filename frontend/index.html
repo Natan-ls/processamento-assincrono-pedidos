@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Registro / Pedidos (JWT)</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #1e88e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: #fff;
+            width: 360px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1565c0;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 10px;
+            color: #1e88e5;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            margin-top: 15px;
+            max-height: 150px;
+            overflow: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+        <h2>Login</h2>
+        <input id="loginEmail" placeholder="Email">
+        <input id="loginPassword" type="password" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+        <div class="link" onclick="showRegister()">Criar uma conta</div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="registerBox" class="hidden">
+        <h2>Registro</h2>
+        <input id="regEmail" placeholder="Email">
+        <input id="regPassword" type="password" placeholder="Senha">
+        <button onclick="register()">Registrar</button>
+        <div class="link" onclick="showLogin()">Já tenho conta</div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div id="orderBox" class="hidden">
+        <h2>Criar Pedido</h2>
+        <button onclick="createOrder()">Criar Pedido</button>
+        <div class="link" onclick="logout()">Sair</div>
+    </div>
+
+    <pre id="output"></pre>
+</div>
+
+<script>
+const API_URL = "http://localhost:5000";
+const output = document.getElementById("output");
+
+function log(msg) {
+    output.textContent = msg;
+    output.style.display = "block";
+}
+
+/* -------- TELAS -------- */
+
+function showRegister() {
+    loginBox.classList.add("hidden");
+    registerBox.classList.remove("hidden");
+}
+
+function showLogin() {
+    registerBox.classList.add("hidden");
+    loginBox.classList.remove("hidden");
+}
+
+function showOrders() {
+    loginBox.classList.add("hidden");
+    registerBox.classList.add("hidden");
+    orderBox.classList.remove("hidden");
+    output.style.display = "none";
+}
+
+
+function logout() {
+    localStorage.removeItem("token");
+    orderBox.classList.add("hidden");
+    loginBox.classList.remove("hidden");
+    log("Logout realizado.");
+}
+
+async function register() {
+    const res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: regEmail.value,
+            password: regPassword.value
+        })
+    });
+
+    const text = await res.text();
+    log(text);
+}
+
+async function login() {
+    const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: loginEmail.value,
+            password: loginPassword.value
+        })
+    });
+
+    let data;
+    try {
+        data = await res.json();
+    } catch {
+        log("Erro inesperado no servidor");
+        return;
+    }
+
+    if (!res.ok) {
+        log(JSON.stringify(data, null, 2));
+        return;
+    }
+
+    localStorage.setItem("token", data.access_token);
+
+    showOrders();
+}
+
+
+async function createOrder() {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API_URL}/orders/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            items: [
+                { nome: "Hamburguer", quantidade: 2, preco: 25 }
+            ]
+        })
+    });
+
+    const text = await res.text();
+    log(text);
+}
+
+
+if (localStorage.getItem("token")) {
+    showOrders();
+}
+</script>
+
+</body>
+</html>
