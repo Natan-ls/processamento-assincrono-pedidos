@@ -5,3 +5,4 @@ bcrypt==4.1.2
 werkzeug==3.0.1
 flask-sqlalchemy==3.1.1
 confluent-kafka==2.3.0
+flask-cors==4.0.0

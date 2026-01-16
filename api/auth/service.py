@@ -1,7 +1,6 @@
 import jwt
 from datetime import datetime, timedelta
 from flask import current_app
-from config import Config
 
 def generate_token(user_id: int) -> str:
     payload = {
@@ -24,10 +23,10 @@ def decode_token(token: str) -> int:
     try:
         payload = jwt.decode(
             token,
-            current_app.config["SECRET_KEY"],
+            Config.JWT_SECRET_KEY, 
             algorithms=["HS256"]
         )
-        return payload["sub"]
+        return int(payload["sub"])  # 
 
     except jwt.ExpiredSignatureError:
         raise Exception("Token expirado")
