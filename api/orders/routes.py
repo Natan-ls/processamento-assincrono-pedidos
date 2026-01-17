@@ -1,16 +1,15 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
 from api.models.order import Order, OrderItem
+from api.models.enums import OrderStatus
 from api.auth.decorators import jwt_required
 from api.messaging.producer import kafka_service
 
 orders_bp = Blueprint("orders", __name__, url_prefix="/orders")
 
-
 @orders_bp.route("/", methods=["POST", "OPTIONS"])
 @jwt_required
 def create_order():
-    # 
     if request.method == "OPTIONS":
         return jsonify({"ok": True}), 200
 
@@ -27,10 +26,10 @@ def create_order():
     try:
         new_order = Order(
             usuario_id=request.user_id,
-            status="CRIADO",
+            status=OrderStatus.CRIADO.value,
             valor_total=0
         )
-
+        
         total = 0
         for item in items_data:
             order_item = OrderItem(
@@ -47,24 +46,25 @@ def create_order():
         db.session.commit()
 
         kafka_service.send_order_event({
+            "event": "ORDER_CREATED",
             "order_id": new_order.id,
             "user_id": request.user_id,
-            "total": total
+            "total": float(total)
         })
 
         return jsonify({
             "message": "Pedido criado com sucesso",
             "order_id": new_order.id,
-            "total": total
+            "status": new_order.status,
+            "total": float(total)
         }), 201
-
+    
     except Exception as e:
         db.session.rollback()
         return jsonify({
             "error": "Falha ao criar pedido",
             "details": str(e)
         }), 500
-
 
 @orders_bp.route("/<int:order_id>", methods=["GET"])
 @jwt_required
@@ -83,3 +83,17 @@ def get_order(order_id):
         "total": float(order.valor_total),
         "items": [item.to_dict() for item in order.items]
     }), 200
+
+@orders_bp.route("/", methods=["GET", "OPTIONS"])
+@jwt_required
+def list_orders():
+    if request.method == "OPTIONS":
+        return jsonify({"ok" : True}), 200
+    orders = (
+        Order.query
+        .filter_by(usuario_id=request.user_id)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+
+    return jsonify([order.to_dict() for order in orders]), 200

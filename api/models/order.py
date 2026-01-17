@@ -1,17 +1,27 @@
 from extensions import db
 from datetime import datetime
+from .enums import OrderStatus
 
 class Order(db.Model):
     __tablename__ = "pedidos"
 
     id = db.Column(db.Integer, primary_key=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
-    status = db.Column(db.String(50), nullable=False, default="pendente")
-    valor_total = db.Column(db.Numeric(10, 2), nullable=True)
+    usuario_id = db.Column(db.Integer,db.ForeignKey("usuario.id"),nullable=False)
+    status = db.Column(db.String(50),nullable=False,default=OrderStatus.CRIADO.value)
+    valor_total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime,default=datetime.utcnow,onupdate=datetime.utcnow)
 
-    items = db.relationship('OrderItem', backref='order', lazy=True, cascade="all, delete-orphan")
+    items = db.relationship("OrderItem", backref="order", lazy=True, cascade="all, delete-orphan")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "status": self.status,
+            "valor_total": float(self.valor_total),
+            "created_at": self.created_at.isoformat(),
+            "items": [item.to_dict() for item in self.items]
+        }
 
 class OrderItem(db.Model):
     __tablename__ = "itens_pedido"

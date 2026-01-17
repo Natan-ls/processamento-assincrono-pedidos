@@ -101,8 +101,11 @@
 
     <!-- PEDIDOS -->
     <div id="orderBox" class="hidden">
-        <h2>Criar Pedido</h2>
+        <h2>Pedidos</h2>
         <button onclick="createOrder()">Criar Pedido</button>
+        <button onclick="listOrders()">Listar Pedidos</button>
+        <input id="orderIdInput" placeholder="ID do pedido">
+        <button onclick="getOrderById()">Buscar Pedido</button>
         <div class="link" onclick="logout()">Sair</div>
     </div>
 
@@ -206,6 +209,40 @@ async function createOrder() {
 
     const text = await res.text();
     log(text);
+}
+
+async function listOrders() {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API_URL}/orders/`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    const data = await res.json();
+    log(JSON.stringify(data, null, 2));
+}
+
+async function getOrderById() {
+    const token = localStorage.getItem("token");
+    const orderId = document.getElementById("orderIdInput").value;
+
+    if (!orderId) {
+        log("Informe o ID do pedido");
+        return;
+    }
+
+    const res = await fetch(`${API_URL}/orders/${orderId}`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    const data = await res.json();
+    log(JSON.stringify(data, null, 2));
 }
 
 
