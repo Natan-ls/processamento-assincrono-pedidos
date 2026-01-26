@@ -78,4 +78,3 @@ volumes:
 networks:
   pedidos_network:
     driver: bridge
-

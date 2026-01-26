@@ -1,5 +1,6 @@
 from enum import Enum
 
+# ======= ENUM Do STATUS DO PEDIDO ======= 
 class OrderStatus(str, Enum):
     CRIADO = "CRIADO"
     VALIDANDO = "VALIDANDO"

@@ -84,63 +84,101 @@
     <!-- LOGIN -->
     <div id="loginBox">
         <h2>Login</h2>
-        <input id="loginEmail" placeholder="Email">
+        <input id="loginEmail" type="email" placeholder="Email">
         <input id="loginPassword" type="password" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
+        <button onclick="login(this)">Entrar</button>
         <div class="link" onclick="showRegister()">Criar uma conta</div>
     </div>
 
     <!-- REGISTRO -->
     <div id="registerBox" class="hidden">
         <h2>Registro</h2>
-        <input id="regEmail" placeholder="Email">
+        <input id="regNome" placeholder="Nome completo">
+        <input id="regEmail" type="email" placeholder="Email">
         <input id="regPassword" type="password" placeholder="Senha">
-        <button onclick="register()">Registrar</button>
+        <input id="regCpf"  placeholder="CPF">
+        <input id="regEndereco"  placeholder="Endereço">
+        <input id="regTelefone"  placeholder="Telefone">
+        <button onclick="register(this)">Registrar</button>
         <div class="link" onclick="showLogin()">Já tenho conta</div>
     </div>
 
     <!-- PEDIDOS -->
     <div id="orderBox" class="hidden">
         <h2>Pedidos</h2>
+        <select id="estabelecimentoSelect" onchange="loadProdutos()"></select>
+        <button onclick="loadProdutos()">Carregar Produtos</button>
+
+        <select id="produtoSelect"></select>
+        <input id="quantidadeInput" type="number" placeholder="Quantidade" value="1">
+    
         <button onclick="createOrder()">Criar Pedido</button>
         <button onclick="listOrders()">Listar Pedidos</button>
         <input id="orderIdInput" placeholder="ID do pedido">
         <button onclick="getOrderById()">Buscar Pedido</button>
         <div class="link" onclick="logout()">Sair</div>
+
     </div>
 
     <pre id="output"></pre>
 </div>
 
 <script>
+
+/*====== FUNCT q/ RETORNA HEADERS c/ TOKEN JWT p/ AUTENTICAÇÂO ======*/
+function authHeaders() {
+    const token = localStorage.getItem("token");
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+    };
+}
+
+/*====== URL e Logs ======*/
 const API_URL = "http://localhost:5000";
 const output = document.getElementById("output");
 
+/*====== FUNCT p/ EXIBIR MSG ======*/
 function log(msg) {
     output.textContent = msg;
     output.style.display = "block";
 }
 
-/* -------- TELAS -------- */
+/*====== VALIDAÇÃO DE SENHA FORT no FRONT ======*/
+function isStrongPassword(password) {
+    return (
+        password.length >= 6 &&
+        /[A-Z]/.test(password) &&
+        /[a-z]/.test(password) &&
+        /\d/.test(password) &&
+        /[^A-Za-z0-9]/.test(password)
+    );
+}
 
+
+/* --------------------------------- TELAS --------------------------------- */
+//Mostra Tela De Registro e Esconde Login
 function showRegister() {
     loginBox.classList.add("hidden");
     registerBox.classList.remove("hidden");
 }
 
+//Mostra Tela De Login e Esconde Registro
 function showLogin() {
     registerBox.classList.add("hidden");
     loginBox.classList.remove("hidden");
 }
 
+//Mostra Tela De Pedidos e Carega os estabelecimentos
 function showOrders() {
     loginBox.classList.add("hidden");
     registerBox.classList.add("hidden");
     orderBox.classList.remove("hidden");
     output.style.display = "none";
+    loadEstabelecimentos();
 }
 
-
+//Faz o Logout
 function logout() {
     localStorage.removeItem("token");
     orderBox.classList.add("hidden");
@@ -148,61 +186,145 @@ function logout() {
     log("Logout realizado.");
 }
 
-async function register() {
+/*====== FUNCT DE RESGISTRO DE NOVO USUARIO ======*/
+async function register(btn) {
+    if (//Verificação de campos obrigatórios
+        !regNome.value ||
+        !regEmail.value ||
+        !regPassword.value ||
+        !regCpf.value ||
+        !regEndereco.value ||
+        !regTelefone.value
+    ) {
+        log("Preencha todos os campos.");
+        return;
+    }
+
+    if (!isStrongPassword(regPassword.value)) {//Verificação senha forte
+        log(
+            "Senha fraca: mínimo 6 caracteres, com letra maiúscula, " +
+            "minúscula, número e caractere especial."
+        );
+        return;
+    }   
+    /*desabilita o botão enquanto aguarda a resposta da requisição e enquanto isso  a mensagem do botão é trocado por AGUARDE*/
+    const originalText = btn.textContent;
+    btn.textContent = "Aguarde..."; 
+    btn.disabled = true;
+    try {
     const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify({
-            email: regEmail.value,
-            password: regPassword.value
+            nome: regNome.value.trim(),
+            email: regEmail.value.trim().toLowerCase(),
+            password: regPassword.value,
+            cpf: regCpf.value.trim(),
+            endereco: regEndereco.value.trim(),
+            telefone: regTelefone.value.trim()    
         })
     });
 
-    const text = await res.text();
-    log(text);
-}
-
-async function login() {
-    const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: loginEmail.value,
-            password: loginPassword.value
-        })
-    });
-
-    let data;
-    try {
-        data = await res.json();
-    } catch {
-        log("Erro inesperado no servidor");
-        return;
-    }
-
+    const data = await res.json();
     if (!res.ok) {
-        log(JSON.stringify(data, null, 2));
+        //msg de erro q vem lá do back
+        log(data.error ?? "Erro ao realizar cadastro.");
+        return;
+    }    
+    log("Cadastro realizado com sucesso!");
+
+    /*Limpa tds os campos do formulario*/
+    regNome.value = "";
+    regEmail.value = "";
+    regPassword.value = "";
+    regCpf.value = "";
+    regEndereco.value = "";
+    regTelefone.value = "";
+    }catch (error){
+        log("Erro de conexão com o servidor.");
+        console.error(error);
+    } finally {
+        //habilita o botão novamente
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+/*====== FUNCT DE LOGIN DO USUARIO ======*/
+async function login(btn) {
+    //verificação dos campos obrigatórios
+    if (!loginEmail.value || !loginPassword.value) {
+        log("Email e senha são obrigatórios.");
         return;
     }
 
-    localStorage.setItem("token", data.access_token);
+    /*desabilita o botão enquanto aguarda a resposta da requisição e enquanto isso  a mensagem do botão é trocado por AGUARDE*/
+    const originalText = btn.textContent;
+    btn.textContent = "Aguarde...";    
+    btn.disabled = true;
 
-    showOrders();
+    try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+                email: loginEmail.value.trim().toLowerCase(),
+                password: loginPassword.value
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            log(data.error ?? "Email ou senha inválidos.");
+            return;
+        }
+
+        localStorage.setItem("token", data.access_token);
+        log("Login Realizado Com Sucesso")
+        
+        showOrders();//lista todos os pedidos
+
+        /*Limpa tds os campos do formulario*/
+        loginEmail.value = "";
+        loginPassword.value = "";
+    } catch (error) {
+        log("Erro de conexão com o Servidor.");
+        console.error(error);
+    } finally {
+        //habilita o botão novamente
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
 }
 
-
+/*====== FUNCTS DE CRIAR PEDIDOS ======*/
 async function createOrder() {
     const token = localStorage.getItem("token");
+    const estabelecimentoId = estabelecimentoSelect.value;
+    const produtoOption = produtoSelect.selectedOptions[0];
+
+
+    if (!produtoOption) {
+        log("Selecione um produto antes de criar o pedido");
+        return;
+    }
+
+    const produtoId = produtoOption.value;
+    const preco = produtoOption.dataset.preco;
+    const quantidade = quantidadeInput.value;
 
     const res = await fetch(`${API_URL}/orders/`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
+        headers: authHeaders(),
         body: JSON.stringify({
+            estabelecimento_id: estabelecimentoId,
             items: [
-                { nome: "Hamburguer", quantidade: 2, preco: 25 }
+                {
+                    produto_id: produtoId,
+                    quantidade: quantidade,
+                    preco: preco
+                }
             ]
         })
     });
@@ -211,20 +333,21 @@ async function createOrder() {
     log(text);
 }
 
+
+/*====== FUNCTS DE LISTAR PEDIDOS ======*/
 async function listOrders() {
     const token = localStorage.getItem("token");
 
     const res = await fetch(`${API_URL}/orders/`, {
         method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
+        headers: authHeaders()
     });
 
     const data = await res.json();
     log(JSON.stringify(data, null, 2));
 }
 
+/*====== FUNCTS DE BUSCAR PEDIDO via ID ======*/
 async function getOrderById() {
     const token = localStorage.getItem("token");
     const orderId = document.getElementById("orderIdInput").value;
@@ -236,16 +359,60 @@ async function getOrderById() {
 
     const res = await fetch(`${API_URL}/orders/${orderId}`, {
         method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
+        headers: authHeaders()
     });
 
     const data = await res.json();
     log(JSON.stringify(data, null, 2));
 }
 
+/*====== FUNCTS DE CARREGAR OS ESTABELECIMENTOS ======*/
+async function loadEstabelecimentos() {
+    const res = await fetch(`${API_URL}/estabelecimentos`);
+    const data = await res.json();
 
+    estabelecimentoSelect.innerHTML = "";
+
+    data.forEach(e => {
+        const opt = document.createElement("option");
+        opt.value = e.id;
+        opt.textContent = e.nome;
+        estabelecimentoSelect.appendChild(opt);
+    });
+}
+
+/*====== FUNCTS DE CARREGAR TDS OS PRODUTOS DE UM ESTABELECIMENTO ======*/
+async function loadProdutos() {
+    const estabelecimentoSelect = document.getElementById("estabelecimentoSelect");
+    const estabelecimentoId = estabelecimentoSelect.value;
+
+    if (!estabelecimentoId) {
+        log("Selecione um estabelecimento primeiro");
+        return;
+    }
+
+    const res = await fetch(
+        `${API_URL}/estabelecimentos/${estabelecimentoId}/produtos`
+    );
+
+    const produtos = await res.json();
+    produtoSelect.innerHTML = "";
+
+    produtos.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.nome} - R$ ${p.preco}`;
+        opt.dataset.preco = p.preco;
+        produtoSelect.appendChild(opt);
+    });
+
+    if (produtoSelect.options.length > 0) {
+        produtoSelect.selectedIndex = 0;
+    }
+}
+
+
+// Qnd já está logado ou seja o token no localstorage, roda a funct de mostra pedidos
 if (localStorage.getItem("token")) {
     showOrders();
 }
