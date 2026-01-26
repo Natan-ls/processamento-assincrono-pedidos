@@ -15,7 +15,7 @@ class KafkaProducer:
         else:
             print(f"Mensagem entregue em {msg.topic()} [{msg.partition()}]")
 
-    def send_order_event(self, order_data):
+    def send_order_event(self, order_data): 
         try:
             topic = 'pedidos'
             payload = json.dumps(order_data).encode('utf-8')
