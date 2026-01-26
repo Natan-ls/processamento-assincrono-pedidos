@@ -110,7 +110,7 @@ def list_orders():
     orders = ( ## lista em ordem descescente do mais recente p mais antigo
         Order.query
         .filter_by(usuario_id=request.user_id)
-        .order_by(Order.created_at.asc())
+        .order_by(Order.created_at.desc())
         .all()
     )
 
