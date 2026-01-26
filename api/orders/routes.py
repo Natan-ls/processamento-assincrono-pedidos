@@ -6,6 +6,7 @@ from api.auth.decorators import jwt_required
 import api.messaging.constantes as constants
 import api.messaging.producer as producer
 from datetime import datetime, timezone
+
 orders_bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
@@ -52,7 +53,6 @@ def create_order():
 
         db.session.add(new_order) ## salva no BD
         db.session.commit()
-
         # === Envio do evento para Kafka (nova forma) ===
         evento = {
             "tipo_evento": constants.PEDIDO_CRIADO,
@@ -70,7 +70,7 @@ def create_order():
             "message": "Pedido criado com sucesso",
             "order_id": new_order.id,
             "status": new_order.status,
-            "total": float(total)
+            "total": float(total),
         }), 201
     
     except Exception as e:
