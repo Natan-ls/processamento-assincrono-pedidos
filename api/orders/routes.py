@@ -3,8 +3,9 @@ from extensions import db
 from api.models.order import Order, OrderItem
 from api.models.enums import OrderStatus
 from api.auth.decorators import jwt_required
-from api.messaging.producer import kafka_service
-
+import api.messaging.constantes as constants
+import api.messaging.producer as producer
+from datetime import datetime, timezone
 orders_bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
@@ -52,13 +53,18 @@ def create_order():
         db.session.add(new_order) ## salva no BD
         db.session.commit()
 
-        ## fazo envio do event p/ KAFKA
-        kafka_service.send_order_event({
-            "event": "ORDER_CREATED",
-            "order_id": new_order.id,
-            "user_id": request.user_id,
-            "total": float(total)
-        })
+        # === Envio do evento para Kafka (nova forma) ===
+        evento = {
+            "tipo_evento": constants.PEDIDO_CRIADO,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "dados": {
+                "pedido_id": new_order.id,
+                "usuario_id": request.user_id,
+                "itens": [item.to_dict() for item in new_order.items],
+                "total": float(total)
+            }
+        }
+        producer.publicar_evento(constants.PEDIDO_CRIADO, evento)
 
         return jsonify({##retorno de sucesso de criação do pedido
             "message": "Pedido criado com sucesso",

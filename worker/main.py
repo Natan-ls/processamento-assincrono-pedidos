@@ -1,14 +1,17 @@
 from confluent_kafka import Consumer
 import json
 
+PEDIDO_CRIADO = "pedido-criado"
+ENDERECO = "kafka"
+
 conf = {
-    "bootstrap.servers": "kafka:9092",
+    "bootstrap.servers": f"{ENDERECO}:9092",
     "group.id": "pedido-worker",
     "auto.offset.reset": "earliest"
 }
 
 consumer = Consumer(conf)
-consumer.subscribe(["pedidos"])
+consumer.subscribe([PEDIDO_CRIADO])
 
 print("Worker aguardando mensagens...")
 

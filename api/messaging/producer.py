@@ -1,27 +1,23 @@
 from confluent_kafka import Producer
 import json
 
-class KafkaProducer:
-    def __init__(self):
-        self.conf = {
-            'bootstrap.servers': 'kafka:9092',
-            'client.id': 'api-pedidos'
-        }
-        self.producer = Producer(self.conf)
+ENDERECO = "kafka"
 
-    def delivery_report(self, err, msg):
-        if err is not None:
-            print(f"Falha ao entregar mensagem: {err}")
-        else:
-            print(f"Mensagem entregue em {msg.topic()} [{msg.partition()}]")
+producer = Producer({
+    "bootstrap.servers": f"{ENDERECO}:9092",
+    "client.id": "api-producer"
+})
 
-    def send_order_event(self, order_data): 
-        try:
-            topic = 'pedidos'
-            payload = json.dumps(order_data).encode('utf-8')
-            self.producer.produce(topic, value=payload, callback=self.delivery_report)
-            self.producer.flush()
-        except Exception as e:
-            print(f"Erro ao publicar no Kafka: {e}")
+def mensagem_calback(erro, mensagem):
+    if erro:
+        print(f"Erro ao enviar mensagem: {erro}")
+    else:
+        print(f"Mensagem enviada para {mensagem.topic()}")
 
-kafka_service = KafkaProducer()
+def publicar_evento(topico: str, mensagem: dict):
+    producer.produce(
+        topic=topico,
+        value=json.dumps(mensagem).encode("utf-8"),
+        on_delivery=mensagem_calback
+    )
+    producer.poll(0)
