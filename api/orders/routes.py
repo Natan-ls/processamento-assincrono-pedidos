@@ -60,10 +60,12 @@ def create_order():
             "dados": {
                 "pedido_id": new_order.id,
                 "usuario_id": request.user_id,
+                "estabelecimento_id": data["estabelecimento_id"],
                 "itens": [item.to_dict() for item in new_order.items],
                 "total": float(total)
             }
         }
+
         producer.publicar_evento(constants.PEDIDO_CRIADO, evento)
 
         return jsonify({##retorno de sucesso de criação do pedido
