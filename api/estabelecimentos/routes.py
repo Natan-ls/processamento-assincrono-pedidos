@@ -24,6 +24,11 @@ def list_estabelecimentos():
 # ======== FUNCT p/ LISTART TDS PRODUTOS DE UM ESTABELECIMENTO ======== 
 @estabelecimentos_bp.route("/<int:estabelecimento_id>/produtos", methods=["GET"])
 def list_produtos(estabelecimento_id):
+    estabelecimento = Estabelecimento.query.get(estabelecimento_id)
+
+    if not estabelecimento:
+        return jsonify({"error": "Estabelecimento não encontrado"}), 404
+
     produtos = Product.query.filter_by(
         estabelecimento_id=estabelecimento_id
     ).all()
@@ -32,9 +37,10 @@ def list_produtos(estabelecimento_id):
         {
             "id": p.id,
             "nome": p.nome_item,
-            "preco": float(p.preco_unidade)
+            "preco": float(p.preco_unidade),
+            "imagem": p.url_imagem
         }
-        for p in produtos
+        for p in estabelecimento.produtos
     ])
 
 
