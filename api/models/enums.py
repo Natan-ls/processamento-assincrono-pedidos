@@ -11,3 +11,11 @@ class OrderStatus(str, Enum):
     FINALIZADO = "FINALIZADO"
     CANCELADO = "CANCELADO"
     ERRO = "ERRO"
+
+# ======= ENUM Da CATEGORIA DO ESTABELECIMENTO ======= 
+class CategoriaEstabelecimento(str, Enum):
+    RESTAURANTE = "RESTAURANTE"
+    FARMACIA = "FARMACIA"
+    MERCADO = "MERCADO"
+    FAST_FOOD = "FAST_FOOD"
+    BARZINHO = "BARZINHO"

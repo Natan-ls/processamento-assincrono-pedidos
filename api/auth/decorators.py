@@ -24,6 +24,7 @@ def jwt_required(f):
             )
 
             request.user_id = payload["sub"]
+            request.pessoa_id = payload["pessoa_id"]
 
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token expirado"}), 401

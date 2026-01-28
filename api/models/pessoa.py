@@ -10,11 +10,8 @@ class Pessoa(db.Model):
     cpf = db.Column(db.String(14), unique=True)
     endereco = db.Column(db.Text)
     telefone = db.Column(db.String(20))
+    url_foto_perfil = db.Column(db.Text)
 
     ## Relacionamento da tabela c/ o usuario permitindo assim acessar os dados da outra tabela
-    usuario = db.relationship(
-        "User",
-        back_populates="pessoa",
-        uselist=False,
-        cascade="all, delete"
-    )
+    usuario = db.relationship("User", back_populates="pessoa", uselist=False, cascade="all, delete")
+    estabelecimentos = db.relationship("Estabelecimento", backref="pessoa", lazy=True)

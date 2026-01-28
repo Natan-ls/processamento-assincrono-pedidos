@@ -29,7 +29,7 @@ def create_order():
 
     try:
         new_order = Order(## cria o pedido no BD
-            usuario_id=request.user_id, ##faz autencticação do user via jwwt
+            pessoa_id=request.pessoa_id, ##faz autencticação do user via jwwt
             estabelecimento_id=data["estabelecimento_id"],
             status=OrderStatus.CRIADO.value,
             valor_total=0
@@ -53,26 +53,25 @@ def create_order():
 
         db.session.add(new_order) ## salva no BD
         db.session.commit()
+
         # === Envio do evento para Kafka (nova forma) ===
         evento = {
             "tipo_evento": constants.PEDIDO_CRIADO,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "dados": {
                 "pedido_id": new_order.id,
-                "usuario_id": request.user_id,
-                "estabelecimento_id": data["estabelecimento_id"],
+                "pessoa_id": request.pessoa_id,
                 "itens": [item.to_dict() for item in new_order.items],
                 "total": float(total)
             }
         }
-
         producer.publicar_evento(constants.PEDIDO_CRIADO, evento)
 
         return jsonify({##retorno de sucesso de criação do pedido
             "message": "Pedido criado com sucesso",
             "order_id": new_order.id,
             "status": new_order.status,
-            "total": float(total),
+            "total": float(total)
         }), 201
     
     except Exception as e:
@@ -90,7 +89,7 @@ def get_order(order_id):
     # faz a busca do pedido do user q está autenticado
     order = Order.query.filter_by(
         id=order_id,
-        usuario_id=request.user_id
+        pessoa_id=request.pessoa_id
     ).first()
 
     if not order:
@@ -111,7 +110,7 @@ def list_orders():
         return jsonify({"ok" : True}), 200
     orders = ( ## lista em ordem descescente do mais recente p mais antigo
         Order.query
-        .filter_by(usuario_id=request.user_id)
+        .filter_by(pessoa_id=request.pessoa_id)
         .order_by(Order.created_at.desc())
         .all()
     )

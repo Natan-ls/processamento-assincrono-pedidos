@@ -74,3 +74,37 @@ def is_valid_cpf(cpf: str) -> bool:
             return False
 
     return True
+
+# ======== FUNCT p/ VALIDAÇÃO DE CNPJ ========
+def is_valid_cnpj(cnpj: str) -> bool:
+    cnpj = re.sub(r"\D", "", cnpj)
+
+    # Deve ter 14 dígitos
+    if len(cnpj) != 14:
+        return False
+
+    # Não pode ser sequência tipo 00000000000000
+    if cnpj == cnpj[0] * 14:
+        return False
+
+    # Pesos oficiais do cálculo
+    pesos_1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    pesos_2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+
+    # ======= Cálculo do primeiro dígito =======
+    soma = sum(int(cnpj[i]) * pesos_1[i] for i in range(12))
+    resto = soma % 11
+    digito1 = 0 if resto < 2 else 11 - resto
+
+    if int(cnpj[12]) != digito1:
+        return False
+
+    # ======= Cálculo do segundo dígito =======
+    soma = sum(int(cnpj[i]) * pesos_2[i] for i in range(13))
+    resto = soma % 11
+    digito2 = 0 if resto < 2 else 11 - resto
+
+    if int(cnpj[13]) != digito2:
+        return False
+
+    return True

@@ -74,13 +74,68 @@
             overflow: auto;
             font-size: 12px;
         }
+        .avatar-upload {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .avatar-upload label {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+        }
+
+        .avatar-upload img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1e88e5;
+            background: #f0f0f0;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #1e88e5;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        #profileBox input {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        .endereco-box {
+            margin-bottom: 12px;
+        }
+
+        .btn-localizacao {
+            width: auto !important;
+            padding: 6px 12px;
+            font-size: 13px;
+            background: #43a047;
+            border-radius: 6px;
+            margin-top: -5px;
+        }
     </style>
 </head>
 
 <body>
 
 <div class="card">
-
     <!-- LOGIN -->
     <div id="loginBox">
         <h2>Login</h2>
@@ -90,18 +145,116 @@
         <div class="link" onclick="showRegister()">Criar uma conta</div>
     </div>
 
-    <!-- REGISTRO -->
-    <div id="registerBox" class="hidden">
+    <!-- ESCOLHA DO TIPO DE RESGITRO (Cliente ou Emnpresa)-->
+    <div id="registerTypeBox" class="hidden">
+        <h2>Tipo de Conta</h2>
+
+        <button onclick="showRegisterCliente()">
+            Criar conta Cliente
+        </button>
+
+        <button onclick="showRegisterEmpresa()">
+            Criar conta Empresa
+        </button>
+
+        <div class="link" onclick="showLogin()">Voltar</div>
+    </div>
+
+
+    <!-- REGISTRO CLIENTE -->
+    <div id="registerClienteBox" class="hidden">
         <h2>Registro</h2>
+        <div class="avatar-upload">
+            <label for="regFoto">
+                <img
+                    id="avatarPreview"
+                    src="https://via.placeholder.com/120"
+                    alt="Foto de perfil"
+                >
+                <span class="avatar-edit">+</span>
+            </label>
+            <input
+                id="regFoto"
+                type="file"
+                accept="image/*"
+                hidden
+            >
+        </div>
+
         <input id="regNome" placeholder="Nome completo">
         <input id="regEmail" type="email" placeholder="Email">
         <input id="regPassword" type="password" placeholder="Senha">
         <input id="regCpf"  placeholder="CPF">
-        <input id="regEndereco"  placeholder="Endereço">
+        <div class="endereco-box">
+            <input id="regEndereco" placeholder="Endereço">
+
+            <button
+                type="button"
+                class="btn-localizacao"
+                onclick="usarLocalizacao('cliente')"
+            >
+                Usar localização atual
+            </button>
+        </div>
         <input id="regTelefone"  placeholder="Telefone">
-        <button onclick="register(this)">Registrar</button>
+        <button onclick="registerCliente(this)">Registrar</button>
         <div class="link" onclick="showLogin()">Já tenho conta</div>
     </div>
+
+    <!-- REGISTRO EMRPESA -->
+    <div id="registerEmpresaBox" class="hidden">
+        <h2>Registro Empresa</h2>
+
+        <input id="empNome" placeholder="Nome do responsável">
+        <input id="empCpf" placeholder="CPF">
+        <input id="empTelefone" placeholder="Telefone">
+
+        <input id="empEmail" placeholder="Email">
+        <input id="empPassword" type="password" placeholder="Senha">
+
+        <hr>
+
+        <input id="empNomeFantasia" placeholder="Nome Fantasia">
+        <input id="empCnpj" placeholder="CNPJ">
+
+        <select id="empCategoria">
+            <option value="">Selecione categoria</option>
+            <option value="RESTAURANTE">Restaurante</option>
+            <option value="FARMACIA">Farmácia</option>
+            <option value="MERCADO">Mercado</option>
+            <option value="FAST_FOOD">Fast Food</option>
+            <option value="BARZINHO">Barzinho</option>
+        </select>
+
+        <div class="endereco-box">
+            <input id="empEndereco" placeholder="Endereço da empresa">
+            <button
+                type="button"
+                class="btn-localizacao"
+                onclick="usarLocalizacao('empresa')"
+            >
+                Usar localização atual
+            </button>
+        </div>
+
+
+        <label>Logo da empresa (obrigatório)</label>
+        <input id="empLogo" type="file">
+
+        <button onclick="registerEmpresa(this)">Cadastrar Empresa</button>
+
+        <div class="link" onclick="showLogin()">Já tenho conta</div>
+
+        <div id="empresaSection" class="hidden">
+            <h3>Dados da Empresa</h3>
+            <input id="empresaNomeFantasia">
+            <select id="empresaCategoria"></select>
+            <input id="empresaEndereco">
+            <img id="empresaLogoImg">
+        </div>
+
+    </div>
+
 
     <!-- PEDIDOS -->
     <div id="orderBox" class="hidden">
@@ -114,10 +267,28 @@
     
         <button onclick="createOrder()">Criar Pedido</button>
         <button onclick="listOrders()">Listar Pedidos</button>
+        <button onclick="showProfile()">Configurações do Perfil</button>
         <input id="orderIdInput" placeholder="ID do pedido">
         <button onclick="getOrderById()">Buscar Pedido</button>
         <div class="link" onclick="logout()">Sair</div>
 
+    </div>
+
+    <!-- PERFIL -->
+    <div id="profileBox" class="hidden">
+        <h2>Meu Perfil</h2>
+
+        <div class="avatar-upload">
+            <img id="profileAvatar" src="https://via.placeholder.com/120">
+        </div>
+
+        <input id="profileNome" disabled>
+        <input id="profileEmail" disabled>
+        <input id="profileTelefone" disabled>
+        <input id="profileEndereco" disabled>
+
+        <button onclick="showOrders()">Voltar para Pedidos</button>
+        <div class="link" onclick="logout()">Sair</div>
     </div>
 
     <pre id="output"></pre>
@@ -133,6 +304,14 @@ function authHeaders() {
         "Authorization": `Bearer ${token}`
     };
 }
+
+const empresaSection = document.getElementById("empresaSection");
+
+const empresaNomeFantasia = document.getElementById("empresaNomeFantasia");
+const empresaCategoria = document.getElementById("empresaCategoria");
+const empresaEndereco = document.getElementById("empresaEndereco");
+const empresaLogoImg = document.getElementById("empresaLogoImg");
+
 
 /*====== URL e Logs ======*/
 const API_URL = "http://localhost:5000";
@@ -157,37 +336,65 @@ function isStrongPassword(password) {
 
 
 /* --------------------------------- TELAS --------------------------------- */
-//Mostra Tela De Registro e Esconde Login
-function showRegister() {
+//Esconde todas as telas 
+function hideAllScreens() {
     loginBox.classList.add("hidden");
-    registerBox.classList.remove("hidden");
+    registerTypeBox.classList.add("hidden");
+    registerClienteBox.classList.add("hidden");
+    registerEmpresaBox.classList.add("hidden");
+    orderBox.classList.add("hidden");
+    profileBox.classList.add("hidden");
+}
+
+
+//Mostra Tela De Escolha do Tipo De Registro (Cliente ou Empresa) e Esconde Login
+function showRegister() {
+    hideAllScreens();
+    registerTypeBox.classList.remove("hidden");
+}
+
+//Tela De Registro de Cleinte
+function showRegisterCliente(){
+    hideAllScreens();
+    registerClienteBox.classList.remove("hidden");
+}
+
+//tela de registro de Empresa
+function showRegisterEmpresa(){
+    hideAllScreens();
+    registerEmpresaBox.classList.remove("hidden");
 }
 
 //Mostra Tela De Login e Esconde Registro
 function showLogin() {
-    registerBox.classList.add("hidden");
+    hideAllScreens();
     loginBox.classList.remove("hidden");
 }
 
 //Mostra Tela De Pedidos e Carega os estabelecimentos
 function showOrders() {
-    loginBox.classList.add("hidden");
-    registerBox.classList.add("hidden");
+    hideAllScreens();
     orderBox.classList.remove("hidden");
-    output.style.display = "none";
     loadEstabelecimentos();
 }
 
 //Faz o Logout
 function logout() {
     localStorage.removeItem("token");
-    orderBox.classList.add("hidden");
-    loginBox.classList.remove("hidden");
+    showLogin();
     log("Logout realizado.");
 }
 
-/*====== FUNCT DE RESGISTRO DE NOVO USUARIO ======*/
-async function register(btn) {
+//Mosrar a TELA do PERFIL do USUARIO LOGADO
+function showProfile() {
+    hideAllScreens();
+    profileBox.classList.remove("hidden");
+    loadProfile();
+}
+
+
+/*====== FUNCT DE RESGISTRO DE NOVO USUARIO (Tipo Cliente)======*/
+async function registerCliente(btn) {
     if (//Verificação de campos obrigatórios
         !regNome.value ||
         !regEmail.value ||
@@ -196,7 +403,7 @@ async function register(btn) {
         !regEndereco.value ||
         !regTelefone.value
     ) {
-        log("Preencha todos os campos.");
+        log("Preencha todos os Campos Obrigatórios.");
         return;
     }
 
@@ -212,34 +419,50 @@ async function register(btn) {
     btn.textContent = "Aguarde..."; 
     btn.disabled = true;
     try {
-    const res = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-            nome: regNome.value.trim(),
-            email: regEmail.value.trim().toLowerCase(),
-            password: regPassword.value,
-            cpf: regCpf.value.trim(),
-            endereco: regEndereco.value.trim(),
-            telefone: regTelefone.value.trim()    
-        })
-    });
+        const formData = new FormData();
 
-    const data = await res.json();
-    if (!res.ok) {
-        //msg de erro q vem lá do back
-        log(data.error ?? "Erro ao realizar cadastro.");
-        return;
-    }    
-    log("Cadastro realizado com sucesso!");
+        formData.append("nome", regNome.value.trim());
+        formData.append("email", regEmail.value.trim().toLowerCase());
+        formData.append("password", regPassword.value);
+        formData.append("cpf", regCpf.value.trim());
+        formData.append("endereco", regEndereco.value.trim());
+        formData.append("telefone", regTelefone.value.trim());
 
-    /*Limpa tds os campos do formulario*/
-    regNome.value = "";
-    regEmail.value = "";
-    regPassword.value = "";
-    regCpf.value = "";
-    regEndereco.value = "";
-    regTelefone.value = "";
+        //A foto do USUARIO/PESSOA não é Obrigatória
+        if (regFoto.files.length > 0) {
+            formData.append("foto", regFoto.files[0]);
+        }
+
+        const res = await fetch(`${API_URL}/auth/register/cliente`, {
+            method: "POST",
+            /*headers: authHeaders(),
+            body: JSON.stringify({
+                nome: regNome.value.trim(),
+                email: regEmail.value.trim().toLowerCase(),
+                password: regPassword.value,
+                cpf: regCpf.value.trim(),
+                endereco: regEndereco.value.trim(),
+                telefone: regTelefone.value.trim()    
+            })*/
+            body : formData
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+            //msg de erro q vem lá do back
+            log(data.error ?? "Erro ao realizar cadastro.");
+            return;
+        }    
+        log("Cadastro realizado com sucesso!");
+
+        /*Limpa tds os campos do formulario*/
+        regNome.value = "";
+        regEmail.value = "";
+        regPassword.value = "";
+        regCpf.value = "";
+        regEndereco.value = "";
+        regTelefone.value = "";
+        regFoto.value = "";
     }catch (error){
         log("Erro de conexão com o servidor.");
         console.error(error);
@@ -249,6 +472,72 @@ async function register(btn) {
         btn.disabled = false;
     }
 }
+
+/*====== FUNCT DE RESGISTRO DE NOVO USUARIO (Tipo Empresa)======*/
+async function registerEmpresa(btn) {
+
+    if (!empEmail.value || !empPassword.value || !empLogo.files[0]) {
+        log("Preencha todos os campos obrigatórios.");
+        return;
+    }
+    /*desabilita o botão enquanto aguarda a resposta da requisição e enquanto isso  a mensagem do botão é trocado por AGUARDE*/
+    const originalText = btn.textContent;
+    btn.textContent = "Aguarde..."; 
+    btn.disabled = true;
+    try{
+        const formData = new FormData();
+
+        formData.append("nome", empNome.value);
+        formData.append("cpf", empCpf.value);
+        formData.append("telefone", empTelefone.value);
+
+        formData.append("email", empEmail.value);
+        formData.append("password", empPassword.value);
+
+        formData.append("nome_fantasia", empNomeFantasia.value);
+        formData.append("cnpj", empCnpj.value);
+        formData.append("categoria", empCategoria.value);
+        formData.append("endereco_empresa", empEndereco.value.trim());
+
+        formData.append("logo", empLogo.files[0]);
+
+        const res = await fetch(`${API_URL}/auth/register/empresa`, {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            log(data.error);
+            return;
+        }
+
+        log("Empresa cadastrada com sucesso!");
+        /*Limpa tds os campos do formulario*/
+
+        empNome.value = "";
+        empCpf.value = "";
+        empTelefone.value = "";
+        empEmail.value = "";
+        empPassword.value = "";
+        empNomeFantasia.value = "";
+        empCnpj.value = "";
+        empCategoria.value = "";
+        empEndereco.value = "";
+        empLogo.value = "";
+        showLogin();
+    } catch (error) {
+        log("Erro de conexão com o servidor.");
+        console.error(error);
+    } finally {
+        //habilita o botão novamente
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+
 
 /*====== FUNCT DE LOGIN DO USUARIO ======*/
 async function login(btn) {
@@ -409,6 +698,165 @@ async function loadProdutos() {
     if (produtoSelect.options.length > 0) {
         produtoSelect.selectedIndex = 0;
     }
+}
+
+const regFotoInput = document.getElementById("regFoto");
+const avatarPreview = document.getElementById("avatarPreview");
+
+regFotoInput.addEventListener("change", () => {
+    const file = regFotoInput.files[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+        log("Selecione apenas imagens.");
+        regFotoInput.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        avatarPreview.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+async function loadProfile() {
+    try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+            headers: authHeaders()
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            log(data.error || "Erro ao carregar perfil.");
+            return;
+        }
+
+        // ====== Dados comuns que tanto cliente quanto empresa possuem ======
+        profileNome.value = data.nome || "";
+        profileEmail.value = data.email || "";
+        profileTelefone.value = data.telefone || "";
+        profileEndereco.value = data.endereco || "";
+
+        if (data.url_foto) {
+            profileAvatar.src = `${API_URL}${data.url_foto}`;
+        } else {
+            profileAvatar.src = "default-avatar.png";
+        }
+
+        // ====== Se for empresafaz o carregamento dos dados de empresa e mantem os dados padrão ======
+        if (data.tipo_usuario === "empresa" && data.empresa) {
+
+            console.log("Perfil Empresa:", data.empresa);
+
+            //mostra a seção de empresa no front
+            empresaSection.classList.remove("hidden");
+
+            // Faz o preenchimenot de todos os campos da empresa
+            empresaNomeFantasia.value = data.empresa.nome_fantasia || "";
+            empresaCategoria.value = data.empresa.categoria || "";
+            empresaEndereco.value = data.empresa.endereco_empresa || "";
+
+            //carrega a logo da empresa
+            if (data.empresa.url_logo) {
+                empresaLogoImg.src = `${API_URL}${data.empresa.url_logo}`;
+            } else {
+                empresaLogoImg.src = "default-logo.png";
+            }
+        } else {
+            //Se o USER for cliente então enconde a seção de empresa
+            empresaSection.classList.add("hidden");
+        }
+    } catch (err) {
+        console.error(err);
+        log("Erro ao buscar dados do perfil.");
+    }
+}
+
+
+async function usarLocalizacao(tipoUser) {
+    if (!navigator.geolocation) {
+        log("Geolocalização não é suportada neste navegador.");
+        return;
+    }
+
+    log("Obtendo localização...");
+
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+                );
+
+                const data = await res.json();
+
+                if (data && data.display_name) {
+                    if (tipoUser === "cliente")
+                        regEndereco.value = data.display_name;
+                    if (tipoUser === "empresa")
+                        empEndereco.value = data.display_name;
+                        log("Endereço obtido com sucesso!");
+                } else {
+                    log("Não foi possível identificar o endereço.");
+                }
+
+            } catch (err) {
+                console.error(err);
+                log("Erro ao converter localização em endereço.");
+            }
+        },
+        (error) => {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    log("Permissão de localização negada.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    log("Localização indisponível.");
+                    break;
+                case error.TIMEOUT:
+                    log("Tempo esgotado ao obter localização.");
+                    break;
+                default:
+                    log("Erro ao obter localização.");
+            }
+        }
+    );
+}
+
+async function updateProfile() {
+
+    const formData = new FormData();
+
+    formData.append("nome", profileNome.value);
+    formData.append("telefone", profileTelefone.value);
+    formData.append("endereco", profileEndereco.value);
+
+    if (newFoto.files[0]) {
+        formData.append("foto", newFoto.files[0]);
+    }
+
+    const res = await fetch(`${API_URL}/auth/me`, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: formData
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        log(data.error);
+        return;
+    }
+
+    log("Perfil atualizado!");
 }
 
 

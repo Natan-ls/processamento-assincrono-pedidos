@@ -21,7 +21,7 @@ class User(db.Model):
     
     ## Relacionamento da tabela c/ o PESSOA e PEDIDO permitindo assim acessar os dados da outra tabela
     pessoa = db.relationship("Pessoa",back_populates="usuario")    
-    pedidos = db.relationship("Order", backref="usuario", lazy=True)
+    #pedidos = db.relationship("Order", backref="usuario", lazy=True)
 
     ## Functs SENHA
 
