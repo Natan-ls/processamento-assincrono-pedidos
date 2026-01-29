@@ -2,8 +2,9 @@
 
 USUARIO_CRIADO = "usuario-criado"
 
-PEDIDO_CRIADO = "pedido-criado"
-PEDIDO_VALIDADO = "pedido-validado"
-PEDIDO_FINALIZADO = "pedido-finalizado"
+PEDIDO_CRIADO = "pedido-criado"         # status = aguardando confirmação
+PEDIDO_STATUS = "pedido-status"         # status = (confirmado, rejeitado, cancelado)
 
-PAGAMENTO_EVENTO = "pagamento-evento"
+PAGAMENTO_EVENTO = "pagamento-evento"   # status = (sucesso, falha)
+
+PEDIDO_FINALIZADO = "pedido-finalizado"

@@ -129,8 +129,8 @@ VALUES (1, 'joao@gmail.com', 'teste', 'Colaborador'),
 (2, 'marcospizza@gmail.com', 'teste', 'Colaborador');
 
 INSERT INTO estabelecimento (pessoa_id, nome_fantasia, cnpj, categoria, endereco)
-VALUES (1, 'Pizzaria do João', '12345678000190', 'Alimentação', 'Rua Central, 100'),
-(2, 'Pizzaria do Marcos', '17345677000290', 'Alimentação', 'Rua João, 55');
+VALUES (1, 'Pizzaria do João', '12345678000190', 'FAST_FOOD', 'Rua Central, 100'),
+(2, 'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD', 'Rua João, 55');
 
 INSERT INTO produto (estabelecimento_id, nome_item, preco_unidade, quantidade_estoque)
 VALUES
