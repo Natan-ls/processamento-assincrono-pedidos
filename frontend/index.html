@@ -739,8 +739,8 @@ async function loadProfile() {
         profileEmail.value = data.email || "";
         profileTelefone.value = data.telefone || "";
         profileEndereco.value = data.endereco || "";
-
-        if (data.url_foto) {
+        console.log("Empresa", data)
+        if (data.url_logo) {
             profileAvatar.src = `${API_URL}${data.url_foto}`;
         } else {
             profileAvatar.src = "default-avatar.png";
