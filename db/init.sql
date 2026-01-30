@@ -1,10 +1,26 @@
+CREATE TABLE endereco (
+    id SERIAL PRIMARY KEY,
+    estado VARCHAR(2) NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    bairro VARCHAR(100),
+    rua VARCHAR(255),
+    numero VARCHAR(20),
+    complemento VARCHAR(255),
+    cep VARCHAR(10)
+);
+
 CREATE TABLE pessoa (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     cpf VARCHAR(14) UNIQUE,
-    endereco TEXT,
+    endereco_id INTEGER NOT NULL,
     telefone VARCHAR(20),
-    url_foto_perfil TEXT
+    url_foto_perfil TEXT,
+
+    CONSTRAINT fk_pessoa_endereco
+        FOREIGN KEY (endereco_id)
+        REFERENCES endereco(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE usuario (
@@ -26,7 +42,7 @@ CREATE TABLE estabelecimento (
     nome_fantasia VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) UNIQUE NOT NULL,
     categoria VARCHAR(100),
-    endereco TEXT,
+    endereco_id INTEGER NOT NULL,
     url_logo TEXT, 
     url_banner TEXT,
     pessoa_id INTEGER NOT NULL,
@@ -34,7 +50,26 @@ CREATE TABLE estabelecimento (
     CONSTRAINT fk_pessoa_estabelecimento
         FOREIGN KEY (pessoa_id)
         REFERENCES pessoa(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_endereco_estabelecimento
+        FOREIGN KEY (endereco_id)
+        REFERENCES endereco(id)
         ON DELETE CASCADE
+);
+
+CREATE TABLE horario_funcionamento ( 
+    id SERIAL PRIMARY KEY, 
+    estabelecimento_id INTEGER NOT NULL, 
+    dia_semana INTEGER NOT NULL CHECK (dia_semana BETWEEN 0 AND 6),
+    ativo BOOLEAN, 
+    hora_inicio TIME NOT NULL, 
+    hora_fim TIME NOT NULL, 
+    
+    CONSTRAINT fk_horario_estabelecimento 
+        FOREIGN KEY (estabelecimento_id) 
+        REFERENCES estabelecimento(id) 
+        ON DELETE CASCADE 
 );
 
 CREATE TABLE produto (
@@ -116,26 +151,44 @@ CREATE TABLE pagamento (
 );
 
 
-
-
-
 ------ INSERT INTOS p/ TESTEs ------------------
-INSERT INTO pessoa(nome, cpf, endereco, telefone)
-VALUES ('João', '97242721091', 'Avenida João', '(38)12344321'),
-('Marcos', '36636846011', 'Avenida Marcos', '(38)45677654');
+INSERT INTO endereco(estado, cidade, rua, numero, cep) VALUES
+    ('MG', 'Januária', 'Avenida João', '456', '39480000'),
+    ('MG', 'Januária', 'Avenida Marcos','1442', '39480000'),
+    ('MG', 'Januária', 'Rua Central', '548', '39480000'),
+    ('MG', 'Januária', 'Cônego Ramiro', '5414', '39480000');
 
-INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario)
-VALUES (1, 'joao@gmail.com', 'teste', 'Colaborador'),
-(2, 'marcospizza@gmail.com', 'teste', 'Colaborador');
+INSERT INTO pessoa(endereco_id, nome, cpf, telefone) VALUES 
+    (1, 'João', '97242721091', '(38)12344321'),
+    (2, 'Marcos', '36636846011', '(38)45677654');
 
-INSERT INTO estabelecimento (pessoa_id, nome_fantasia, cnpj, categoria, endereco)
-VALUES (1, 'Pizzaria do João', '12345678000190', 'FAST_FOOD', 'Rua Central, 100'),
-(2, 'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD', 'Rua João, 55');
+INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario) VALUES 
+    (1, 'joao@gmail.com', 'teste', 'Colaborador'),
+    (2, 'marcospizza@gmail.com', 'teste', 'Colaborador');
 
-INSERT INTO produto (estabelecimento_id, nome_item, preco_unidade, quantidade_estoque)
-VALUES
-(1, 'Pizza Calabresa', 45.00, 50),
-(1, 'Pizza Marguerita', 42.00, 40),
-(2, 'Pizza Marguerita', 35.12, 60),
-(1, 'Coca-Cola 2L', 13.00, 100),
-(2, 'Coca-Cola 2L', 12.00, 100);
+INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria) VALUES 
+    (1, 3, 'Pizzaria do João', '12345678000190', 'FAST_FOOD'),
+    (2, 4,'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD');
+
+INSERT INTO produto (estabelecimento_id, nome_item, preco_unidade, quantidade_estoque) VALUES
+    (1, 'Pizza Calabresa', 45.00, 50),
+    (1, 'Pizza Marguerita', 42.00, 40),
+    (2, 'Pizza Marguerita', 35.12, 60),
+    (1, 'Coca-Cola 2L', 13.00, 100),
+    (2, 'Coca-Cola 2L', 12.00, 100);
+
+INSERT INTO horario_funcionamento (estabelecimento_id, dia_semana, ativo, hora_inicio, hora_fim) VALUES
+    (1, 0, TRUE, '18:00', '23:00'), -- Domingo
+    (1, 1, TRUE, '18:00', '23:00'), -- Segunda
+    (1, 2, TRUE, '18:00', '23:00'), -- Terça
+    (1, 3, TRUE, '18:00', '23:00'), -- Quarta
+    (1, 4, TRUE, '18:00', '23:00'), -- Quinta
+    (1, 5, TRUE, '18:00', '00:00'), -- Sexta
+    (1, 6, TRUE, '18:00', '00:00'), -- Sábado
+    (2, 0, TRUE, '17:30', '22:30'),
+    (2, 1, TRUE, '17:30', '22:30'),
+    (2, 2, TRUE, '17:30', '22:30'),
+    (2, 3, TRUE, '17:30', '22:30'),
+    (2, 4, TRUE, '17:30', '22:30'),
+    (2, 5, TRUE, '17:30', '22:30'),
+    (2, 6, TRUE, '17:30', '22:30');

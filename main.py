@@ -11,6 +11,8 @@ from api.models.user import User
 from api.models.estabelecimento import Estabelecimento
 from api.models.produto import Product
 from api.models.order import Order, OrderItem
+from api.models.endereco import Endereco
+from api.models.horarioFuncionamento import HorarioFuncionamento
 
 
 
