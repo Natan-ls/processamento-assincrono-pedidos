@@ -43,4 +43,42 @@ def list_produtos(estabelecimento_id):
         for p in estabelecimento.produtos
     ])
 
+#Rota para teste
+@estabelecimentos_bp.route('/<int:estabelecimento_id>', methods=["GET"])
+def listEstabelecimento(estabelecimento_id):
+    estabelecimento = Estabelecimento.query.get(estabelecimento_id)
 
+    if not estabelecimento:
+        return jsonify({"error": "Estabelecimento não encontrado"}), 404
+    
+    print(estabelecimento, flush=True)
+
+    return jsonify({
+            "id": estabelecimento.id,
+            "nome_fantasia": estabelecimento.nome_fantasia,
+            "categoria": estabelecimento.categoria.value,
+            "proprietario": {
+                "nome": estabelecimento.pessoa.nome,
+                "cpf": estabelecimento.pessoa.cpf,
+                "telefone": estabelecimento.pessoa.telefone
+            },
+            "endereco": {
+                "cidade": estabelecimento.endereco.cidade,
+                "estado": estabelecimento.endereco.estado,
+                "rua": estabelecimento.endereco.rua,
+                "bairro": estabelecimento.endereco.bairro,
+                "numero": estabelecimento.endereco.numero,
+                "complemento": estabelecimento.endereco.complemento,
+                "cep": estabelecimento.endereco.cep
+            },
+            "horarios": [
+                {
+                    "dia_semana": h.dia_semana,
+                    "hora_inicio": h.hora_inicio.isoformat(),
+                    "hora_fim": h.hora_fim.isoformat(),
+                    "ativo": h.ativo
+                }
+                for h in estabelecimento.horarios
+            ]
+        }
+    )

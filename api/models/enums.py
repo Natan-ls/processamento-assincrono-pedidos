@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 # ======= ENUM Do STATUS DO PEDIDO ======= 
 class OrderStatus(str, Enum):
@@ -19,3 +19,12 @@ class CategoriaEstabelecimento(str, Enum):
     MERCADO = "MERCADO"
     FAST_FOOD = "FAST_FOOD"
     BARZINHO = "BARZINHO"
+
+class DiaSemana(IntEnum):
+    DOMINGO = 0
+    SEGUNDA = 1
+    TERCA = 2
+    QUARTA = 3
+    QUINTA = 4
+    SEXTA = 5
+    SABADO = 6
