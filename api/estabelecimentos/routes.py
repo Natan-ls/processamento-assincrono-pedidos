@@ -62,15 +62,7 @@ def listEstabelecimento(estabelecimento_id):
                 "cpf": estabelecimento.pessoa.cpf,
                 "telefone": estabelecimento.pessoa.telefone
             },
-            "endereco": {
-                "cidade": estabelecimento.endereco.cidade,
-                "estado": estabelecimento.endereco.estado,
-                "rua": estabelecimento.endereco.rua,
-                "bairro": estabelecimento.endereco.bairro,
-                "numero": estabelecimento.endereco.numero,
-                "complemento": estabelecimento.endereco.complemento,
-                "cep": estabelecimento.endereco.cep
-            },
+            "endereco": estabelecimento.to_dict(),
             "horarios": [
                 {
                     "dia_semana": h.dia_semana,
