@@ -14,3 +14,15 @@ class Endereco(db.Model):
 
     pessoas = db.relationship("Pessoa", back_populates="endereco")
     estabelecimentos = db.relationship("Estabelecimento", back_populates="endereco")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'estado': self.estado,
+            'cidade': self.cidade,
+            'bairro': self.bairro,
+            'rua': self.rua,
+            'numero': self.numero,
+            'complemento': self.complemento,
+            'cep': self.cep
+        }

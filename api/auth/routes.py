@@ -285,7 +285,7 @@ def me():
         "nome": pessoa.nome,
         "email": user.email,
         "telefone": pessoa.telefone,
-        "endereco": pessoa.endereco,
+        'endereco_residencial': pessoa.endereco.to_dict(),
         "url_foto": pessoa.url_foto_perfil
     }
 
@@ -303,7 +303,7 @@ def me():
             "nome_fantasia": estabelecimento.nome_fantasia,
             "cnpj": estabelecimento.cnpj,
             "categoria": estabelecimento.categoria,
-            "endereco_empresa": estabelecimento.endereco,
+            "endereco_empresa": estabelecimento.endereco.to_dict(),
             "url_logo": estabelecimento.url_logo,
             "url_banner": estabelecimento.url_banner
         }
@@ -398,3 +398,17 @@ def update_me():
             "details": str(e)
         }), 500
 
+@auth_bp.route('/atualizar-senha', methods=['GET'])
+def atualizarSenha():
+
+    usuarioEmpresa = []
+    for id in range(1,3):
+        usuario = User.query.get(id)
+
+        if usuario:
+            #usuario.password_hash = "teste"
+            usuario.set_password("teste")
+            db.session.commit()
+            usuarioEmpresa.append({'nome':usuario.email, 'password':usuario.password_hash})
+
+    return jsonify(usuarioEmpresa),200
