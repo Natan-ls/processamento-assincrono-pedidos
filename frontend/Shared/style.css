@@ -1,0 +1,432 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.main-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    height: 85vh;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.logo-section {
+    flex: 0 0 40%;
+    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.logo-placeholder {
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    border: 3px solid rgba(255,255,255,0.2);
+}
+
+.logo-placeholder::before {
+    content: "LOGO";
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+.logo-section h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.logo-section p {
+    font-size: 16px;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.form-section {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    max-height: 85vh;
+}
+
+.card {
+    background: transparent;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+    font-size: 28px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+input, select {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 5px;
+    border: 2px solid #e1e5eb;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #1e88e5;
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(30, 136, 229, 0.3);
+}
+
+button.secondary {
+    background: #f5f5f5;
+    color: #333;
+    border: 2px solid #e1e5eb;
+}
+
+button.secondary:hover {
+    background: #e9e9e9;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.link {
+    text-align: center;
+    margin-top: 20px;
+    color: #1e88e5;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.link:hover {
+    color: #0d47a1;
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
+}
+
+pre {
+    background: #f8f9fa;
+    padding: 15px;
+    margin-top: 20px;
+    max-height: 200px;
+    overflow: auto;
+    font-size: 12px;
+    border-radius: 10px;
+    border: 1px solid #e1e5eb;
+}
+
+.avatar-upload {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+    align-items: center;
+    flex-direction: column;
+}
+
+.avatar-upload label {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+}
+
+.avatar-upload img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #1e88e5;
+    background: #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.avatar-upload label:hover img {
+    border-color: #0d47a1;
+    transform: scale(1.05);
+}
+
+.avatar-edit {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #1e88e5;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.avatar-upload label:hover .avatar-edit {
+    background: #0d47a1;
+    transform: scale(1.1);
+}
+
+.endereco-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #1e88e5;
+}
+
+.endereco-container h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+}
+
+.endereco-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.endereco-grid input, .endereco-grid select {
+    margin-bottom: 0;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+.btn-localizacao {
+    width: auto !important;
+    padding: 10px 20px !important;
+    font-size: 14px;
+    background: #43a047;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-localizacao:hover {
+    background: #388e3c;
+    transform: translateY(-2px);
+}
+
+.btn-localizacao::before {
+    content: "📍";
+    margin-right: 8px;
+}
+
+hr {
+    border: none;
+    border-top: 2px solid #e1e5eb;
+    margin: 30px 0;
+}
+
+#empresaSection {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    border-left: 4px solid #1e88e5;
+}
+
+#empresaSection h3 {
+    color: #1e88e5;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.form-actions button {
+    flex: 1;
+}
+
+#editProfileBtn, #saveProfileBtn, #cancelEditBtn {
+    width: auto !important;
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 15px;
+}
+
+#editProfileBtn {
+    background: #43a047;
+}
+
+#saveProfileBtn {
+    background: #1e88e5;
+}
+
+#cancelEditBtn {
+    background: #f44336;
+}
+
+.editable {
+    background: #fff !important;
+    cursor: text !important;
+    border: 1px solid #1e88e5 !important;
+}
+
+.editable:focus {
+    outline: 2px solid #1e88e5;
+}
+
+/* Estilo para selects */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Animações suaves */
+.card > div {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar personalizada */
+.form-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.form-section::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.form-section::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Estilos para telas menores */
+@media (max-width: 992px) {
+    .main-container {
+        flex-direction: column;
+        height: auto;
+        max-height: 90vh;
+    }
+    
+    .logo-section {
+        flex: none;
+        padding: 30px 20px;
+    }
+    
+    .logo-placeholder {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .logo-section h1 {
+        font-size: 24px;
+    }
+    
+    .form-section {
+        padding: 30px 20px;
+        max-height: 60vh;
+    }
+    
+    .endereco-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .full-width {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        padding: 10px;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .main-container {
+        border-radius: 15px;
+        height: auto;
+    }
+    
+    .form-section {
+        max-height: none;
+        overflow-y: visible;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}

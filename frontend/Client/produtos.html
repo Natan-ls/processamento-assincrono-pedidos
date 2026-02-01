@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Produtos - FoodJanu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="../Shared/style.css">
+    
+    <!-- CSS Cliente -->
+    <link rel="stylesheet" href="./cliente.css">
+    
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+</head>
+
+<body class="cliente-page">
+
+<div class="cliente-container">
+
+    <!-- TOPO -->
+    <header class="topo">
+        <!-- LOGO -->
+        <a href="home.html" class="logo">
+            <div class="logo-img">🍽️</div>
+            <span>FoodJanu</span>
+        </a>
+
+        <!-- PERFIL -->
+        <div class="perfil-area">
+            <div class="perfil-icon" id="perfilIcon">
+                👤
+            </div>
+            <!-- MENU FLUTUANTE -->
+            <div id="menuPerfil" class="menu-perfil hidden">
+                <button class="menu-item" id="btnPerfil">
+                    <span class="menu-icon">👤</span>
+                    <span>Perfil</span>
+                </button>
+                <button class="menu-item" id="btnPagamento">
+                    <span class="menu-icon">💳</span>
+                    <span>Pagamento</span>
+                </button>
+                <button class="menu-item" id="btnPedidos">
+                    <span class="menu-icon">📦</span>
+                    <span>Pedidos</span>
+                </button>
+                <button class="menu-item" id="btnLogout">
+                    <span class="menu-icon">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- PRODUTOS -->
+    <section class="section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h2 id="tituloProdutos">🛒 Produtos</h2>
+                <p id="infoEstabelecimento" style="color: #6c757d; font-size: 14px; margin-top: 5px;"></p>
+            </div>
+            <button id="btnVoltar" class="btn-voltar">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+
+        <!-- LISTA DE PRODUTOS (VERTICAL) -->
+        <div id="listaProdutos" class="lista-produtos">
+            <!-- Produtos serão carregados aqui -->
+            <div class="carregando">
+                <i class="fas fa-spinner fa-spin"></i> Carregando produtos...
+            </div>
+        </div>
+
+        <!-- MODAL DE DETALHES DO PRODUTO -->
+        <div id="modalProduto" class="modal hidden">
+            <div class="modal-conteudo">
+                <div class="modal-header">
+                    <h3 id="modalTitulo">Detalhes do Produto</h3>
+                    <button class="fechar-modal" id="fecharModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="produto-detalhes">
+                        <div id="modalImagem" class="produto-imagem-grande"></div>
+                        <div class="produto-info">
+                            <h4 id="modalNome">Nome do Produto</h4>
+                            <div class="preco-detalhe" id="modalPreco">R$ 0.00</div>
+                            <div class="estoque-detalhe" id="modalEstoque"></div>
+                            <div class="descricao-detalhe" id="modalDescricao">Descrição do produto...</div>
+                            
+                            <div class="form-adicionar">
+                                <div class="form-group">
+                                    <label for="observacaoInput">Observação (opcional):</label>
+                                    <textarea 
+                                        id="observacaoInput" 
+                                        placeholder="Ex: Sem cebola, mais queijo, ponto da carne..."
+                                        rows="3"
+                                    ></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="quantidadeModal">Quantidade:</label>
+                                    <div class="quantidade-controle">
+                                        <button class="btn-quantidade" id="diminuirQtde">-</button>
+                                        <input 
+                                            type="number" 
+                                            id="quantidadeModal" 
+                                            value="1" 
+                                            min="1" 
+                                            max="20"
+                                        >
+                                        <button class="btn-quantidade" id="aumentarQtde">+</button>
+                                    </div>
+                                </div>
+                                
+                                <button id="btnAdicionarModal" class="btn-adicionar-carrinho">
+                                    <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ENDEREÇO DE ENTREGA -->
+        <div id="modalEndereco" class="modal hidden">
+            <div class="modal-conteudo" style="max-width: 500px;">
+
+                <div class="modal-header">
+                <h3>📍 Endereço de Entrega</h3>
+                <button class="fechar-modal" id="fecharModalEndereco">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                <p style="margin-bottom: 10px; color: #555;">
+                    Informe o endereço completo para entrega:
+                </p>
+
+                <!-- ✅ NOVO BOTÃO -->
+                <button
+                    id="btnUsarEnderecoCadastrado"
+                    class="btn-voltar"
+                    style="width: 100%; margin-bottom: 10px;"
+                >
+                    📪 Usar endereço cadastrado
+                </button>
+
+                <textarea
+                    id="enderecoEntregaInput"
+                    placeholder="Ex: Rua A, Nº 123, Bairro Centro..."
+                    rows="3"
+                    style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd;"
+                ></textarea>
+
+                <button
+                    id="btnConfirmarEndereco"
+                    class="btn-finalizar"
+                    style="margin-top: 15px; width: 100%;"
+                >
+                    Confirmar Endereço
+                </button>
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- MODAL p/ Avisos, Confirmações, Sucesso , FAlha -->
+        <div id="modalMensagem" class="modal hidden">
+            <div class="modal-conteudo" style="max-width: 480px;">
+
+                <div class="modal-header">
+                <h3 id="modalMensagemTitulo">Mensagem</h3>
+                <button class="fechar-modal" id="fecharModalMensagem">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                <p id="modalMensagemTexto" style="margin-bottom: 20px; color: #444;"></p>
+
+                <div style="display: flex; gap: 10px;">
+                    <button id="btnCancelarMensagem" class="btn-voltar" style="flex: 1;">
+                    Cancelar
+                    </button>
+
+                    <button id="btnConfirmarMensagem" class="btn-finalizar" style="flex: 1;">
+                    Confirmar
+                    </button>
+                </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <!-- CARRINHO -->
+        <div id="carrinhoSection" class="carrinho-fixo">
+            <div class="carrinho-header">
+                <h3><i class="fas fa-shopping-cart"></i> Seu Carrinho</h3>
+                <div class="carrinho-contador" id="contadorCarrinho">0</div>
+            </div>
+            
+            <div id="carrinhoItens" class="carrinho-itens">
+                <div class="carrinho-vazio">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Seu carrinho está vazio</p>
+                </div>
+            </div>
+            
+            <div id="totalCarrinho" class="carrinho-total hidden">
+                <div class="total-linha">
+                    <span>Subtotal:</span>
+                    <span>R$ <span id="subtotalValor">0.00</span></span>
+                </div>
+                <div class="total-linha">
+                    <span>Taxa de entrega:</span>
+                    <span>R$ <span id="taxaEntrega">5.00</span></span>
+                </div>
+                <div class="total-linha total">
+                    <strong>Total:</strong>
+                    <strong>R$ <span id="totalValor">0.00</span></strong>
+                </div>
+                
+                <button id="btnFinalizarPedido" class="btn-finalizar">
+                    <i class="fas fa-check-circle"></i> Finalizar Pedido
+                </button>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- RODAPÉ da PAGE -->
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
+</footer>
+
+<!-- CODIGO JS -->
+<script type="module" src="/frontend/Shared/produtos.js"></script>
+<script type="module" src="/frontend/Shared/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>FoodJanu - Cliente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="../Shared/style.css">
+    
+    <!-- CSS Cliente -->
+    <link rel="stylesheet" href="./cliente.css">
+</head>
+
+<body class="cliente-page">
+
+<div class="cliente-container">
+
+    <!-- TOPO -->
+    <header class="topo">
+
+        <!-- LOGO -->
+        <a href="home.html" class="logo">
+            <div class="logo-img">🍽️</div>
+            <span>FoodJanu</span>
+        </a>
+
+        <!-- CATEGORIAS -->
+        <nav class="categorias">
+            <button class="cat-btn active" data-categoria="">🏠 Todos</button>
+            <button class="cat-btn" data-categoria="RESTAURANTE">👨🏽‍🍳 Restaurante</button>
+            <button class="cat-btn" data-categoria="FAST_FOOD">🍔 Fast Food</button>
+            <button class="cat-btn" data-categoria="MERCADO">🛒 Mercado</button>
+            <button class="cat-btn" data-categoria="FARMACIA">💊 Farmácia</button>
+        </nav>
+
+        <!-- BUSCA -->
+        <div class="busca">
+            <input type="text" id="buscaInput" placeholder="Buscar loja ou produto...">
+        </div>
+
+        <!-- PERFIL -->
+        <div class="perfil-area">
+            <div class="perfil-icon" id="perfilIcon">👤</div>
+            <!-- MENU FLUTUANTE -->
+            <div id="menuPerfil" class="menu-perfil hidden">
+                <!-- IMPORTANTE: TEM COMO opção REMOVER tds os onclick, e controlar via JS -->
+                <button class="menu-item" id="btnPerfil">
+                    <span class="menu-icon">👤</span>
+                    <span>Perfil</span>
+                </button>
+                <button class="menu-item" id="btnPagamento">
+                    <span class="menu-icon">💳</span>
+                    <span>Pagamento</span>
+                </button>
+                <button class="menu-item" id="btnPedidos">
+                    <span class="menu-icon">📝</span>
+                    <span>Pedidos</span>
+                </button>
+                <button class="menu-item" id="btnLogout">
+                    <span class="menu-icon"><!--COLCOAR ALGUM ICONE OU EMOJI Q REPRESENTE SAIR-->></span>
+                    <span>Sair</span>
+                </button>
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- ESTABELECIMENTOS -->
+    <section class="section">
+        <h2>📍 Estabelecimentos Próximos</h2>
+        <p>Escolha onde deseja fazer seu pedido:</p>
+
+        <div id="listaEstabelecimentos" class="grid-estabelecimentos">
+            <!-- JS faz o Carregamento -->
+            <div class="carregando">
+                Carregando estabelecimentos...
+            </div>
+        </div>
+    </section>
+
+    <!-- OUTPUT PARA LOGS DPS PODEMOS TIRAR e COLCOAR UM MODAL p/ AS MENSAGENS por ex(cadastro c sucesso, erro ao ciar algo e tals) -->
+    <section class="section">
+        <pre id="output" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e1e5eb; font-size: 13px; max-height: 150px; overflow-y: auto;"></pre>
+    </section>
+
+</div>
+
+<!-- RODAPÉ da PAGE -->
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
+</footer>
+
+<!-- CÓDIFO JS -->
+<script type="module" src="./clientHome.js"></script>
+</body>
+</html>

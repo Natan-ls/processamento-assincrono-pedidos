@@ -6,6 +6,7 @@ from config import Config
 from api.auth.routes import auth_bp
 from api.orders.routes import orders_bp
 from api.estabelecimentos.routes import estabelecimentos_bp
+from api.pagamento.routes import pagamento_bp
 
 from api.models.user import User
 from api.models.estabelecimento import Estabelecimento
@@ -13,7 +14,6 @@ from api.models.produto import Product
 from api.models.order import Order, OrderItem
 from api.models.endereco import Endereco
 from api.models.horarioFuncionamento import HorarioFuncionamento
-
 
 
 def create_app():
@@ -33,6 +33,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(estabelecimentos_bp)  
+    app.register_blueprint(pagamento_bp)
 
 
     @app.route("/health")

@@ -1,6 +1,7 @@
 from extensions import db
 from datetime import datetime
 from .enums import OrderStatus
+from datetime import datetime, timezone
 
 
 # ======= MODEL DO PEDIDO ======= 
@@ -15,6 +16,7 @@ class Order(db.Model):
     estabelecimento_id = db.Column(db.Integer,db.ForeignKey("estabelecimento.id"),nullable=False)    
     status = db.Column(db.String(50),nullable=False,default=OrderStatus.CRIADO.value)
     valor_total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    endereco_entrega = db.Column(db.String(255), nullable=True)#endereço de entrega do pedido    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime,default=datetime.utcnow,onupdate=datetime.utcnow)
 
@@ -31,7 +33,8 @@ class Order(db.Model):
             "estabelecimento_id": self.estabelecimento_id,
             "status": self.status,
             "valor_total": float(self.valor_total),
-            "created_at": self.created_at.isoformat(),
+            "endereco_entrega": self.endereco_entrega,  #end de entrega do pedido            
+            "created_at": self.created_at.isoformat() + 'Z', #add o Z p indicar q é UTC
             "items": [item.to_dict() for item in self.items]
         }
 
@@ -54,6 +57,8 @@ class OrderItem(db.Model):
     def to_dict(self):
         return {
             "produto_id": self.produto_id,
+            "nome": self.produto.nome_item if self.produto else "Produto não encontrado",
             "quantidade": self.quantidade,
-            "preco_unitario": float(self.preco_unitario)
+            "preco_unitario": float(self.preco_unitario),
+            "subtotal": float(self.quantidade * self.preco_unitario)
         }

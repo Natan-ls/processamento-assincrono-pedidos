@@ -7,59 +7,158 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
             margin: 0;
             height: 100vh;
-            background: #1e88e5;
+            background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            height: 85vh;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .logo-section {
+            flex: 0 0 40%;
+            background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo-placeholder {
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .logo-placeholder::before {
+            content: "LOGO";
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo-section h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .logo-section p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .form-section {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            max-height: 85vh;
         }
 
         .card {
-            background: #fff;
-            width: 360px;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: transparent;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0;
         }
 
         h2 {
             text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 28px;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 14px 16px;
+            margin-bottom: 5px;
+            border: 2px solid #e1e5eb;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            background: #1e88e5;
+            padding: 15px;
+            background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
             color: white;
             border: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
         }
 
         button:hover {
-            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.3);
+        }
+
+        button.secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e1e5eb;
+        }
+
+        button.secondary:hover {
+            background: #e9e9e9;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .link {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 20px;
             color: #1e88e5;
             cursor: pointer;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .link:hover {
+            color: #0d47a1;
+            text-decoration: underline;
         }
 
         .hidden {
@@ -67,17 +166,20 @@
         }
 
         pre {
-            background: #f5f5f5;
-            padding: 10px;
-            margin-top: 15px;
-            max-height: 150px;
+            background: #f8f9fa;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
             overflow: auto;
             font-size: 12px;
+            border-radius: 10px;
+            border: 1px solid #e1e5eb;
         }
+
         .avatar-upload {
             display: flex;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             align-items: center;
             flex-direction: column;
         }
@@ -94,8 +196,14 @@
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #1e88e5;
+            border: 4px solid #1e88e5;
             background: #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-upload label:hover img {
+            border-color: #0d47a1;
+            transform: scale(1.05);
         }
 
         .avatar-edit {
@@ -104,195 +212,528 @@
             right: 0;
             background: #1e88e5;
             color: white;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
             font-weight: bold;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
         }
-        #profileBox input {
-            background: #f5f5f5;
-            cursor: not-allowed;
+
+        .avatar-upload label:hover .avatar-edit {
+            background: #0d47a1;
+            transform: scale(1.1);
         }
-        .endereco-box {
-            margin-bottom: 12px;
+
+        .endereco-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1e88e5;
+        }
+
+        .endereco-container h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .endereco-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .endereco-grid input, .endereco-grid select {
+            margin-bottom: 0;
+        }
+
+        .full-width {
+            grid-column: span 2;
         }
 
         .btn-localizacao {
             width: auto !important;
-            padding: 6px 12px;
-            font-size: 13px;
+            padding: 10px 20px !important;
+            font-size: 14px;
             background: #43a047;
-            border-radius: 6px;
-            margin-top: -5px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-localizacao:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .btn-localizacao::before {
+            content: "📍";
+            margin-right: 8px;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid #e1e5eb;
+            margin: 30px 0;
+        }
+
+        #empresaSection {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #1e88e5;
+        }
+
+        #empresaSection h3 {
+            color: #1e88e5;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        /* Estilos para telas menores */
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                max-height: 90vh;
+            }
+            
+            .logo-section {
+                flex: none;
+                padding: 30px 20px;
+            }
+            
+            .logo-placeholder {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo-section h1 {
+                font-size: 24px;
+            }
+            
+            .form-section {
+                padding: 30px 20px;
+                max-height: 60vh;
+            }
+            
+            .endereco-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .full-width {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .main-container {
+                border-radius: 15px;
+                height: auto;
+            }
+            
+            .form-section {
+                max-height: none;
+                overflow-y: visible;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Estilo para selects */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* Animações suaves */
+        .card > div {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar personalizada */
+        .form-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .form-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .form-section::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .form-section::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        /* Adicione ao seu CSS existente */
+        #editProfileBtn, #saveProfileBtn, #cancelEditBtn {
+            width: auto !important;
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+        }
+
+        #editProfileBtn {
+            background: #43a047;
+        }
+
+        #saveProfileBtn {
+            background: #1e88e5;
+        }
+
+        #cancelEditBtn {
+            background: #f44336;
+        }
+
+        /* Estilo para campos editáveis */
+        .editable {
+            background: #fff !important;
+            cursor: text !important;
+            border: 1px solid #1e88e5 !important;
+        }
+
+        .editable:focus {
+            outline: 2px solid #1e88e5;
         }
     </style>
 </head>
 
 <body>
-
-<div class="card">
-    <!-- LOGIN -->
-    <div id="loginBox">
-        <h2>Login</h2>
-        <input id="loginEmail" type="email" placeholder="Email">
-        <input id="loginPassword" type="password" placeholder="Senha">
-        <button onclick="login(this)">Entrar</button>
-        <div class="link" onclick="showRegister()">Criar uma conta</div>
-    </div>
-
-    <!-- ESCOLHA DO TIPO DE RESGITRO (Cliente ou Emnpresa)-->
-    <div id="registerTypeBox" class="hidden">
-        <h2>Tipo de Conta</h2>
-
-        <button onclick="showRegisterCliente()">
-            Criar conta Cliente
-        </button>
-
-        <button onclick="showRegisterEmpresa()">
-            Criar conta Empresa
-        </button>
-
-        <div class="link" onclick="showLogin()">Voltar</div>
-    </div>
-
-
-    <!-- REGISTRO CLIENTE -->
-    <div id="registerClienteBox" class="hidden">
-        <h2>Registro</h2>
-        <div class="avatar-upload">
-            <label for="regFoto">
-                <img
-                    id="avatarPreview"
-                    src="https://via.placeholder.com/120"
-                    alt="Foto de perfil"
-                >
-                <span class="avatar-edit">+</span>
-            </label>
-            <input
-                id="regFoto"
-                type="file"
-                accept="image/*"
-                hidden
-            >
+    <div class="main-container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-placeholder"></div>
+            <h1>Nosso Sistema</h1>
+            <p>Faça login para acessar todas as funcionalidades do sistema. Crie sua conta como cliente ou empresa e comece a usar agora mesmo!</p>
         </div>
 
-        <input id="regNome" placeholder="Nome completo">
-        <input id="regEmail" type="email" placeholder="Email">
-        <input id="regPassword" type="password" placeholder="Senha">
-        <input id="regCpf"  placeholder="CPF">
-        <div class="endereco-box">
-            <input id="regEndereco" placeholder="Endereço">
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="card">
+                <!-- LOGIN -->
+                <div id="loginBox">
+                    <h2>Login</h2>
+                    <div class="form-group">
+                        <input id="loginEmail" type="email" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input id="loginPassword" type="password" placeholder="Senha">
+                    </div>
+                    <button onclick="login(this)">Entrar</button>
+                    <div class="link" onclick="showRegister()">Criar uma conta</div>
+                </div>
 
-            <button
-                type="button"
-                class="btn-localizacao"
-                onclick="usarLocalizacao('cliente')"
-            >
-                Usar localização atual
-            </button>
+                <!-- ESCOLHA DO TIPO DE REGISTRO -->
+                <div id="registerTypeBox" class="hidden">
+                    <h2>Tipo de Conta</h2>
+                    <button onclick="showRegisterCliente()" style="margin-bottom: 15px;">
+                        Criar conta Cliente
+                    </button>
+                    <button onclick="showRegisterEmpresa()" class="secondary">
+                        Criar conta Empresa
+                    </button>
+                    <div class="link" onclick="showLogin()">Voltar</div>
+                </div>
+
+                <!-- REGISTRO CLIENTE -->
+                <div id="registerClienteBox" class="hidden">
+                    <h2>Registro</h2>
+                    <div class="avatar-upload">
+                        <label for="regFoto">
+                            <img
+                                id="avatarPreview"
+                                src="https://via.placeholder.com/120"
+                                alt="Foto de perfil"
+                            >
+                            <span class="avatar-edit">+</span>
+                        </label>
+                        <input
+                            id="regFoto"
+                            type="file"
+                            accept="image/*"
+                            hidden
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <input id="regNome" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <input id="regEmail" type="email" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input id="regPassword" type="password" placeholder="Senha">
+                    </div>
+                    <div class="form-group">
+                        <input id="regCpf" placeholder="CPF">
+                    </div>
+
+                    <!-- Endereço do Cliente -->
+                    <div class="endereco-container">
+                        <h4>Endereço</h4>
+                        <div class="endereco-grid">
+                            <input id="regEstado" placeholder="Estado (ex: MG)" maxlength="2">
+                            <input id="regCidade" placeholder="Cidade">
+                            <input id="regBairro" placeholder="Bairro" class="full-width">
+                            <input id="regRua" placeholder="Rua" class="full-width">
+                            <input id="regNumero" placeholder="Número">
+                            <input id="regComplemento" placeholder="Complemento">
+                            <input id="regCep" placeholder="CEP" class="full-width">
+                        </div>
+                        <button type="button" class="btn-localizacao" onclick="usarLocalizacao('cliente')">
+                            Usar localização atual
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <input id="regTelefone" placeholder="Telefone">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button onclick="registerCliente(this)">Registrar</button>
+                        <button onclick="showLogin()" class="secondary">Voltar</button>
+                    </div>
+                    <div class="link" onclick="showLogin()">Já tenho conta</div>
+                </div>
+
+                <!-- REGISTRO EMPRESA -->
+                <div id="registerEmpresaBox" class="hidden">
+                    <h2>Registro Empresa</h2>
+
+                    <!-- Dados do Responsável -->
+                    <div class="form-group">
+                        <input id="empNome" placeholder="Nome do responsável">
+                    </div>
+                    <div class="endereco-grid">
+                        <input id="empCpf" placeholder="CPF">
+                        <input id="empTelefone" placeholder="Telefone">
+                    </div>
+                    <div class="form-group">
+                        <input id="empEmail" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input id="empPassword" type="password" placeholder="Senha">
+                    </div>
+
+                    <!-- Endereço do Responsável -->
+                    <div class="endereco-container">
+                        <h4>Endereço do Responsável</h4>
+                        <div class="endereco-grid">
+                            <input id="empRespEstado" placeholder="Estado (ex: MG)" maxlength="2">
+                            <input id="empRespCidade" placeholder="Cidade">
+                            <input id="empRespBairro" placeholder="Bairro" class="full-width">
+                            <input id="empRespRua" placeholder="Rua" class="full-width">
+                            <input id="empRespNumero" placeholder="Número">
+                            <input id="empRespComplemento" placeholder="Complemento">
+                            <input id="empRespCep" placeholder="CEP" class="full-width">
+                        </div>
+                        <button type="button" class="btn-localizacao" onclick="usarLocalizacao('empresa_responsavel')">
+                            Usar localização atual
+                        </button>
+                    </div>
+
+                    <hr>
+
+                    <!-- Dados da Empresa -->
+                    <div class="form-group">
+                        <input id="empNomeFantasia" placeholder="Nome Fantasia">
+                    </div>
+                    <div class="form-group">
+                        <input id="empCnpj" placeholder="CNPJ">
+                    </div>
+                    <div class="form-group">
+                        <select id="empCategoria">
+                            <option value="">Selecione categoria</option>
+                            <option value="RESTAURANTE">Restaurante</option>
+                            <option value="FARMACIA">Farmácia</option>
+                            <option value="MERCADO">Mercado</option>
+                            <option value="FAST_FOOD">Fast Food</option>
+                        </select>
+                    </div>
+
+                    <!-- Endereço da Empresa -->
+                    <div class="endereco-container">
+                        <h4>Endereço da Empresa</h4>
+                        <div class="endereco-grid">
+                            <input id="empEstado" placeholder="Estado (ex: MG)" maxlength="2">
+                            <input id="empCidade" placeholder="Cidade">
+                            <input id="empBairro" placeholder="Bairro" class="full-width">
+                            <input id="empRua" placeholder="Rua" class="full-width">
+                            <input id="empNumero" placeholder="Número">
+                            <input id="empComplemento" placeholder="Complemento">
+                            <input id="empCep" placeholder="CEP" class="full-width">
+                        </div>
+                        <button type="button" class="btn-localizacao" onclick="usarLocalizacao('empresa')">
+                            Usar localização atual
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Logo da empresa (obrigatório)</label>
+                        <input id="empLogo" type="file" accept="image/*">
+                    </div>
+
+                    <div class="form-actions">
+                        <button onclick="registerEmpresa(this)">Cadastrar Empresa</button>
+                        <button onclick="showLogin()" class="secondary">Voltar</button>
+                    </div>
+                    <div class="link" onclick="showLogin()">Já tenho conta</div>
+                </div>
+
+                   <div class="form-actions">
+                       <button onclick="showOrders()">Voltar para Pedidos</button>
+                       <button onclick="logout()" class="secondary">Sair</button>
+                   </div>
+               </div>
+               
+                <pre id="output"></pre>
+            
+                <!-- PEDIDOS -->
+                    <div id="orderBox" class="hidden">
+                        <h2>Pedidos</h2>
+                        <div class="form-group">
+                            <select id="estabelecimentoSelect" onchange="loadProdutos()"></select>
+                        </div>
+                        <button onclick="loadProdutos()" class="secondary" style="margin-bottom: 15px;">Carregar Produtos</button>
+                        
+                        <div class="form-group">
+                            <select id="produtoSelect"></select>
+                        </div>
+                        <div class="form-group">
+                            <input id="quantidadeInput" type="number" placeholder="Quantidade" value="1">
+                        </div>
+                    
+                        <div class="form-actions">
+                            <button onclick="createOrder()">Criar Pedido</button>
+                            <button onclick="listOrders()" class="secondary">Listar Pedidos</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input id="orderIdInput" placeholder="ID do pedido">
+                        </div>
+                        <button onclick="getOrderById()" class="secondary" style="margin-bottom: 15px;">Buscar Pedido</button>
+                        
+                        <div class="form-actions">
+                            <button onclick="showProfile()">Configurações do Perfil</button>
+                            <button onclick="logout()" class="secondary">Sair</button>
+                        </div>
+                    </div>
+
+                <!-- PERFIL -->
+                <div id="profileBox" class="hidden">
+                    <h2>Meu Perfil</h2>
+                    
+                    <!-- Botão para alternar entre modo visualização/edição -->
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <button id="editProfileBtn" onclick="enableEditMode()">Editar Perfil</button>
+                        <button id="saveProfileBtn" class="hidden" onclick="saveProfile()">Salvar</button>
+                        <button id="cancelEditBtn" class="hidden" onclick="cancelEdit()">Cancelar</button>
+                    </div>
+
+                    <div class="avatar-upload">
+                        <label for="profileFotoInput">
+                            <img id="profileAvatar" src="https://via.placeholder.com/120">
+                            <span class="avatar-edit">+</span>
+                        </label>
+                        <input id="profileFotoInput" type="file" accept="image/*" hidden>
+                    </div>
+
+                    <!-- Campos editáveis -->
+                    <input id="profileNome" disabled>
+                    <input id="profileEmail" disabled>
+                    <input id="profileTelefone" disabled>
+                    
+                    <!-- Endereço do Responsável -->
+                    <div class="endereco-container">
+                        <h4>Endereço</h4>
+                        <input id="profileEstado" placeholder="Estado" disabled>
+                        <input id="profileCidade" placeholder="Cidade" disabled>
+                        <input id="profileBairro" placeholder="Bairro" disabled class="full-width">
+                        <input id="profileRua" placeholder="Rua" disabled class="full-width">
+                        <input id="profileNumero" placeholder="Número" disabled>
+                        <input id="profileComplemento" placeholder="Complemento" disabled>
+                        <input id="profileCep" placeholder="CEP" disabled>
+                    </div>
+
+                    <!-- Seção da Empresa (só visível para empresas) -->
+                    <div id="empresaSection" class="hidden">
+                        <h3>Dados da Empresa</h3>
+                        <input id="empresaNomeFantasia" disabled>
+                        <select id="empresaCategoria" disabled>
+                            <option value="">Selecione categoria</option>
+                            <option value="RESTAURANTE">Restaurante</option>
+                            <option value="FARMACIA">Farmácia</option>
+                            <option value="MERCADO">Mercado</option>
+                            <option value="FAST_FOOD">Fast Food</option>
+                        </select>
+                        
+                        <!-- Endereço da Empresa -->
+                        <div class="endereco-container">
+                            <h4>Endereço da Empresa</h4>
+                            <input id="empresaEstado" placeholder="Estado" disabled>
+                            <input id="empresaCidade" placeholder="Cidade" disabled>
+                            <input id="empresaBairro" placeholder="Bairro" disabled class="full-width">
+                            <input id="empresaRua" placeholder="Rua" disabled class="full-width">
+                            <input id="empresaNumero" placeholder="Número" disabled>
+                            <input id="empresaComplemento" placeholder="Complemento" disabled>
+                            <input id="empresaCep" placeholder="CEP" disabled>
+                        </div>
+                        
+                        <!-- Logo da Empresa -->
+                        <label for="empresaLogoInput">Logo da Empresa</label>
+                        <input id="empresaLogoInput" type="file" accept="image/*" hidden>
+                        <img id="empresaLogoImg" style="width:120px; height:120px; object-fit:cover; border-radius:5px; margin-top:10px;">
+                    </div>
+
+                    <button onclick="showOrders()">Voltar para Pedidos</button>
+                    <div class="link" onclick="logout()">Sair</div>
+                </div>
+            </div>
         </div>
-        <input id="regTelefone"  placeholder="Telefone">
-        <button onclick="registerCliente(this)">Registrar</button>
-        <div class="link" onclick="showLogin()">Já tenho conta</div>
     </div>
-
-    <!-- REGISTRO EMRPESA -->
-    <div id="registerEmpresaBox" class="hidden">
-        <h2>Registro Empresa</h2>
-
-        <input id="empNome" placeholder="Nome do responsável">
-        <input id="empCpf" placeholder="CPF">
-        <input id="empTelefone" placeholder="Telefone">
-
-        <input id="empEmail" placeholder="Email">
-        <input id="empPassword" type="password" placeholder="Senha">
-
-        <hr>
-
-        <input id="empNomeFantasia" placeholder="Nome Fantasia">
-        <input id="empCnpj" placeholder="CNPJ">
-
-        <select id="empCategoria">
-            <option value="">Selecione categoria</option>
-            <option value="RESTAURANTE">Restaurante</option>
-            <option value="FARMACIA">Farmácia</option>
-            <option value="MERCADO">Mercado</option>
-            <option value="FAST_FOOD">Fast Food</option>
-            <option value="BARZINHO">Barzinho</option>
-        </select>
-
-        <div class="endereco-box">
-            <input id="empEndereco" placeholder="Endereço da empresa">
-            <button
-                type="button"
-                class="btn-localizacao"
-                onclick="usarLocalizacao('empresa')"
-            >
-                Usar localização atual
-            </button>
-        </div>
-
-
-        <label>Logo da empresa (obrigatório)</label>
-        <input id="empLogo" type="file">
-
-        <button onclick="registerEmpresa(this)">Cadastrar Empresa</button>
-
-        <div class="link" onclick="showLogin()">Já tenho conta</div>
-
-        <div id="empresaSection" class="hidden">
-            <h3>Dados da Empresa</h3>
-            <input id="empresaNomeFantasia">
-            <select id="empresaCategoria"></select>
-            <input id="empresaEndereco">
-            <img id="empresaLogoImg">
-        </div>
-
-    </div>
-
-
-    <!-- PEDIDOS -->
-    <div id="orderBox" class="hidden">
-        <h2>Pedidos</h2>
-        <select id="estabelecimentoSelect" onchange="loadProdutos()"></select>
-        <button onclick="loadProdutos()">Carregar Produtos</button>
-
-        <select id="produtoSelect"></select>
-        <input id="quantidadeInput" type="number" placeholder="Quantidade" value="1">
-    
-        <button onclick="createOrder()">Criar Pedido</button>
-        <button onclick="listOrders()">Listar Pedidos</button>
-        <button onclick="showProfile()">Configurações do Perfil</button>
-        <input id="orderIdInput" placeholder="ID do pedido">
-        <button onclick="getOrderById()">Buscar Pedido</button>
-        <div class="link" onclick="logout()">Sair</div>
-
-    </div>
-
-    <!-- PERFIL -->
-    <div id="profileBox" class="hidden">
-        <h2>Meu Perfil</h2>
-
-        <div class="avatar-upload">
-            <img id="profileAvatar" src="https://via.placeholder.com/120">
-        </div>
-
-        <input id="profileNome" disabled>
-        <input id="profileEmail" disabled>
-        <input id="profileTelefone" disabled>
-        <input id="profileEndereco" disabled>
-
-        <button onclick="showOrders()">Voltar para Pedidos</button>
-        <div class="link" onclick="logout()">Sair</div>
-    </div>
-
-    <pre id="output"></pre>
-</div>
 
 <script>
 
@@ -394,7 +835,7 @@ function showProfile() {
 
 
 /*====== FUNCT DE RESGISTRO DE NOVO USUARIO (Tipo Cliente)======*/
-async function registerCliente(btn) {
+/*async function registerCliente(btn) {
     if (//Verificação de campos obrigatórios
         !regNome.value ||
         !regEmail.value ||
@@ -414,8 +855,8 @@ async function registerCliente(btn) {
         );
         return;
     }   
-    /*desabilita o botão enquanto aguarda a resposta da requisição e enquanto isso  a mensagem do botão é trocado por AGUARDE*/
-    const originalText = btn.textContent;
+    //desabilita o botão enquanto aguarda a resposta da requisição e enquanto isso  a mensagem do botão é trocado por AGUARDE*/
+    /*const originalText = btn.textContent;
     btn.textContent = "Aguarde..."; 
     btn.disabled = true;
     try {
@@ -435,15 +876,7 @@ async function registerCliente(btn) {
 
         const res = await fetch(`${API_URL}/auth/register/cliente`, {
             method: "POST",
-            /*headers: authHeaders(),
-            body: JSON.stringify({
-                nome: regNome.value.trim(),
-                email: regEmail.value.trim().toLowerCase(),
-                password: regPassword.value,
-                cpf: regCpf.value.trim(),
-                endereco: regEndereco.value.trim(),
-                telefone: regTelefone.value.trim()    
-            })*/
+            headers: authHeaders(),
             body : formData
         });
 
@@ -455,7 +888,7 @@ async function registerCliente(btn) {
         }    
         log("Cadastro realizado com sucesso!");
 
-        /*Limpa tds os campos do formulario*/
+        Limpa tds os campos do formulario
         regNome.value = "";
         regEmail.value = "";
         regPassword.value = "";
@@ -471,33 +904,210 @@ async function registerCliente(btn) {
         btn.textContent = originalText;
         btn.disabled = false;
     }
-}
+}*/
+
+async function registerCliente(btn) {
+     // Verificação de campos obrigatórios
+     if (
+         !regNome.value ||
+         !regEmail.value ||
+         !regPassword.value ||
+         !regCpf.value ||
+         !regEstado.value ||
+         !regCidade.value ||
+         !regBairro.value ||
+         !regRua.value ||
+         !regNumero.value ||
+         !regCep.value ||
+         !regTelefone.value
+     ) {
+         log("Preencha todos os Campos Obrigatórios.");
+         return;
+     }
+
+    // Validação do estado (deve ser sigla de 2 letras)
+    const estado = regEstado.value.trim().toUpperCase();
+    if (estado.length !== 2) {
+        log("Estado deve ser a sigla de 2 letras (ex: MG, SP).");
+        return;
+    }
+
+    // Validação do CEP
+    const cepLimpo = regCep.value.replace(/\D/g, '');
+    if (cepLimpo.length !== 8) {
+        log("CEP inválido. Deve conter 8 dígitos.");
+        return;
+    }
+
+    if (!isStrongPassword(regPassword.value)) {
+        log(
+            "Senha fraca: mínimo 6 caracteres, com letra maiúscula, " +
+            "minúscula, número e caractere especial."
+        );
+        return;
+    }
+
+    const originalText = btn.textContent;
+    btn.textContent = "Aguarde...";
+    btn.disabled = true;
+
+    try {
+        const formData = new FormData();
+
+        formData.append("nome", regNome.value.trim());
+        formData.append("email", regEmail.value.trim().toLowerCase());
+        formData.append("password", regPassword.value);
+        formData.append("cpf", regCpf.value.trim());
+        formData.append("telefone", regTelefone.value.trim());
+
+        // Endereço
+        formData.append("estado", regEstado.value.trim());
+        formData.append("cidade", regCidade.value.trim());
+        formData.append("bairro", regBairro.value.trim());
+        formData.append("rua", regRua.value.trim());
+        formData.append("numero", regNumero.value.trim());
+        formData.append("complemento", regComplemento.value.trim());
+        formData.append("cep", regCep.value.trim());
+
+        if (regFoto.files.length > 0) {
+            formData.append("foto", regFoto.files[0]);
+        }
+
+        const res = await fetch(`${API_URL}/auth/register/cliente`, {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+            log(data.error ?? "Erro ao realizar cadastro.");
+            return;
+        }
+
+        log("Cadastro realizado com sucesso!");
+
+        // Limpar campos
+        regNome.value = "";
+        regEmail.value = "";
+        regPassword.value = "";
+        regCpf.value = "";
+        regEstado.value = "";
+        regCidade.value = "";
+        regBairro.value = "";
+        regRua.value = "";
+        regNumero.value = "";
+        regComplemento.value = "";
+        regCep.value = "";
+        regTelefone.value = "";
+        regFoto.value = "";
+
+        showLogin();
+
+    } catch (error) {
+        log("Erro de conexão com o servidor.");
+        console.error(error);
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+ }
 
 /*====== FUNCT DE RESGISTRO DE NOVO USUARIO (Tipo Empresa)======*/
 async function registerEmpresa(btn) {
-
-    if (!empEmail.value || !empPassword.value || !empLogo.files[0]) {
+    // Validação de campos obrigatórios
+    if (
+        !empNome.value ||
+        !empCpf.value ||
+        !empTelefone.value ||
+        !empEmail.value ||
+        !empPassword.value ||
+        !empNomeFantasia.value ||
+        !empCnpj.value ||
+        !empCategoria.value ||
+        !empRespEstado.value ||
+        !empRespCidade.value ||
+        !empRespBairro.value ||
+        !empRespRua.value ||
+        !empRespNumero.value ||
+        !empRespCep.value ||
+        !empEstado.value ||
+        !empCidade.value ||
+        !empBairro.value ||
+        !empRua.value ||
+        !empNumero.value ||
+        !empCep.value ||
+        !empLogo.files[0]
+    ) {
         log("Preencha todos os campos obrigatórios.");
         return;
     }
-    /*desabilita o botão enquanto aguarda a resposta da requisição e enquanto isso  a mensagem do botão é trocado por AGUARDE*/
+
+    // Validação do estado (deve ser sigla de 2 letras) - responsável
+    const estadoResp = empRespEstado.value.trim().toUpperCase();
+    if (estadoResp.length !== 2) {
+        log("Estado do responsável deve ser a sigla de 2 letras (ex: MG, SP).");
+        return;
+    }
+
+    // Validação do estado (deve ser sigla de 2 letras) - empresa
+    const estadoEmp = empEstado.value.trim().toUpperCase();
+    if (estadoEmp.length !== 2) {
+        log("Estado da empresa deve ser a sigla de 2 letras (ex: MG, SP).");
+        return;
+    }
+
+    // Validação do CEP - responsável
+    const cepRespLimpo = empRespCep.value.replace(/\D/g, '');
+    if (cepRespLimpo.length !== 8) {
+        log("CEP do responsável inválido. Deve conter 8 dígitos.");
+        return;
+    }
+
+    // Validação do CEP - empresa
+    const cepEmpLimpo = empCep.value.replace(/\D/g, '');
+    if (cepEmpLimpo.length !== 8) {
+        log("CEP da empresa inválido. Deve conter 8 dígitos.");
+        return;
+    }
+
     const originalText = btn.textContent;
-    btn.textContent = "Aguarde..."; 
+    btn.textContent = "Aguarde...";
     btn.disabled = true;
-    try{
+
+    try {
         const formData = new FormData();
 
+        // Dados do responsável
         formData.append("nome", empNome.value);
         formData.append("cpf", empCpf.value);
         formData.append("telefone", empTelefone.value);
 
+        // Login
         formData.append("email", empEmail.value);
         formData.append("password", empPassword.value);
 
+        // Dados da empresa
         formData.append("nome_fantasia", empNomeFantasia.value);
         formData.append("cnpj", empCnpj.value);
         formData.append("categoria", empCategoria.value);
-        formData.append("endereco_empresa", empEndereco.value.trim());
+
+        // Endereço do responsável
+        formData.append("resp_estado", empRespEstado.value);
+        formData.append("resp_cidade", empRespCidade.value);
+        formData.append("resp_bairro", empRespBairro.value);
+        formData.append("resp_rua", empRespRua.value);
+        formData.append("resp_numero", empRespNumero.value);
+        formData.append("resp_complemento", empRespComplemento.value);
+        formData.append("resp_cep", empRespCep.value);
+
+        // Endereço da empresa
+        formData.append("emp_estado", empEstado.value);
+        formData.append("emp_cidade", empCidade.value);
+        formData.append("emp_bairro", empBairro.value);
+        formData.append("emp_rua", empRua.value);
+        formData.append("emp_numero", empNumero.value);
+        formData.append("emp_complemento", empComplemento.value);
+        formData.append("emp_cep", empCep.value);
 
         formData.append("logo", empLogo.files[0]);
 
@@ -514,8 +1124,8 @@ async function registerEmpresa(btn) {
         }
 
         log("Empresa cadastrada com sucesso!");
-        /*Limpa tds os campos do formulario*/
 
+        // Limpar campos
         empNome.value = "";
         empCpf.value = "";
         empTelefone.value = "";
@@ -524,19 +1134,32 @@ async function registerEmpresa(btn) {
         empNomeFantasia.value = "";
         empCnpj.value = "";
         empCategoria.value = "";
-        empEndereco.value = "";
+        empRespEstado.value = "";
+        empRespCidade.value = "";
+        empRespBairro.value = "";
+        empRespRua.value = "";
+        empRespNumero.value = "";
+        empRespComplemento.value = "";
+        empRespCep.value = "";
+        empEstado.value = "";
+        empCidade.value = "";
+        empBairro.value = "";
+        empRua.value = "";
+        empNumero.value = "";
+        empComplemento.value = "";
+        empCep.value = "";
         empLogo.value = "";
+
         showLogin();
+
     } catch (error) {
         log("Erro de conexão com o servidor.");
         console.error(error);
     } finally {
-        //habilita o botão novamente
         btn.textContent = originalText;
         btn.disabled = false;
     }
 }
-
 
 
 /*====== FUNCT DE LOGIN DO USUARIO ======*/
@@ -721,7 +1344,30 @@ regFotoInput.addEventListener("change", () => {
     reader.readAsDataURL(file);
 });
 
-async function loadProfile() {
+// Atualizar preview da foto de perfil
+profileFotoInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            profileAvatar.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Atualizar preview da logo da empresa
+empresaLogoInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            empresaLogoImg.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+/*async function loadProfile() {
     try {
         const res = await fetch(`${API_URL}/auth/me`, {
             headers: authHeaders()
@@ -773,9 +1419,292 @@ async function loadProfile() {
         console.error(err);
         log("Erro ao buscar dados do perfil.");
     }
+}*/
+
+async function loadProfile() {
+    try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+            headers: authHeaders()
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            log(data.error || "Erro ao carregar perfil.");
+            return;
+        }
+
+        console.log("Dados do perfil:", data);
+
+        // Dados comuns (cliente e empresa)
+        profileNome.value = data.nome || "";
+        profileEmail.value = data.email || "";
+        profileTelefone.value = data.telefone || "";
+
+        // Preenche endereço da pessoa (responsável)
+        if (data.endereco) {
+            document.getElementById('profileEstado').value = data.endereco.estado || "";
+            document.getElementById('profileCidade').value = data.endereco.cidade || "";
+            document.getElementById('profileBairro').value = data.endereco.bairro || "";
+            document.getElementById('profileRua').value = data.endereco.rua || "";
+            document.getElementById('profileNumero').value = data.endereco.numero || "";
+            document.getElementById('profileComplemento').value = data.endereco.complemento || "";
+            document.getElementById('profileCep').value = data.endereco.cep || "";
+        }
+
+        // Foto de perfil
+        if (data.url_foto) {
+            profileAvatar.src = `${API_URL}${data.url_foto}`;
+        } else {
+            profileAvatar.src = "https://via.placeholder.com/120";
+        }
+
+        // Se for empresa
+        if (data.tipo_usuario === "empresa" && data.empresa) {
+            console.log("Dados da empresa:", data.empresa);
+            
+            // Mostra a seção da empresa
+            document.getElementById('empresaSection').classList.remove("hidden");
+
+            // Preenche os dados da empresa
+            document.getElementById('empresaNomeFantasia').value = data.empresa.nome_fantasia || "";
+            document.getElementById('empresaCategoria').value = data.empresa.categoria || "";
+            
+            // Preenche o endereço da empresa
+            if (data.empresa.endereco_empresa) {
+                document.getElementById('empresaEstado').value = data.empresa.endereco_empresa.estado || "";
+                document.getElementById('empresaCidade').value = data.empresa.endereco_empresa.cidade || "";
+                document.getElementById('empresaBairro').value = data.empresa.endereco_empresa.bairro || "";
+                document.getElementById('empresaRua').value = data.empresa.endereco_empresa.rua || "";
+                document.getElementById('empresaNumero').value = data.empresa.endereco_empresa.numero || "";
+                document.getElementById('empresaComplemento').value = data.empresa.endereco_empresa.complemento || "";
+                document.getElementById('empresaCep').value = data.empresa.endereco_empresa.cep || "";
+            }
+
+            // Carrega a logo da empresa
+            if (data.empresa.url_logo) {
+                document.getElementById('empresaLogoImg').src = `${API_URL}${data.empresa.url_logo}`;
+            } else {
+                document.getElementById('empresaLogoImg').src = "https://via.placeholder.com/120";
+            }
+        } else {
+            // Se não for empresa, esconde a seção
+            document.getElementById('empresaSection').classList.add("hidden");
+        }
+
+        // Desabilitar edição
+        disableEdit();
+    } catch (err) {
+        console.error(err);
+        log("Erro ao buscar dados do perfil.");
+    }
+}
+
+function enableEdit() {
+    // Habilita os campos editáveis
+    // Campos da pessoa: email, telefone, endereço
+    document.getElementById('profileEmail').disabled = false;
+    document.getElementById('profileTelefone').disabled = false;
+    document.getElementById('profileEstado').disabled = false;
+    document.getElementById('profileCidade').disabled = false;
+    document.getElementById('profileBairro').disabled = false;
+    document.getElementById('profileRua').disabled = false;
+    document.getElementById('profileNumero').disabled = false;
+    document.getElementById('profileComplemento').disabled = false;
+    document.getElementById('profileCep').disabled = false;
+
+    // Se for empresa, habilita também os campos da empresa
+    if (!document.getElementById('empresaSection').classList.contains("hidden")) {
+        document.getElementById('empresaNomeFantasia').disabled = false;
+        document.getElementById('empresaCategoria').disabled = false;
+        document.getElementById('empresaEstado').disabled = false;
+        document.getElementById('empresaCidade').disabled = false;
+        document.getElementById('empresaBairro').disabled = false;
+        document.getElementById('empresaRua').disabled = false;
+        document.getElementById('empresaNumero').disabled = false;
+        document.getElementById('empresaComplemento').disabled = false;
+        document.getElementById('empresaCep').disabled = false;
+    }
+
+    // Mostra botões Salvar e Cancelar, esconde Editar
+    document.getElementById('editProfileBtn').classList.add("hidden");
+    document.getElementById('saveProfileBtn').classList.remove("hidden");
+    document.getElementById('cancelEditBtn').classList.remove("hidden");
+}
+
+function disableEdit() {
+    // Desabilita todos os campos
+    document.getElementById('profileEmail').disabled = true;
+    document.getElementById('profileTelefone').disabled = true;
+    document.getElementById('profileEstado').disabled = true;
+    document.getElementById('profileCidade').disabled = true;
+    document.getElementById('profileBairro').disabled = true;
+    document.getElementById('profileRua').disabled = true;
+    document.getElementById('profileNumero').disabled = true;
+    document.getElementById('profileComplemento').disabled = true;
+    document.getElementById('profileCep').disabled = true;
+
+    document.getElementById('empresaNomeFantasia').disabled = true;
+    document.getElementById('empresaCategoria').disabled = true;
+    document.getElementById('empresaEstado').disabled = true;
+    document.getElementById('empresaCidade').disabled = true;
+    document.getElementById('empresaBairro').disabled = true;
+    document.getElementById('empresaRua').disabled = true;
+    document.getElementById('empresaNumero').disabled = true;
+    document.getElementById('empresaComplemento').disabled = true;
+    document.getElementById('empresaCep').disabled = true;
+
+    // Mostra botão Editar, esconde Salvar e Cancelar
+    document.getElementById('editProfileBtn').classList.remove("hidden");
+    document.getElementById('saveProfileBtn').classList.add("hidden");
+    document.getElementById('cancelEditBtn').classList.add("hidden");
+}
+
+function cancelEdit() {
+    // Recarrega os dados do perfil para descartar alterações
+    loadProfile();
+}
+
+function disableEdit() {
+    // Desabilita todos os campos
+    profileEmail.disabled = true;
+    profileTelefone.disabled = true;
+    profileEstado.disabled = true;
+    profileCidade.disabled = true;
+    profileBairro.disabled = true;
+    profileRua.disabled = true;
+    profileNumero.disabled = true;
+    profileComplemento.disabled = true;
+    profileCep.disabled = true;
+
+    empresaNomeFantasia.disabled = true;
+    empresaCategoria.disabled = true;
+    empresaEstado.disabled = true;
+    empresaCidade.disabled = true;
+    empresaBairro.disabled = true;
+    empresaRua.disabled = true;
+    empresaNumero.disabled = true;
+    empresaComplemento.disabled = true;
+    empresaCep.disabled = true;
+
+    // Mostra botão Editar, esconde Salvar e Cancelar
+    editProfileBtn.classList.remove("hidden");
+    saveProfileBtn.classList.add("hidden");
+    cancelEditBtn.classList.add("hidden");
+}
+
+function cancelEdit() {
+    // Recarrega os dados do perfil para descartar alterações
+    loadProfile();
 }
 
 
+async function saveProfile() {
+    // Coletar dados do formulário
+    const formData = new FormData();
+
+    // Campos da pessoa (user)
+    formData.append("email", profileEmail.value);
+    formData.append("telefone", profileTelefone.value);
+
+    // Endereço da pessoa
+    formData.append("estado", profileEstado.value);
+    formData.append("cidade", profileCidade.value);
+    formData.append("bairro", profileBairro.value);
+    formData.append("rua", profileRua.value);
+    formData.append("numero", profileNumero.value);
+    formData.append("complemento", profileComplemento.value);
+    formData.append("cep", profileCep.value);
+
+    // Foto de perfil (se alterada)
+    if (profileFotoInput.files[0]) {
+        formData.append("foto", profileFotoInput.files[0]);
+    }
+
+    // Se for empresa, adicionar campos da empresa
+    if (empresaSection.classList.contains("hidden") === false) {
+        formData.append("nome_fantasia", empresaNomeFantasia.value);
+        formData.append("categoria", empresaCategoria.value);
+
+        // Endereço da empresa
+        formData.append("emp_estado", empresaEstado.value);
+        formData.append("emp_cidade", empresaCidade.value);
+        formData.append("emp_bairro", empresaBairro.value);
+        formData.append("emp_rua", empresaRua.value);
+        formData.append("emp_numero", empresaNumero.value);
+        formData.append("emp_complemento", empresaComplemento.value);
+        formData.append("emp_cep", empresaCep.value);
+
+        // Logo da empresa (se alterada)
+        if (empresaLogoInput.files[0]) {
+            formData.append("logo", empresaLogoInput.files[0]);
+        }
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                // Note: não definir Content-Type para FormData, o navegador define automaticamente com boundary
+            },
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            log(data.error || "Erro ao atualizar perfil.");
+            return;
+        }
+
+        log("Perfil atualizado com sucesso!");
+
+        // Recarrega o perfil para atualizar a foto, etc.
+        loadProfile();
+
+    } catch (error) {
+        console.error(error);
+        log("Erro de conexão com o servidor.");
+    }
+}
+
+// Adicione este mapeamento após a função log()
+const MAPA_ESTADOS = {
+    "Minas Gerais": "MG",
+    "São Paulo": "SP",
+    "Rio de Janeiro": "RJ",
+    "Bahia": "BA",
+    "Paraná": "PR",
+    "Rio Grande do Sul": "RS",
+    "Pernambuco": "PE",
+    "Ceará": "CE",
+    "Pará": "PA",
+    "Santa Catarina": "SC",
+    "Goiás": "GO",
+    "Maranhão": "MA",
+    "Amazonas": "AM",
+    "Espírito Santo": "ES",
+    "Paraíba": "PB",
+    "Rio Grande do Norte": "RN",
+    "Mato Grosso": "MT",
+    "Alagoas": "AL",
+    "Piauí": "PI",
+    "Distrito Federal": "DF",
+    "Mato Grosso do Sul": "MS",
+    "Sergipe": "SE",
+    "Rondônia": "RO",
+    "Tocantins": "TO",
+    "Acre": "AC",
+    "Amapá": "AP",
+    "Roraima": "RR"
+};
+
+function converterNomeParaSigla(nomeEstado) {
+    return MAPA_ESTADOS[nomeEstado] || nomeEstado.substring(0, 2).toUpperCase();
+}
+
+// Atualize a função usarLocalizacao para usar o mapeamento
 async function usarLocalizacao(tipoUser) {
     if (!navigator.geolocation) {
         log("Geolocalização não é suportada neste navegador.");
@@ -791,21 +1720,45 @@ async function usarLocalizacao(tipoUser) {
 
             try {
                 const res = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`
                 );
 
                 const data = await res.json();
 
-                if (data && data.display_name) {
-                    if (tipoUser === "cliente")
-                        regEndereco.value = data.display_name;
-                    if (tipoUser === "empresa")
-                        empEndereco.value = data.display_name;
-                        log("Endereço obtido com sucesso!");
+                if (data && data.address) {
+                    const addr = data.address;
+                    const estadoNome = addr.state || "";
+                    const siglaEstado = converterNomeParaSigla(estadoNome);
+
+                    if (tipoUser === "cliente") {
+                        // Preenche endereço do cliente
+                        regEstado.value = siglaEstado;
+                        regCidade.value = addr.city || addr.town || addr.village || "";
+                        regBairro.value = addr.suburb || addr.neighbourhood || "";
+                        regRua.value = addr.road || "";
+                        regNumero.value = addr.house_number || "";
+                        regCep.value = addr.postcode || "";
+                    } else if (tipoUser === "empresa") {
+                        // Preenche endereço da empresa
+                        empEstado.value = siglaEstado;
+                        empCidade.value = addr.city || addr.town || addr.village || "";
+                        empBairro.value = addr.suburb || addr.neighbourhood || "";
+                        empRua.value = addr.road || "";
+                        empNumero.value = addr.house_number || "";
+                        empCep.value = addr.postcode || "";
+                    } else if (tipoUser === "empresa_responsavel") {
+                        // Preenche endereço do responsável
+                        empRespEstado.value = siglaEstado;
+                        empRespCidade.value = addr.city || addr.town || addr.village || "";
+                        empRespBairro.value = addr.suburb || addr.neighbourhood || "";
+                        empRespRua.value = addr.road || "";
+                        empRespNumero.value = addr.house_number || "";
+                        empRespCep.value = addr.postcode || "";
+                    }
+                    log("Endereço obtido com sucesso!");
                 } else {
                     log("Não foi possível identificar o endereço.");
                 }
-
             } catch (err) {
                 console.error(err);
                 log("Erro ao converter localização em endereço.");
@@ -859,6 +1812,28 @@ async function updateProfile() {
     log("Perfil atualizado!");
 }
 
+// Event listeners para preview de imagens
+document.getElementById('profileFotoInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileAvatar').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('empresaLogoInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('empresaLogoImg').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
 
 // Qnd já está logado ou seja o token no localstorage, roda a funct de mostra pedidos
 if (localStorage.getItem("token")) {

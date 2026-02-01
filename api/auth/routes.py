@@ -14,11 +14,26 @@ from api.auth.decorators import jwt_required
 from api.models.estabelecimento import Estabelecimento
 from api.auth.validators import is_valid_cnpj
 from api.models.enums import CategoriaEstabelecimento
+from api.models.endereco import Endereco
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-# ============= FUNÇÕES DE REGISTRO ============= # 
+# ================== FUNÇÕES AUXILIARES ================== #
+def criar_endereco(data, prefixo=None):
+    def campo(nome):
+        return data.get(f"{prefixo}_{nome}") if prefixo else data.get(nome)
 
+    return Endereco(
+        estado=campo("estado"),
+        cidade=campo("cidade"),
+        bairro=campo("bairro"),
+        rua=campo("rua"),
+        numero=campo("numero"),
+        complemento=campo("complemento"),
+        cep=campo("cep")
+    )
+
+# ============= FUNÇÕES DE REGISTRO ============= # 
 ## --- Regsitro De Cliente --- 
 @auth_bp.route("/register/cliente", methods=["POST"])
 def register_cliente():
@@ -29,17 +44,17 @@ def register_cliente():
     password = data.get("password")
     nome = data.get("nome")
     cpf = data.get("cpf")
-    endereco = data.get("endereco")
+    #endereco = data.get("endereco")
     telefone = data.get("telefone")
 
-    if not all([email, password, nome, cpf, endereco, telefone]):
-        return jsonify({"error": "Todos os campos são obrigatórios"}), 400
-
+    if not all([email, password, nome, cpf, telefone]):
+         return jsonify({"error": "Todos os campos são obrigatórios"}), 400
+    
     email = email.strip().lower()
     nome = nome.strip()
     cpf = re.sub(r"\D", "", cpf)
     telefone = re.sub(r"\D", "", telefone)
-    endereco = endereco.strip()
+    #endereco = endereco.strip()
 
     #Funct para fazer a validação do formato do email - cpf - telefone e endereco inseridos no cadastro
     if not is_valid_email(email):
@@ -50,9 +65,6 @@ def register_cliente():
 
     if not is_valid_phone(telefone):
         return jsonify({"error": "Telefone inválido"}), 400
-
-    if not is_valid_address(endereco):
-        return jsonify({"error": "Endereço inválido"}), 400
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Usuario já existe"}), 409
@@ -67,6 +79,7 @@ def register_cliente():
         }), 400
 
     #Fazer UPLOAD da foto (ñ é obrigatório)
+    foto_url = None
     if file and allowed_file(file.filename):
         ext = file.filename.rsplit(".", 1)[1].lower()
         filename = f"{uuid.uuid4()}.{ext}"
@@ -76,13 +89,17 @@ def register_cliente():
         foto_url = f"/{UPLOAD_FOLDER}/{filename}"
 
     try:
+        endereco = criar_endereco(data)
+        db.session.add(endereco)
+        db.session.flush()
         # criandoa pessoa antes de criar o user
         pessoa = Pessoa(
             nome=nome,
             cpf=cpf,
             endereco=endereco,
             telefone=telefone,
-            url_foto_perfil=foto_url
+            url_foto_perfil=foto_url,
+            endereco_id=endereco.id
         )
         db.session.add(pessoa)
         db.session.flush()  # irá gerar um id sem commit
@@ -96,7 +113,7 @@ def register_cliente():
         user.set_password(password)
         db.session.add(user)
         db.session.commit()        
-        return jsonify({"message": "Usuario criado com sucesso"}), 201
+        return jsonify({"message": "Usuario Criado com Sucesso"}), 201
     except IntegrityError: # excesão p impedir q caso acconteça de ter 2 requests simultaneos aombos possam acabar sendo validados
         db.session.rollback()
         return jsonify({"error": "Email ou CPF já cadastrado"}), 409
@@ -126,9 +143,11 @@ def register_empresa():
     categoria = data.get("categoria")
     endereco_empresa = data.get("endereco_empresa")
 
+
     # ====== Campos obrigatórios no Registro ======
-    if not all([nome, cpf, telefone, email, password, nome_fantasia, cnpj, endereco_empresa, categoria]):
+    if not all([nome, cpf, telefone, email, password, nome_fantasia, cnpj, categoria]):
         return jsonify({"error": "Campos obrigatórios faltando"}), 400
+    
     if not file_logo:
         return jsonify({"error": "Logo é obrigatória"}), 400
     
@@ -141,7 +160,7 @@ def register_empresa():
     cpf = re.sub(r"\D", "", cpf)
     telefone = re.sub(r"\D", "", telefone)
 
-    # ====== Verificaçãoes Validações ======
+    # ====== Verificações Validações ======
     if not is_valid_email(email):
         return jsonify({"error": "Email inválido"}), 400
 
@@ -157,8 +176,8 @@ def register_empresa():
     if not is_valid_phone(telefone):
         return jsonify({"error": "Telefone inválido"}), 400
 
-    if not is_valid_address(endereco_empresa):
-        return jsonify({"error": "Endereço inválido"}), 400
+    #if not is_valid_address(endereco_empresa):
+    #    return jsonify({"error": "Endereço inválido"}), 400    
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Usuário já existe"}), 409
@@ -175,26 +194,28 @@ def register_empresa():
             "categorias_validas": [c.value for c in CategoriaEstabelecimento]
         }), 400
 
-    #logo_url = None
-
-    #if file_logo and allowed_file(file_logo.filename):
+    # ====== Upload da logo ======
     ext = file_logo.filename.rsplit(".", 1)[1].lower()
     filename = f"{uuid.uuid4()}.{ext}"
     filepath = os.path.join("static/uploads/logos", filename)
-
     os.makedirs("static/uploads/logos", exist_ok=True)
-
     file_logo.save(filepath)
-
     logo_url = f"/static/uploads/logos/{filename}"
 
     # ====== Criando a Pessoa Responsavel + Usuario + Estabelecimento ======
     try:
-        #Campo de Pessoa responsável
+        endereco_pessoa = criar_endereco(data, "resp")
+        endereco_empresa = criar_endereco(data, "emp")
+        db.session.add(endereco_pessoa)
+        db.session.add(endereco_empresa)
+        db.session.flush()
+
+        # Criar Pessoa responsável com endereço
         pessoa = Pessoa(
             nome=nome,
             cpf=cpf,
-            telefone=telefone
+            telefone=telefone,
+            endereco_id=endereco_pessoa.id
         )
         db.session.add(pessoa)
         db.session.flush()
@@ -208,25 +229,32 @@ def register_empresa():
         user.set_password(password)
         db.session.add(user)
 
-        #Criando o Estabelecimento
+        # Criando o Estabelecimento com seu próprio endereço
         estabelecimento = Estabelecimento(
             nome_fantasia=nome_fantasia,
             cnpj=cnpj,
             categoria=categoria_enum,
-            endereco=endereco_empresa,
+            endereco_id=endereco_empresa.id,
             url_logo=logo_url,
             pessoa_id=pessoa.id
         )
 
         db.session.add(estabelecimento)
-
         db.session.commit()
 
         return jsonify({"message": "Empresa cadastrada com Sucesso!"}), 201
 
-    except IntegrityError:
+    except IntegrityError as e:
         db.session.rollback()
-        return jsonify({"error": "CNPJ já cadastrado"}), 409
+        # Verifica se é erro de CNPJ duplicado
+        if "cnpj" in str(e).lower():
+            return jsonify({"error": "CNPJ já cadastrado"}), 409
+        elif "cpf" in str(e).lower():
+            return jsonify({"error": "CPF já cadastrado"}), 409
+        elif "email" in str(e).lower():
+            return jsonify({"error": "Email já cadastrado"}), 409
+        else:
+            return jsonify({"error": "Erro de integridade no banco de dados"}), 409
 
     except Exception as e:
         db.session.rollback()
@@ -256,7 +284,14 @@ def login():
 
     try:
         token = generate_token(user)
-        return jsonify({"access_token": token}), 200
+
+        return jsonify({
+            "access_token": token,
+            "user": {
+                "id": user.id,
+                "tipo_usuario": user.tipo_usuario            
+            }
+        }), 200
 
     except Exception as e:
         return jsonify({
@@ -285,7 +320,7 @@ def me():
         "nome": pessoa.nome,
         "email": user.email,
         "telefone": pessoa.telefone,
-        'endereco_residencial': pessoa.endereco.to_dict(),
+        "endereco": pessoa.endereco.to_dict() if pessoa.endereco else None,
         "url_foto": pessoa.url_foto_perfil
     }
 
@@ -298,16 +333,16 @@ def me():
 
         if not estabelecimento:
             return jsonify({"error": "Estabelecimento não encontrado"}), 404
+
         perfil["empresa"] = {
             "id": estabelecimento.id,
             "nome_fantasia": estabelecimento.nome_fantasia,
             "cnpj": estabelecimento.cnpj,
-            "categoria": estabelecimento.categoria,
-            "endereco_empresa": estabelecimento.endereco.to_dict(),
+            "categoria": estabelecimento.categoria.value if estabelecimento.categoria else None,
+            "endereco_empresa": estabelecimento.endereco.to_dict() if estabelecimento.endereco else None,
             "url_logo": estabelecimento.url_logo,
             "url_banner": estabelecimento.url_banner
         }
-
     return jsonify(perfil), 200
 
 # ============= FUNÇÕES DE ALTERAR DADOS NO PERFIL do USUARIO(Cliente ou Empresa) ============= # 
@@ -326,36 +361,67 @@ def update_me():
 
     data = request.form
     file_foto = request.files.get("foto")
+    file_logo = request.files.get("logo")
 
+    # ====== Campos Bloqueados para Atutalização ======
+    campos_bloqueados = ["cpf", "cnpj", "nome"]
+
+    for campo in campos_bloqueados:
+        if campo in data:
+            return jsonify({
+                "error": f"O campo '{campo}' não pode ser alterado."
+            }), 403    
+    
+    # Campos PERMITIDOS p/ TDS Tipo de USER(Cliente e Empresa)
     # ====== Atualizar campos da Pessoa seja cliente ou empresa ======
-    if "nome" in data:
-        pessoa.nome = data.get("nome")
+    # EMAIL
+    if "email" in data:
+        email = data.get("email").strip().lower()
 
+        if not is_valid_email(email):
+            return jsonify({"error": "Email inválido"}), 400
+
+        email_existente = User.query.filter(
+            User.email == email,
+            User.id != user.id
+        ).first()
+
+        if email_existente:
+            return jsonify({"error": "Email já está em uso"}), 409
+
+        user.email = email    
+
+    #TELEFONE
     if "telefone" in data:
         telefone = re.sub(r"\D", "", data.get("telefone"))
         if not is_valid_phone(telefone):
             return jsonify({"error": "Telefone inválido"}), 400
         pessoa.telefone = telefone
 
-    if "endereco" in data:
-        endereco = data.get("endereco").strip()
-        if not is_valid_address(endereco):
-            return jsonify({"error": "Endereço inválido"}), 400
-        pessoa.endereco = endereco
+    #ENDERECO(Cliente)
+    endereco_pessoa = pessoa.endereco
+    if not endereco_pessoa:
+        # Se não existir, cria um novo
+        endereco_pessoa = Endereco()
+        pessoa.endereco = endereco_pessoa
+
+    campos_endereco_pessoa = ["estado", "cidade", "bairro", "rua", "numero", "complemento", "cep"]
+    for campo in campos_endereco_pessoa:
+        if campo in data:
+            setattr(endereco_pessoa, campo, data.get(campo))
 
     # ====== Att foto do USER ======
     if file_foto and allowed_file(file_foto.filename):
 
         ext = file_foto.filename.rsplit(".", 1)[1].lower()
         filename = f"{uuid.uuid4()}.{ext}"
-        filepath = os.path.join("static/uploads/avatars", filename)
-
-        os.makedirs("static/uploads/avatars", exist_ok=True)
-
+        folder = "static/uploads/perfis"
+        os.makedirs(folder, exist_ok=True)
+        filepath = os.path.join(folder, filename)
         file_foto.save(filepath)
+        pessoa.url_foto_perfil = f"/{folder}/{filename}"
 
-        pessoa.url_foto_perfil = f"/static/uploads/avatars/{filename}"
-
+    # ================== TIPO_USUARIO == "Empresa" ==================
     # ====== Se o USUER for do TIPO == "EMPRESA", atualizar Estabelecimento ======
     if user.tipo_usuario == "empresa":
 
@@ -366,25 +432,53 @@ def update_me():
         if not estabelecimento:
             return jsonify({"error": "Estabelecimento não encontrado"}), 404
 
+        #NOME_FANTASIA
         if "nome_fantasia" in data:
             estabelecimento.nome_fantasia = data.get("nome_fantasia")
 
-        if "endereco_empresa" in data:
-            estabelecimento.endereco = data.get("endereco_empresa")
-            if not is_valid_address(estabelecimento.endereco):
-                return jsonify({"error": "Endereço inválido"}), 400
+        #ENDERECO_EMPRESA
+        # Atualizar endereço da empresa (campos separados)
+        endereco_empresa = estabelecimento.endereco
+        if not endereco_empresa:
+            endereco_empresa = Endereco()
+            estabelecimento.endereco = endereco_empresa
 
+        # Mapeamento dos campos do formulário para os campos do endereço da empresa
+        mapeamento_empresa = {
+            "emp_estado": "estado",
+            "emp_cidade": "cidade",
+            "emp_bairro": "bairro",
+            "emp_rua": "rua",
+            "emp_numero": "numero",
+            "emp_complemento": "complemento",
+            "emp_cep": "cep"
+        }
+
+        for campo_form, campo_endereco in mapeamento_empresa.items():
+            if campo_form in data:
+                setattr(endereco_empresa, campo_endereco, data.get(campo_form))
+
+        #CATEGORIA
         if "categoria" in data:
-            categoria = data.get("categoria")
-
+            #categoria = data.get("categoria")
             try:
-                categoria_enum = CategoriaEstabelecimento(categoria)
+                categoria_enum = CategoriaEstabelecimento(data.get("categoria"))
                 estabelecimento.categoria = categoria_enum.value
             except ValueError:
                 return jsonify({
                     "error": "Categoria inválida",
                     "categorias_validas": [c.value for c in CategoriaEstabelecimento]
                 }), 400
+
+        # Atualizar logo da empresa
+        if file_logo and allowed_file(file_logo.filename):
+            ext = file_logo.filename.rsplit(".", 1)[1].lower()
+            filename = f"{uuid.uuid4()}.{ext}"
+            folder = "static/uploads/logos"
+            os.makedirs(folder, exist_ok=True)
+            filepath = os.path.join(folder, filename)
+            file_logo.save(filepath)
+            estabelecimento.url_logo = f"/{folder}/{filename}"
 
     # ====== Commit final para att o perfil seja CLIENTE ou EMEPRESA ======
     try:
