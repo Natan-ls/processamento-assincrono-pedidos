@@ -13,8 +13,8 @@ class Endereco(db.Model):
     cep = db.Column(db.String(8))
 
     pessoas = db.relationship("Pessoa", back_populates="endereco")
-    estabelecimentos = db.relationship("Estabelecimento", back_populates="endereco")
-    
+    estabelecimentos = db.relationship("Estabelecimento", back_populates="endereco")    
+
     def to_dict(self):
         return {
             'id': self.id,

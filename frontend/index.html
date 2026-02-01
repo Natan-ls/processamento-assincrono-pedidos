@@ -1385,7 +1385,7 @@ empresaLogoInput.addEventListener('change', function() {
         profileEmail.value = data.email || "";
         profileTelefone.value = data.telefone || "";
         profileEndereco.value = data.endereco || "";
-        console.log("Empresa", data)
+        console.log("Empresa", data.empresa.url_logo)
         if (data.url_logo) {
             profileAvatar.src = `${API_URL}${data.url_foto}`;
         } else {
