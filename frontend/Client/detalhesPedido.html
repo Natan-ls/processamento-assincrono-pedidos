@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Pedido - FoodJanu</title>
+    <link rel="stylesheet" href="../Shared/style.css">
+    <link rel="stylesheet" href="./cliente.css">
+</head>
+<body class="cliente-page">
+    <div class="cliente-container">
+        <header class="topo">
+            <a href="home.html" class="logo">
+                <div class="logo-img"></div>
+                <span>FoodJanu ou JanuFood</span>
+            </a>
+            <div class="perfil-area">
+                <div class="perfil-icon" onclick="toggleMenuPerfil()" id="perfilIcon">
+                    👤
+                </div>
+                <div id="menuPerfil" class="menu-perfil hidden">
+                    <button onclick="window.location.href='home.html'">🏠 Início</button>
+                    <button onclick="window.location.href='profile.html'">👤 Meu Perfil</button>
+                    <button onclick="window.location.href='orders.html'">📦 Meus Pedidos</button>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 5px 0;">
+                    <button onclick="logout()">🚪 Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="section">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <button onclick="window.history.back()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                    ← Voltar
+                </button>
+                <h2>📋 Detalhes do Pedido</h2>
+            </div>
+            
+            <div id="carregando" class="carregando">
+                <p>Carregando detalhes do pedido...</p>
+            </div>
+            
+            <div id="conteudoPedido" style="display: none;">
+                <!-- Informações gerais do pedido -->
+                <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-left: 4px solid #1e88e5;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+                        <div>
+                            <h3 style="margin: 0 0 15px 0; color: #333;">Pedido #<span id="pedidoId"></span></h3>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <p style="margin: 0; color: #666;"><strong>Data do Pedido:</strong> <span id="pedidoData"></span></p>
+                                <p style="margin: 0; color: #666;"><strong>Status:</strong> <span id="pedidoStatus" style="padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;"></span></p>
+                                <p style="margin: 0; color: #666;"><strong>Total:</strong> <span id="pedidoTotal" style="color: #1e88e5; font-weight: 600; font-size: 18px;"></span></p>
+                            </div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; min-width: 250px;">
+                            <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">📦 Informações do Estabelecimento</h4>
+                            <p style="margin: 0 0 8px 0; color: #666;"><strong>Nome:</strong> <span id="estabelecimentoNome"></span></p>
+                            <p style="margin: 0 0 8px 0; color: #666;"><strong>Endereço:</strong> <span id="estabelecimentoEndereco"></span></p>
+                            <p style="margin: 0; color: #666;"><strong>Telefone:</strong> <span id="estabelecimentoTelefone"></span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Itens do pedido -->
+                <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                    <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">🛒 Itens do Pedido</h3>
+                    <div id="itensPedido" style="display: flex; flex-direction: column; gap: 15px;">
+                        <!-- OS ITENS vão SER CARREGADOPS AK-->
+                    </div>
+                </div>
+                <!-- Endereço de entrega -->
+                <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-left: 4px solid #ff9800;">
+                    <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">📍 Endereço de Entrega</h3>
+                    <p id="enderecoEntrega" style="margin: 0; color: #666; font-size: 16px; line-height: 1.5;">
+                        <!-- O ENDEREÇO VAI SER COLOCADO AK pelo JS -->
+                    </p>
+                </div>
+
+                <!-- resumo do pedido -->
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                    <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">🧾 Resumo do Pedido</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e1e5eb; padding-bottom: 12px;">
+                            <span style="color: #666;">Subtotal dos itens</span>
+                            <span id="subtotal" style="font-weight: 500;">R$ 0,00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e1e5eb; padding-bottom: 12px;">
+                            <span style="color: #666;">Taxa de entrega</span>
+                            <span id="taxaEntrega" style="font-weight: 500;">R$ 5,00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 600; padding-top: 12px; border-top: 2px solid #e1e5eb;">
+                            <span>Total do pedido</span>
+                            <span id="totalPedido" style="color: #1e88e5;">R$ 0,00</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                            🖨️ Imprimir Recibo
+                        </button>
+                        <button onclick="window.history.back()" style="padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            ← Voltar aos Pedidos
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="erroPedido" class="erro" style="display: none;">
+                <p>Erro ao carregar detalhes do pedido. Tente novamente mais tarde.</p>
+                <button onclick="window.history.back()" style="padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                    ← Voltar aos Pedidos
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <footer class="rodape">
+        <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // ======= Funct p/ obter o ID do pedido da URL
+        function obterIdPedido() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // ======= Funct p/ formatar data
+        function formatarData(dataString) {
+            if (!dataString) return 'N/A';
+            try {
+                let dateStr = dataString;
+                if (!dateStr.endsWith('Z')) {
+                    dateStr += 'Z';
+                }
+                const dataObj = new Date(dateStr);
+                if (isNaN(dataObj.getTime())) {
+                    return 'Data inválida';
+                }
+                return dataObj.toLocaleString('pt-BR');
+            } catch (error) {
+                console.error("Erro ao formatar data:", error);
+                return 'N/A';
+            }
+        }
+
+        // ======= Funct p/ obter a cor do status igual à da lista de pedidos)
+        function getCorStatus(status) {
+            const statusUpper = status.toUpperCase();
+            switch(statusUpper) {
+                case 'CRIADO': return '#2196f3';
+                case 'EM_PREPARO':
+                case 'PREPARANDO': return '#ff9800';
+                case 'PRONTO': return '#4caf50';
+                case 'EM_TRANSITO':
+                case 'EM_ROTA': return '#009688';
+                case 'ENTREGUE': return '#43a047';
+                case 'CANCELADO': return '#f44336';
+                default: return '#9e9e9e';
+            }
+        }
+
+        // =======Funct p/ formatar o status do pedido
+        function formatarStatus(status) {
+            const statusUpper = status.toUpperCase();
+            switch(statusUpper) {
+                case 'CRIADO': return 'CRIADO';
+                case 'EM_PREPARO':
+                case 'PREPARANDO': return 'EM PREPARO';
+                case 'PRONTO': return 'PRONTO PARA ENTREGA';
+                case 'EM_TRANSITO':
+                case 'EM_ROTA': return 'EM ROTA';
+                case 'ENTREGUE': return 'ENTREGUE';
+                case 'CANCELADO': return 'CANCELADO';
+                default: return status;
+            }
+        }
+ 
+        // ======= Funct p/ carregar os detalhes do pedido
+        async function carregarDetalhesPedido() {
+            const pedidoId = obterIdPedido();
+            if (!pedidoId) {
+                mostrarErro('ID do pedido não encontrado na URL.');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    window.location.href = "../Index/index.html";
+                    return;
+                }
+
+                // Buscar o pedido
+                const resPedido = await fetch(`http://localhost:5000/orders/${pedidoId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!resPedido.ok) {
+                    throw new Error('Pedido não encontrado ou erro na requisição');
+                }
+
+                const pedido = await resPedido.json();
+
+                // Buscar informações do estabelecimento
+                const resEstabelecimento = await fetch(`http://localhost:5000/estabelecimentos/${pedido.estabelecimento_id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                let estabelecimento = null;
+                if (resEstabelecimento.ok) {
+                    estabelecimento = await resEstabelecimento.json();
+                }
+
+                // Atualizar a interface com os dados do pedido
+                document.getElementById('pedidoId').textContent = pedido.order_id || pedido.id;
+                document.getElementById('pedidoData').textContent = formatarData(pedido.created_at);
+                
+                const statusElement = document.getElementById('pedidoStatus');
+                statusElement.textContent = formatarStatus(pedido.status);
+                statusElement.style.backgroundColor = getCorStatus(pedido.status);
+                
+                document.getElementById('pedidoTotal').textContent = `R$ ${parseFloat(pedido.total || pedido.valor_total || 0).toFixed(2)}`;
+
+                // Preencher informações do estabelecimento
+                if (estabelecimento) {
+                    document.getElementById('estabelecimentoNome').textContent = estabelecimento.nome_fantasia || 'N/A';
+                    
+                    const endereco = estabelecimento.endereco;
+                    if (endereco) {
+                        const enderecoFormatado = `
+                            ${endereco.rua || ''}, ${endereco.numero || ''}${endereco.complemento ? ` - ${endereco.complemento}` : ''}
+                            ${endereco.bairro ? ` - ${endereco.bairro}` : ''}
+                            ${endereco.cidade ? ` - ${endereco.cidade}` : ''}${endereco.estado ? `/${endereco.estado}` : ''}
+                            ${endereco.cep ? ` - CEP: ${endereco.cep}` : ''}
+                        `.replace(/\s+/g, ' ').trim();
+                        document.getElementById('estabelecimentoEndereco').textContent = enderecoFormatado;
+                    } else {
+                        document.getElementById('estabelecimentoEndereco').textContent = 'Endereço não disponível';
+                    }
+                    
+                    const proprietario = estabelecimento.proprietario;
+                    if (proprietario) {
+                        document.getElementById('estabelecimentoTelefone').textContent = proprietario.telefone || 'Não disponível';
+                    } else {
+                        document.getElementById('estabelecimentoTelefone').textContent = 'Não disponível';
+                    }
+                } else {
+                    document.getElementById('estabelecimentoNome').textContent = 'Carregando...';
+                    document.getElementById('estabelecimentoEndereco').textContent = 'Carregando...';
+                    document.getElementById('estabelecimentoTelefone').textContent = 'Carregando...';
+                }
+
+                // ATUALIZAÇÃO: Preencher endereço de entrega
+                if (pedido.endereco_entrega) {
+                    let enderecoFormatado = pedido.endereco_entrega;
+                    
+                    // Verifica se é uma string JSON ou já é uma string
+                    try {
+                        const enderecoObj = JSON.parse(pedido.endereco_entrega);
+                        if (typeof enderecoObj === 'object') {
+                            enderecoFormatado = `
+                                ${enderecoObj.rua || ''}, ${enderecoObj.numero || ''}${enderecoObj.complemento ? ` - ${enderecoObj.complemento}` : ''}
+                                ${enderecoObj.bairro ? ` - ${enderecoObj.bairro}` : ''}
+                                ${enderecoObj.cidade ? ` - ${enderecoObj.cidade}` : ''}${enderecoObj.estado ? `/${enderecoObj.estado}` : ''}
+                                ${enderecoObj.cep ? ` - CEP: ${enderecoObj.cep}` : ''}
+                            `.replace(/\s+/g, ' ').trim();
+                        }
+                    } catch (e) {
+                        // Se não for JSON, usa como string
+                        enderecoFormatado = pedido.endereco_entrega;
+                    }
+                    
+                    document.getElementById('enderecoEntrega').textContent = enderecoFormatado;
+                } else {
+                    document.getElementById('enderecoEntrega').textContent = 'Endereço não informado';
+                }
+
+                // Atualizar itens do pedido
+                const itensContainer = document.getElementById('itensPedido');
+                itensContainer.innerHTML = '';
+
+                let subtotal = 0;
+                if (pedido.items && pedido.items.length > 0) {
+                    pedido.items.forEach(item => {
+                        const itemSubtotal = (item.preco_unitario || item.preco || 0) * (item.quantidade || 1);
+                        subtotal += itemSubtotal;
+
+                        const itemDiv = document.createElement('div');
+                        itemDiv.style.cssText = `
+                            padding: 18px;
+                            border: 1px solid #e1e5eb;
+                            border-radius: 10px;
+                            background: #f8f9fa;
+                            transition: all 0.2s ease;
+                        `;
+                        itemDiv.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 15px;">
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px; font-weight: 600;">${item.nome || 'Produto'}</h4>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 14px;">
+                                        <div style="background: #e3f2fd; padding: 5px 10px; border-radius: 6px; color: #1e88e5;">
+                                            <strong>Quantidade:</strong> ${item.quantidade || 1}
+                                        </div>
+                                        <div style="background: #e8f5e9; padding: 5px 10px; border-radius: 6px; color: #2e7d32;">
+                                            <strong>Preço unitário:</strong> R$ ${parseFloat(item.preco_unitario || item.preco || 0).toFixed(2)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right; min-width: 120px;">
+                                    <p style="margin: 0; color: #1e88e5; font-weight: 600; font-size: 18px;">R$ ${itemSubtotal.toFixed(2)}</p>
+                                    <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Subtotal</p>
+                                </div>
+                            </div>
+                        `;
+                        itensContainer.appendChild(itemDiv);
+                    });
+                } else {
+                    itensContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <p style="margin: 0; font-size: 16px;">Nenhum item encontrado neste pedido.</p>
+                        </div>
+                    `;
+                }
+
+                // Atualizar resumo
+                const taxa = 5.00; // Taxa de entrega TEM Q VER SE VAMOS COLCOAR TAXA DE ENTREWEGA, Se colcoar TEM Q ADD A COLUNA NO BD e MEXER NOS OUTROS CODEs 
+                const total = subtotal + taxa;
+
+                document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
+                document.getElementById('taxaEntrega').textContent = `R$ ${taxa.toFixed(2)}`;
+                document.getElementById('totalPedido').textContent = `R$ ${total.toFixed(2)}`;
+
+                // Mostrar conteúdo e esconder carregando
+                document.getElementById('carregando').style.display = 'none';
+                document.getElementById('conteudoPedido').style.display = 'block';
+
+            } catch (error) {
+                console.error("Erro ao carregar detalhes do pedido:", error);
+                document.getElementById('carregando').style.display = 'none';
+                document.getElementById('erroPedido').style.display = 'block';
+            }
+        }
+
+        function mostrarErro(mensagem) {
+            document.getElementById('carregando').style.display = 'none';
+            document.getElementById('erroPedido').style.display = 'block';
+            document.getElementById('erroPedido').querySelector('p').textContent = mensagem;
+        }
+
+        // ======= Funct de logout
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userType");
+            window.location.href = "/frontend/Index/index.html";
+        }
+
+        // Adicionar função toggleMenuPerfil
+        function toggleMenuPerfil() {
+            const menu = document.getElementById('menuPerfil');
+            if (menu) {menu.classList.toggle('hidden');}
+        }
+
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('menuPerfil');
+            const icon = document.getElementById('perfilIcon');
+            
+            if (menu && icon && !menu.classList.contains('hidden')) {if (!menu.contains(event.target) && !icon.contains(event.target)) {menu.classList.add('hidden');}}
+        });
+
+        // Carregar detalhes do pedido quando a página carregar
+        document.addEventListener('DOMContentLoaded', carregarDetalhesPedido);
+    </script>
+</body>
+</html>

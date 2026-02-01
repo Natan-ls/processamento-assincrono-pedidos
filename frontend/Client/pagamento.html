@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagamento - FoodJanu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../Shared/style.css">
+    <link rel="stylesheet" href="./cliente.css">
+</head>
+
+<body class="cliente-page">
+
+<div class="cliente-container">
+
+    <header class="topo">
+        <a href="home.html" class="logo">
+            <div class="logo-img"></div>
+            <span>FoodJanu ou JanuFood</span>
+        </a>
+    </header>
+
+    <section class="section">
+        <h2>💳 Pagamento do Pedido</h2>
+
+        <p>Escolha o método de pagamento:</p>
+
+        <select id="metodoPagamento">
+            <option value="">Selecione...</option>
+            <option value="PIX">PIX</option>
+            <option value="CARTAO">Cartão</option>
+            <option value="DINHEIRO">Dinheiro</option>
+        </select>
+
+        <button id="btnConfirmarPagamento" class="btn-finalizar" style="margin-top:20px;">
+            Confirmar Pagamento
+        </button>
+
+        <pre id="output" style="margin-top:20px;"></pre>
+    </section>
+
+</div>
+
+<script type="module" src="./pagamento.js"></script>
+
+</body>
+</html>

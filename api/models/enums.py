@@ -18,7 +18,6 @@ class CategoriaEstabelecimento(str, Enum):
     FARMACIA = "FARMACIA"
     MERCADO = "MERCADO"
     FAST_FOOD = "FAST_FOOD"
-    BARZINHO = "BARZINHO"
 
 class DiaSemana(IntEnum):
     DOMINGO = 0

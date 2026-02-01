@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meus Pedidos - FoodJanu</title>
+    <link rel="stylesheet" href="../Shared/style.css">
+    <link rel="stylesheet" href="./cliente.css">
+</head>
+<body class="cliente-page">
+    <div class="cliente-container">
+        <header class="topo">
+            <a href="home.html" class="logo">
+                <div class="logo-img">🍽️</div>
+                <span>FoodJanu</span>
+            </a>
+            <div class="perfil-area">
+                <div class="perfil-icon" onclick="toggleMenuPerfil()" id="perfilIcon">
+                    👤
+                </div>
+                <div id="menuPerfil" class="menu-perfil hidden">
+                    <button onclick="window.location.href='home.html'">🏠 Início</button>
+                    <button onclick="window.location.href='profile.html'">👤 Meu Perfil</button>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 5px 0;">
+                    <button onclick="logout()">🚪 Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="section">
+            <h2>📦 Meus Pedidos</h2>
+            <p>Acompanhe o status dos seus pedidos:</p>
+            
+            <div id="listaPedidos" style="margin-top: 20px;">
+                <!-- OS Pedidos do USER vão SER carregados AK -->
+                <p>Carregando seus pedidos...</p>
+            </div>
+            
+            <button onclick="window.location.href='home.html'" style="margin-top: 30px;">
+                ← Voltar para o Início
+            </button>
+        </section>
+    </div>
+
+    <!-- RODAPE da PAGE-->
+    <footer class="rodape"><p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p></footer>
+
+    <script type="module" src="./clientHome.js"></script>
+    <script>
+        // ======= Funct de CARREGAR os PEDIDOS do USER
+        async function carregarPedidos() {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    window.location.href = "/frontend/Index/index.html";
+                    return;
+                }
+                
+                const res = await fetch("http://localhost:5000/orders/", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                
+                const data = await res.json();
+                
+                const listaPedidos = document.getElementById("listaPedidos");
+                
+                if (!res.ok || !data.length) {
+                    listaPedidos.innerHTML = '<p>Você ainda não fez nenhum pedido.</p>';
+                    return;
+                }
+                
+                let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+                
+                data.forEach(pedido => {
+                    const status = pedido.status || 'PENDENTE';
+                    
+                    // Formatação da data UTC para horário local //TEMOS UM PROBLEMA COM O CREATED_AT 
+                    let dataPedido;
+                    if (pedido.created_at) {
+                        try {
+                            // adicionamos o 'Z' para indicar que é UTC
+                            let dateStr = pedido.created_at;
+                            
+                            // Se a string não termina com 'Z', adicionamos
+                            if (!dateStr.endsWith('Z')) {dateStr += 'Z';}
+                            
+                            // Criamos a data em UTC
+                            const dataObjUTC = new Date(dateStr);
+                            
+                            // Verifica se a data é válida --- /* Se não for válida, usa a data atual*/
+                            if (isNaN(dataObjUTC.getTime())) {dataPedido = new Date().toLocaleString('pt-BR');
+                            } else {dataPedido = dataObjUTC.toLocaleString('pt-BR');}// Converter UTC para horário local do navegador e o toLocaleString já faz essa conversão automaticamente
+                        } catch (error) {
+                            console.error("Erro ao formatar data:", error, pedido.created_at);
+                            dataPedido = new Date().toLocaleString('pt-BR');
+                        }
+                    } else {dataPedido = new Date().toLocaleString('pt-BR');}// Se não houver data, usa a data atual
+                    
+                    html += `
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #1e88e5; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <h3 style="margin: 0 0 10px 0; color: #333;">Pedido #${pedido.id}</h3>
+                                    <p style="margin: 5px 0; color: #666;"><strong>Data:</strong> ${dataPedido}</p>
+                                    <p style="margin: 5px 0; color: #666;"><strong>Status:</strong> 
+                                        <span style="padding: 4px 10px; background: ${getCorStatus(status)}; color: white; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                            ${formatarStatus(status)}
+                                        </span>
+                                    </p>
+                                    <p style="margin: 5px 0; color: #666;"><strong>Total:</strong> <span style="color: #1e88e5; font-weight: 600;">R$ ${pedido.valor_total ? parseFloat(pedido.valor_total).toFixed(2) : '0.00'}</span></p>
+                                </div>
+                                <div>
+                                    <button onclick="verDetalhesPedido(${pedido.id})" style="padding: 8px 15px; font-size: 14px; background: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                        <span>🔍</span> Detalhes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                listaPedidos.innerHTML = html;
+                
+            } catch (error) {
+                console.error("Erro ao carregar pedidos:", error);
+                document.getElementById("listaPedidos").innerHTML = `
+                    <div style="text-align: center; padding: 40px; background: #ffebee; border-radius: 10px; border: 1px solid #ffcdd2; color: #c62828;">
+                        <p>Erro ao carregar pedidos. Tente novamente mais tarde.</p>
+                        <button onclick="carregarPedidos()" style="padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                            Tentar novamente
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Função auxiliar para obter a cor do status
+        function getCorStatus(status) {
+            const statusUpper = status.toUpperCase();
+            switch(statusUpper) {
+                case 'CRIADO':
+                    return '#2196f3';
+                case 'EM_PREPARO':
+                case 'PREPARANDO':
+                    return '#ff9800';
+                case 'PRONTO':
+                    return '#4caf50';
+                case 'EM_TRANSITO':
+                case 'EM_ROTA':
+                    return '#009688';
+                case 'ENTREGUE':
+                    return '#43a047';
+                case 'CANCELADO':
+                    return '#f44336';
+                default:
+                    return '#9e9e9e';
+            }
+        }
+
+        // Função auxiliar para formatar o status
+        function formatarStatus(status) {
+            const statusUpper = status.toUpperCase();
+            switch(statusUpper) {
+                case 'CRIADO':
+                    return 'CRIADO';
+                case 'EM_PREPARO':
+                case 'PREPARANDO':
+                    return 'EM PREPARO';
+                case 'PRONTO':
+                    return 'PRONTO PARA ENTREGA';
+                case 'EM_TRANSITO':
+                case 'EM_ROTA':
+                    return 'EM ROTA';
+                case 'ENTREGUE':
+                    return 'ENTREGUE';
+                case 'CANCELADO':
+                    return 'CANCELADO';
+                default:
+                    return status;
+            }
+        }
+
+        function verDetalhesPedido(pedidoId) {window.location.href = `detalhesPedido.html?id=${pedidoId}`;}
+
+        // Carregar pedidos ao abrir a página
+        document.addEventListener('DOMContentLoaded', carregarPedidos);   
+    </script>
+</body>
+</html>

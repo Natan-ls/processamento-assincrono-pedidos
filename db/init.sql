@@ -92,6 +92,8 @@ CREATE TABLE pedidos (
     pessoa_id INTEGER NOT NULL,                -- Cliente que realizou o pedido
     status VARCHAR(50) NOT NULL,                -- Status atual do pedido
     valor_total NUMERIC(10,2),                  -- Valor total do pedido    
+    endereco_entrega VARCHAR(255) NOT NULL,
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -156,26 +158,43 @@ INSERT INTO endereco(estado, cidade, rua, numero, cep) VALUES
     ('MG', 'Januária', 'Avenida João', '456', '39480000'),
     ('MG', 'Januária', 'Avenida Marcos','1442', '39480000'),
     ('MG', 'Januária', 'Rua Central', '548', '39480000'),
-    ('MG', 'Januária', 'Cônego Ramiro', '5414', '39480000');
+    ('MG', 'Januária', 'Cônego Ramiro', '5414', '39480000'),
+    ('MG', 'Januária', 'Barão de São Romaão', '1973', '39480000'),
+    ('MG', 'Januária', 'Gaspar Dutra', '52', '39480000');
+
 
 INSERT INTO pessoa(endereco_id, nome, cpf, telefone) VALUES 
     (1, 'João', '97242721091', '(38)12344321'),
-    (2, 'Marcos', '36636846011', '(38)45677654');
+    (2, 'Marcos', '36636846011', '(38)45677654'),
+    (3, 'Mateus', '36436876031', '(37)36217594'),
+    (4, 'Andre', '30436936095', '(31)36267993');
+
 
 INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario) VALUES 
     (1, 'joao@gmail.com', 'teste', 'Colaborador'),
-    (2, 'marcospizza@gmail.com', 'teste', 'Colaborador');
+    (2, 'marcospizza@gmail.com', 'teste', 'Colaborador'),
+    (3, 'mateus@gmail.com', 'teste', 'Colaborador'),
+    (4, 'andre@gmail.com', 'teste', 'Colaborador');
+
 
 INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria) VALUES 
     (1, 3, 'Pizzaria do João', '12345678000190', 'FAST_FOOD'),
-    (2, 4,'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD');
+    (2, 4,'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD'),
+    (3, 5,'Pimenta Mineira', '00398308000137', 'RESTAURANTE'),
+    (4, 6,'Drogaria Santo Antonio', '23565792000147', 'FARMACIA');
 
 INSERT INTO produto (estabelecimento_id, nome_item, preco_unidade, quantidade_estoque) VALUES
     (1, 'Pizza Calabresa', 45.00, 50),
     (1, 'Pizza Marguerita', 42.00, 40),
     (2, 'Pizza Marguerita', 35.12, 60),
     (1, 'Coca-Cola 2L', 13.00, 100),
-    (2, 'Coca-Cola 2L', 12.00, 100);
+    (2, 'Coca-Cola 2L', 12.00, 100),
+    (4, 'Benegripe  12Caps', 19.00, 200),
+    (4, 'Creatina  1KG', 70.00, 150),
+    (4, 'Amoxilina', 33.00, 50),
+    (4, 'Nimesulida', 08.00, 0);
+    
+
 
 INSERT INTO horario_funcionamento (estabelecimento_id, dia_semana, ativo, hora_inicio, hora_fim) VALUES
     (1, 0, TRUE, '18:00', '23:00'), -- Domingo
@@ -183,7 +202,7 @@ INSERT INTO horario_funcionamento (estabelecimento_id, dia_semana, ativo, hora_i
     (1, 2, TRUE, '18:00', '23:00'), -- Terça
     (1, 3, TRUE, '18:00', '23:00'), -- Quarta
     (1, 4, TRUE, '18:00', '23:00'), -- Quinta
-    (1, 5, TRUE, '18:00', '00:00'), -- Sexta
+    (1, 5, TRUE, '18:00', '23:59'), -- Sexta
     (1, 6, TRUE, '18:00', '00:00'), -- Sábado
     (2, 0, TRUE, '17:30', '22:30'),
     (2, 1, TRUE, '17:30', '22:30'),
@@ -191,4 +210,20 @@ INSERT INTO horario_funcionamento (estabelecimento_id, dia_semana, ativo, hora_i
     (2, 3, TRUE, '17:30', '22:30'),
     (2, 4, TRUE, '17:30', '22:30'),
     (2, 5, TRUE, '17:30', '22:30'),
-    (2, 6, TRUE, '17:30', '22:30');
+    (2, 6, TRUE, '17:30', '22:30'),
+    (3, 0, TRUE, '09:30', '22:30'),--PIMENTA MINEIRA Dom
+    (3, 1, TRUE, '09:30', '22:30'),-- Seg
+    (3, 2, TRUE, '09:30', '22:30'),-- Terc
+    (3, 3, TRUE, '09:30', '22:30'),-- Quarta
+    (3, 4, TRUE, '09:30', '22:30'),--Quinta
+    (3, 5, TRUE, '09:30', '22:30'),--Setxa
+    (3, 6, TRUE, '09:30', '22:30'),--Sab
+    (4, 0, TRUE, '07:30', '22:30'),--DROGARIA SANTO ANTONIO --dom
+    (4, 1, TRUE, '07:30', '22:30'),--Seg
+    (4, 2, TRUE, '07:30', '22:30'),--terc
+    (4, 3, TRUE, '07:30', '22:30'),--quart
+    (4, 4, TRUE, '07:30', '22:30'),--quint
+    (4, 5, TRUE, '07:30', '22:30'),--setx
+    (4, 6, TRUE, '07:30', '22:30');--sab
+
+

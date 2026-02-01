@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Registro / Pedidos (JWT)</title>
+    <link rel="stylesheet" href="../Shared/style.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-placeholder"></div>
+            <h1>Nosso Sistema</h1>
+            <p>Faça Login ou Crie uma Conta para acessar todas as funcionalidades do sistema agora mesmo!</p>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="card">
+                <!-- LOGIN -->
+                <div id="loginBox">
+                    <h2>Login</h2>
+                    <div class="form-group">
+                        <input id="loginEmail" type="email" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input id="loginPassword" type="password" placeholder="Senha">
+                    </div>
+                    <button id="btnLogin">Entrar</button>
+                    <div class="link" id="linkShowRegister">Criar uma conta</div>
+                </div>
+
+                <!-- ESCOLHA DO TIPO DE REGISTRO -->
+                <div id="registerTypeBox" class="hidden">
+                    <h2>Tipo de Conta</h2>
+                    <button id="btnShowRegisterCliente" style="margin-bottom: 15px;">
+                        Criar conta Cliente
+                    </button>
+                    <button id="btnShowRegisterEmpresa" class="secondary">
+                        Criar conta Empresa
+                    </button>
+                    <div class="link" id="linkShowLoginFromType">Voltar</div>
+                </div>
+
+                <!-- REGISTRO CLIENTE -->
+                <div id="registerClienteBox" class="hidden">
+                    <h2>Registro</h2>
+                    <div class="avatar-upload">
+                        <label for="regFoto">
+                            <img
+                                id="avatarPreview"
+                                src=""
+                                alt="Foto de perfil"
+                            >
+                            <span class="avatar-edit">+</span>
+                        </label>
+                        <input
+                            id="regFoto"
+                            type="file"
+                            accept="image/*"
+                            hidden
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <input id="regNome" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <input id="regEmail" type="email" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input id="regPassword" type="password" placeholder="Senha">
+                    </div>
+                    <div class="form-group">
+                        <input id="regCpf" placeholder="CPF">
+                    </div>
+
+                    <!-- Endereço do Cliente -->
+                    <div class="endereco-container">
+                        <h4>Endereço</h4>
+                        <div class="endereco-grid">
+                            <input id="regEstado" placeholder="Estado (ex: MG)" maxlength="2">
+                            <input id="regCidade" placeholder="Cidade">
+                            <input id="regBairro" placeholder="Bairro" class="full-width">
+                            <input id="regRua" placeholder="Rua" class="full-width">
+                            <input id="regNumero" placeholder="Número">
+                            <input id="regComplemento" placeholder="Complemento">
+                            <input id="regCep" placeholder="CEP" class="full-width">
+                        </div>
+                        <button type="button" class="btn-localizacao" id="btnLocalizacaoCliente">
+                            Usar localização atual
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <input id="regTelefone" placeholder="Telefone">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="btnRegisterCliente">Registrar</button>
+                        <button id="btnVoltarCliente" class="secondary">Voltar</button>
+                    </div>
+                    <div class="link" id="linkShowLoginFromCliente">Já tenho conta</div>
+                </div>
+
+                <!-- REGISTRO EMPRESA -->
+                <div id="registerEmpresaBox" class="hidden">
+                    <h2>Registro Empresa</h2>
+
+                    <!-- Dados do Responsável -->
+                    <div class="form-group">
+                        <input id="empNome" placeholder="Nome do responsável">
+                    </div>
+                    <div class="endereco-grid">
+                        <input id="empCpf" placeholder="CPF">
+                        <input id="empTelefone" placeholder="Telefone">
+                    </div>
+                    <div class="form-group">
+                        <input id="empEmail" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input id="empPassword" type="password" placeholder="Senha">
+                    </div>
+
+                    <!-- Endereço do Responsável -->
+                    <div class="endereco-container">
+                        <h4>Endereço do Responsável</h4>
+                        <div class="endereco-grid">
+                            <input id="empRespEstado" placeholder="Estado (ex: MG)" maxlength="2">
+                            <input id="empRespCidade" placeholder="Cidade">
+                            <input id="empRespBairro" placeholder="Bairro" class="full-width">
+                            <input id="empRespRua" placeholder="Rua" class="full-width">
+                            <input id="empRespNumero" placeholder="Número">
+                            <input id="empRespComplemento" placeholder="Complemento">
+                            <input id="empRespCep" placeholder="CEP" class="full-width">
+                        </div>
+                        <button type="button" class="btn-localizacao" id="btnLocalizacaoEmpresaResp">
+                            Usar localização atual
+                        </button>
+                    </div>
+
+                    <hr>
+
+                    <!-- Dados da Empresa -->
+                    <div class="form-group">
+                        <input id="empNomeFantasia" placeholder="Nome Fantasia">
+                    </div>
+                    <div class="form-group">
+                        <input id="empCnpj" placeholder="CNPJ">
+                    </div>
+                    <div class="form-group">
+                        <select id="empCategoria">
+                            <option value="">Selecione categoria</option>
+                            <option value="RESTAURANTE">Restaurante</option>
+                            <option value="FARMACIA">Farmácia</option>
+                            <option value="MERCADO">Mercado</option>
+                            <option value="FAST_FOOD">Fast Food</option>
+                        </select>
+                    </div>
+
+                    <!-- Endereço da Empresa -->
+                    <div class="endereco-container">
+                        <h4>Endereço da Empresa</h4>
+                        <div class="endereco-grid">
+                            <input id="empEstado" placeholder="Estado (ex: MG)" maxlength="2">
+                            <input id="empCidade" placeholder="Cidade">
+                            <input id="empBairro" placeholder="Bairro" class="full-width">
+                            <input id="empRua" placeholder="Rua" class="full-width">
+                            <input id="empNumero" placeholder="Número">
+                            <input id="empComplemento" placeholder="Complemento">
+                            <input id="empCep" placeholder="CEP" class="full-width">
+                        </div>
+                        <button type="button" class="btn-localizacao" id="btnLocalizacaoEmpresa">
+                            Usar localização atual
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Logo da empresa (obrigatório)</label>
+                        <input id="empLogo" type="file" accept="image/*">
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="btnRegisterEmpresa">Cadastrar Empresa</button>
+                        <button id="btnVoltarEmpresa" class="secondary">Voltar</button>
+                    </div>
+                    <div class="link" id="linkShowLoginFromEmpresa">Já tenho conta</div>
+                </div>
+
+                <!-- PEDIDOS -->
+                <div id="orderBox" class="hidden">
+                    <h2>Pedidos</h2>
+                    <div class="form-group">
+                        <select id="estabelecimentoSelect"></select>
+                    </div>
+                    <button id="btnLoadProdutos" class="secondary" style="margin-bottom: 15px;">Carregar Produtos</button>
+                    
+                    <div class="form-group">
+                        <select id="produtoSelect"></select>
+                    </div>
+                    <div class="form-group">
+                        <input id="quantidadeInput" type="number" placeholder="Quantidade" value="1">
+                    </div>
+                
+                    <div class="form-actions">
+                        <button id="btnCreateOrder">Criar Pedido</button>
+                        <button id="btnListOrders" class="secondary">Listar Pedidos</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input id="orderIdInput" placeholder="ID do pedido">
+                    </div>
+                    <button id="btnGetOrderById" class="secondary" style="margin-bottom: 15px;">Buscar Pedido</button>
+                    
+                    <div class="form-actions">
+                        <button id="btnShowProfile">Configurações do Perfil</button>
+                        <button id="btnLogoutOrderBox" class="secondary">Sair</button>
+                    </div>
+                </div>
+
+                <!-- PERFIL -->
+                <div id="profileBox" class="hidden">
+                    <h2>Meu Perfil</h2>
+                    
+                    <!-- Botão para alternar entre modo visualização/edição -->
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <button id="editProfileBtn">Editar Perfil</button>
+                        <button id="saveProfileBtn" class="hidden">Salvar</button>
+                        <button id="cancelEditBtn" class="hidden">Cancelar</button>
+                    </div>
+
+                    <div class="avatar-upload">
+                        <label for="profileFotoInput">
+                            <img id="profileAvatar" src="">
+                            <span class="avatar-edit">+</span>
+                        </label>
+                        <input id="profileFotoInput" type="file" accept="image/*" hidden>
+                    </div>
+
+                    <!-- Campos editáveis -->
+                    <input id="profileNome" disabled>
+                    <input id="profileEmail" disabled>
+                    <input id="profileTelefone" disabled>
+                    
+                    <!-- Endereço -->
+                    <div class="endereco-container">
+                        <h4>Endereço</h4>
+                        <input id="profileEstado" placeholder="Estado" disabled>
+                        <input id="profileCidade" placeholder="Cidade" disabled>
+                        <input id="profileBairro" placeholder="Bairro" disabled class="full-width">
+                        <input id="profileRua" placeholder="Rua" disabled class="full-width">
+                        <input id="profileNumero" placeholder="Número" disabled>
+                        <input id="profileComplemento" placeholder="Complemento" disabled>
+                        <input id="profileCep" placeholder="CEP" disabled>
+                    </div>
+
+                    <!-- Seção da Empresa (só será visível para as empresas) -->
+                    <div id="empresaSection" class="hidden">
+                        <h3>Dados da Empresa</h3>
+                        <input id="empresaNomeFantasia" disabled>
+                        <select id="empresaCategoria" disabled>
+                            <option value="">Selecione categoria</option>
+                            <option value="RESTAURANTE">Restaurante</option>
+                            <option value="FARMACIA">Farmácia</option>
+                            <option value="MERCADO">Mercado</option>
+                            <option value="FAST_FOOD">Fast Food</option>
+                        </select>
+                        
+                        <!-- Endereço da Empresa -->
+                        <div class="endereco-container">
+                            <h4>Endereço da Empresa</h4>
+                            <input id="empresaEstado" placeholder="Estado" disabled>
+                            <input id="empresaCidade" placeholder="Cidade" disabled>
+                            <input id="empresaBairro" placeholder="Bairro" disabled class="full-width">
+                            <input id="empresaRua" placeholder="Rua" disabled class="full-width">
+                            <input id="empresaNumero" placeholder="Número" disabled>
+                            <input id="empresaComplemento" placeholder="Complemento" disabled>
+                            <input id="empresaCep" placeholder="CEP" disabled>
+                        </div>
+                        
+                        <!-- Logo da Empresa -->
+                        <label for="empresaLogoInput">Logo da Empresa</label>
+                        <input id="empresaLogoInput" type="file" accept="image/*" hidden>
+                        <img id="empresaLogoImg" style="width:120px; height:120px; object-fit:cover; border-radius:5px; margin-top:10px;">
+                    </div>
+
+                    <button id="btnBackToOrders">Voltar para Pedidos</button>
+                    <div class="link" id="linkLogoutProfile">Sair</div>
+                </div>
+                
+                <pre id="output"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../Shared/main.js"></script>
+</body>
+</html>

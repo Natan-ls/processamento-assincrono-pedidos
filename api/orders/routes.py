@@ -6,6 +6,7 @@ from api.auth.decorators import jwt_required
 import api.messaging.constantes as constants
 import api.messaging.producer as producer
 from datetime import datetime, timezone
+from api.models.produto import Product
 
 orders_bp = Blueprint("orders", __name__, url_prefix="/orders")
 
@@ -23,6 +24,7 @@ def create_order():
         return jsonify({"error": "JSON inválido ou ausente"}), 400
 
     items_data = data.get("items")
+    endereco_entrega = data.get("endereco_entrega")
 
     if not items_data or not isinstance(items_data, list):
         return jsonify({"error": "O pedido deve conter uma lista de itens"}), 400
@@ -32,7 +34,8 @@ def create_order():
             pessoa_id=request.pessoa_id, ##faz autencticação do user via jwwt
             estabelecimento_id=data["estabelecimento_id"],
             status=OrderStatus.CRIADO.value,
-            valor_total=0
+            valor_total=0,
+            endereco_entrega=endereco_entrega
         )
         
         total = 0
@@ -45,9 +48,8 @@ def create_order():
                 quantidade=quantidade,
                 preco_unitario=preco
             )
-
-        new_order.items.append(order_item)## add item no pedido
-        total += quantidade * preco ## att o valor do pedido
+            new_order.items.append(order_item)## add item no pedido
+            total += quantidade * preco ## att o valor do pedido
 
         new_order.valor_total = total
 
@@ -61,6 +63,7 @@ def create_order():
             "dados": {
                 "pedido_id": new_order.id,
                 "pessoa_id": request.pessoa_id,
+                "endereco_entrega": endereco_entrega,
                 "itens": [item.to_dict() for item in new_order.items],
                 "total": float(total)
             }
@@ -71,7 +74,8 @@ def create_order():
             "message": "Pedido criado com sucesso",
             "order_id": new_order.id,
             "status": new_order.status,
-            "total": float(total)
+            "total": float(total),
+            "endereco_entrega": endereco_entrega
         }), 201
     
     except Exception as e:
@@ -95,10 +99,26 @@ def get_order(order_id):
     if not order:
         return jsonify({"error": "Pedido não encontrado"}), 404
 
+    # Buscar informações dos itens com detalhes do produto
+    items_detalhados = []
+    for item in order.items:
+        produto = Product.query.get(item.produto_id)
+        items_detalhados.append({
+            "id": item.id,
+            "produto_id": item.produto_id,
+            "nome": produto.nome_item if produto else "Produto não encontrado",
+            "quantidade": item.quantidade,
+            "preco_unitario": float(item.preco_unitario),
+            "subtotal": float(item.quantidade * item.preco_unitario)
+        })
+
     return jsonify({
         "order_id": order.id,
+        "estabelecimento_id": order.estabelecimento_id,
         "status": order.status,
         "total": float(order.valor_total),
+        "endereco_entrega": order.endereco_entrega,
+        "created_at": order.created_at.isoformat() if order.created_at else None,
         "items": [item.to_dict() for item in order.items]
     }), 200
 
