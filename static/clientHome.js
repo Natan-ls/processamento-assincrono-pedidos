@@ -1,6 +1,6 @@
-import { apiRequest, authHeadersJson } from "../Shared/api.js";
-import { log } from "../Shared/utils.js";
-import { logout } from "../Shared/auth.js";
+import { apiRequest, authHeadersJson } from "./api.js";
+import { log } from "./utils.js";
+import { logout } from "./auth.js";
 // ============================= Components da INTERFACE dom =============================
 // ======= elementos da page principal
 const lista = document.getElementById("listaEstabelecimentos");
@@ -60,13 +60,13 @@ function setupMenuEventos() {
     // Eventos para os botões do menu
     if (btnPerfil) {
         btnPerfil.addEventListener('click', () => {
-            window.location.href = 'profile.html';
+            window.location.href = '/client/profile';
         });
     }
     
     if (btnPedidos) {
         btnPedidos.addEventListener('click', () => {
-            window.location.href = 'orders.html';
+            window.location.href = '/client/orders';
         });
     }
     
@@ -127,9 +127,13 @@ function renderizarEstabelecimentos(estabelecimentosParaRenderizar) {
     estabelecimentosParaRenderizar.forEach(estabelecimento => {
         const card = document.createElement("div");
         card.className = `card-estabelecimento ${estabelecimento.aberto ? '' : 'fechado'}`;
+        
+        const logoUrl = estabelecimento.url_logo
+            ? `${API_URL}${estabelecimento.url_logo}`
+            : `https://via.placeholder.com/300x160/e9ecef/6c757d?text=${encodeURIComponent(estabelecimento.nome_fantasia)}`;
 
-        card.innerHTML = `
-            <img src="${estabelecimento.url_logo ? 'http://localhost:5000' + estabelecimento.url_logo : 'https://via.placeholder.com/300x160/e9ecef/6c757d?text=' + encodeURIComponent(estabelecimento.nome_fantasia)}" 
+        /*card.innerHTML = `
+            <img src="${estabelecimento.url_logo ? 'http://foodjanu.ddns.net:5000' + estabelecimento.url_logo : 'https://via.placeholder.com/300x160/e9ecef/6c757d?text=' + encodeURIComponent(estabelecimento.nome_fantasia)}" 
                  alt="${estabelecimento.nome_fantasia}" 
                  class="card-estabelecimento-img">
             <div class="card-estabelecimento-content">
@@ -137,6 +141,30 @@ function renderizarEstabelecimentos(estabelecimentosParaRenderizar) {
                 <p>${estabelecimento.categoria || 'Sem descrição'}</p>
                 <p><strong>Categoria:</strong> ${obterNomeCategoria(estabelecimento.categoria)}</p>
                 <div class="categoria">${obterIconeCategoria(estabelecimento.categoria)} ${obterNomeCategoria(estabelecimento.categoria)}</div>
+                <div class="status ${estabelecimento.aberto ? 'aberto' : 'fechado'}">
+                    ${estabelecimento.aberto ? '✅ Aberto agora' : '🔒 Fechado'}
+                </div>
+            </div>
+        `;*/
+        card.innerHTML = `
+            <img src="${logoUrl}" 
+                alt="${estabelecimento.nome_fantasia}" 
+                class="card-estabelecimento-img">
+
+            <div class="card-estabelecimento-content">
+                <h3>${estabelecimento.nome_fantasia}</h3>
+                <p>${estabelecimento.categoria || 'Sem descrição'}</p>
+
+                <p>
+                    <strong>Categoria:</strong>
+                    ${obterNomeCategoria(estabelecimento.categoria)}
+                </p>
+
+                <div class="categoria">
+                    ${obterIconeCategoria(estabelecimento.categoria)}
+                    ${obterNomeCategoria(estabelecimento.categoria)}
+                </div>
+
                 <div class="status ${estabelecimento.aberto ? 'aberto' : 'fechado'}">
                     ${estabelecimento.aberto ? '✅ Aberto agora' : '🔒 Fechado'}
                 </div>
@@ -188,7 +216,7 @@ function aplicarFiltros() {
 }
 
 // ======= Selecionar estabelecimento (redireciona p page de produtos do estabelecimento selecionado)
-async function selecionarEstabelecimento(estabelecimento) {window.location.href = `produtos.html?estabelecimentoId=${estabelecimento.id}`;}
+async function selecionarEstabelecimento(estabelecimento) {window.location.href = `/client/produtos?estabelecimentoId=${estabelecimento.id}`;}
 
 // ============================= FUNÇÕES AUXILIARES =============================
 function obterNomeCategoria(categoria) {
@@ -217,8 +245,7 @@ function inicializar() {
     const token = localStorage.getItem("token");
     if (!token) {
         alert("Você precisa estar logado para acessar esta página!");
-        window.location.href = "../index.html";
-        return;
+        return logout();
     }
     
     // Configurar menu do perfil

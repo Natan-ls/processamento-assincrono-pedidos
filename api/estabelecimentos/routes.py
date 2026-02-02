@@ -79,7 +79,7 @@ def list_estabelecimentos():
                 description: Indica se está aberto agora baseado no horário
               descricao:
                 type: string
-    """
+    """    
     estabelecimentos = Estabelecimento.query.all()
     estabelecimentos_list = []
     for e in estabelecimentos:
@@ -130,7 +130,7 @@ def list_produtos(estabelecimento_id):
                 type: integer
       404:
         description: Estabelecimento não encontrado
-    """
+    """    
     estabelecimento = Estabelecimento.query.get(estabelecimento_id)
 
     if not estabelecimento:
@@ -201,7 +201,7 @@ def listEstabelecimento(estabelecimento_id):
                     type: boolean
       404:
         description: Estabelecimento não encontrado
-    """
+    """    
     estabelecimento = Estabelecimento.query.get(estabelecimento_id)
 
     if not estabelecimento:
@@ -271,7 +271,7 @@ def detalhes_produto(estabelecimento_id, produto_id):
                   type: string
       404:
         description: Produto não encontrado
-    """
+    """    
     produto = Product.query.filter_by(
         id=produto_id,
         estabelecimento_id=estabelecimento_id

@@ -79,7 +79,7 @@ def create_order():
         description: Erro de validação ou JSON inválido
       500:
         description: Erro interno ao processar pedido
-    """
+    """    
     if request.method == "OPTIONS":
         return jsonify({"ok": True}), 200
 
@@ -193,7 +193,7 @@ def get_order(order_id):
                     type: number
       404:
         description: Pedido não encontrado ou não pertence ao usuário
-    """
+    """    
     # faz a busca do pedido do user q está autenticado
     order = Order.query.filter_by(
         id=order_id,
@@ -253,7 +253,7 @@ def list_orders():
                 type: number
               created_at:
                 type: string
-    """
+    """    
     if request.method == "OPTIONS":
         return jsonify({"ok" : True}), 200
     orders = ( ## lista em ordem descescente do mais recente p mais antigo

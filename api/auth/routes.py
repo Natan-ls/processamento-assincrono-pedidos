@@ -273,7 +273,8 @@ def register_empresa():
         description: Dados inválidos ou faltando logo
       409:
         description: CNPJ, CPF ou Email já cadastrados
-    """
+    """    
+
     data = request.form
     file_logo = request.files.get("logo")
 
@@ -453,7 +454,7 @@ def login():
                   type: string
       401:
         description: Credenciais inválidas
-    """
+    """    
     if not request.is_json:
         return jsonify({"error": "Requisição deve ser JSON"}), 400
 

@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>Pagamento - FoodJanu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../Shared/style.css">
-    <link rel="stylesheet" href="./cliente.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cliente.css') }}">
+
 </head>
 
 <body class="cliente-page">
@@ -15,9 +17,15 @@
 <div class="cliente-container">
 
     <header class="topo">
-        <a href="home.html" class="logo">
-            <div class="logo-img"></div>
-            <span>FoodJanu ou JanuFood</span>
+        <a href="{{ url_for('client_home') }}" class="logo">
+            <!-- LOGO IMAGEM -->
+            <img 
+                src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+                alt="Logo JanuFood"
+                class="logo-img"
+            >
+
+            <span>JanuFood</span>
         </a>
     </header>
 
@@ -42,7 +50,13 @@
 
 </div>
 
-<script type="module" src="./pagamento.js"></script>
+<!-- RODAPÉ da PAGE -->
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
+</footer>
+
+<script type="module" src="{{ url_for('static', filename='pagamento.js') }}"></script>
 
 </body>
 </html>

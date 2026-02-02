@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Login / Registro / Pedidos (JWT)</title>
-    <link rel="stylesheet" href="../Shared/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
 </head>
 <body>
     <div class="main-container">
         <!-- Logo Section -->
         <div class="logo-section">
-            <div class="logo-placeholder"></div>
-            <h1>Nosso Sistema</h1>
+            <!-- LOGO -->
+            <img 
+                src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+                alt="Logo JanuFood"
+                class="logo-img">    
+            <h1>JanuFood</h1>
             <p>Faça Login ou Crie uma Conta para acessar todas as funcionalidades do sistema agora mesmo!</p>
         </div>
 
@@ -185,114 +190,12 @@
                         <button id="btnVoltarEmpresa" class="secondary">Voltar</button>
                     </div>
                     <div class="link" id="linkShowLoginFromEmpresa">Já tenho conta</div>
-                </div>
-
-                <!-- PEDIDOS -->
-                <div id="orderBox" class="hidden">
-                    <h2>Pedidos</h2>
-                    <div class="form-group">
-                        <select id="estabelecimentoSelect"></select>
-                    </div>
-                    <button id="btnLoadProdutos" class="secondary" style="margin-bottom: 15px;">Carregar Produtos</button>
-                    
-                    <div class="form-group">
-                        <select id="produtoSelect"></select>
-                    </div>
-                    <div class="form-group">
-                        <input id="quantidadeInput" type="number" placeholder="Quantidade" value="1">
-                    </div>
-                
-                    <div class="form-actions">
-                        <button id="btnCreateOrder">Criar Pedido</button>
-                        <button id="btnListOrders" class="secondary">Listar Pedidos</button>
-                    </div>
-                    
-                    <div class="form-group">
-                        <input id="orderIdInput" placeholder="ID do pedido">
-                    </div>
-                    <button id="btnGetOrderById" class="secondary" style="margin-bottom: 15px;">Buscar Pedido</button>
-                    
-                    <div class="form-actions">
-                        <button id="btnShowProfile">Configurações do Perfil</button>
-                        <button id="btnLogoutOrderBox" class="secondary">Sair</button>
-                    </div>
-                </div>
-
-                <!-- PERFIL -->
-                <div id="profileBox" class="hidden">
-                    <h2>Meu Perfil</h2>
-                    
-                    <!-- Botão para alternar entre modo visualização/edição -->
-                    <div style="text-align: right; margin-bottom: 15px;">
-                        <button id="editProfileBtn">Editar Perfil</button>
-                        <button id="saveProfileBtn" class="hidden">Salvar</button>
-                        <button id="cancelEditBtn" class="hidden">Cancelar</button>
-                    </div>
-
-                    <div class="avatar-upload">
-                        <label for="profileFotoInput">
-                            <img id="profileAvatar" src="">
-                            <span class="avatar-edit">+</span>
-                        </label>
-                        <input id="profileFotoInput" type="file" accept="image/*" hidden>
-                    </div>
-
-                    <!-- Campos editáveis -->
-                    <input id="profileNome" disabled>
-                    <input id="profileEmail" disabled>
-                    <input id="profileTelefone" disabled>
-                    
-                    <!-- Endereço -->
-                    <div class="endereco-container">
-                        <h4>Endereço</h4>
-                        <input id="profileEstado" placeholder="Estado" disabled>
-                        <input id="profileCidade" placeholder="Cidade" disabled>
-                        <input id="profileBairro" placeholder="Bairro" disabled class="full-width">
-                        <input id="profileRua" placeholder="Rua" disabled class="full-width">
-                        <input id="profileNumero" placeholder="Número" disabled>
-                        <input id="profileComplemento" placeholder="Complemento" disabled>
-                        <input id="profileCep" placeholder="CEP" disabled>
-                    </div>
-
-                    <!-- Seção da Empresa (só será visível para as empresas) -->
-                    <div id="empresaSection" class="hidden">
-                        <h3>Dados da Empresa</h3>
-                        <input id="empresaNomeFantasia" disabled>
-                        <select id="empresaCategoria" disabled>
-                            <option value="">Selecione categoria</option>
-                            <option value="RESTAURANTE">Restaurante</option>
-                            <option value="FARMACIA">Farmácia</option>
-                            <option value="MERCADO">Mercado</option>
-                            <option value="FAST_FOOD">Fast Food</option>
-                        </select>
-                        
-                        <!-- Endereço da Empresa -->
-                        <div class="endereco-container">
-                            <h4>Endereço da Empresa</h4>
-                            <input id="empresaEstado" placeholder="Estado" disabled>
-                            <input id="empresaCidade" placeholder="Cidade" disabled>
-                            <input id="empresaBairro" placeholder="Bairro" disabled class="full-width">
-                            <input id="empresaRua" placeholder="Rua" disabled class="full-width">
-                            <input id="empresaNumero" placeholder="Número" disabled>
-                            <input id="empresaComplemento" placeholder="Complemento" disabled>
-                            <input id="empresaCep" placeholder="CEP" disabled>
-                        </div>
-                        
-                        <!-- Logo da Empresa -->
-                        <label for="empresaLogoInput">Logo da Empresa</label>
-                        <input id="empresaLogoInput" type="file" accept="image/*" hidden>
-                        <img id="empresaLogoImg" style="width:120px; height:120px; object-fit:cover; border-radius:5px; margin-top:10px;">
-                    </div>
-
-                    <button id="btnBackToOrders">Voltar para Pedidos</button>
-                    <div class="link" id="linkLogoutProfile">Sair</div>
-                </div>
-                
+                </div>                
                 <pre id="output"></pre>
             </div>
         </div>
     </div>
 
-    <script type="module" src="../Shared/main.js"></script>
+    <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

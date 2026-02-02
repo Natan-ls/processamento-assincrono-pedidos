@@ -1,0 +1,147 @@
+// pedidoDetalhes.js
+
+import { apiRequest, authHeadersJson } from "./api.js";
+import { logout } from "./auth.js";
+import { toggleMenuPerfil } from "./utils.js";
+
+// ===== MENU =====
+const perfilIcon = document.getElementById("perfilIcon");
+const menuPerfil = document.getElementById("menuPerfil");
+
+perfilIcon?.addEventListener("click", toggleMenuPerfil);
+
+document.addEventListener("click", (e) => {
+    if (menuPerfil && !menuPerfil.contains(e.target) && !perfilIcon.contains(e.target)) {
+        menuPerfil.classList.add("hidden");
+    }
+});
+
+// ===== BOTÕES =====
+document.getElementById("btnInicio")?.addEventListener("click", () => location.href = "/client/home");
+document.getElementById("btnPerfil")?.addEventListener("click", () => location.href = "/client/profile");
+document.getElementById("btnPedidos")?.addEventListener("click", () => location.href = "/client/orders");
+document.getElementById("btnVoltar")?.addEventListener("click", () => history.back());
+document.getElementById("btnLogout")?.addEventListener("click", logout);
+
+// ===== HELPERS =====
+function obterIdPedido() {
+    return new URLSearchParams(window.location.search).get("id");
+}
+
+function formatarData(data) {
+    if (!data) return "N/A";
+    const d = new Date(data.endsWith("Z") ? data : data + "Z");
+    return isNaN(d) ? "Inválida" : d.toLocaleString("pt-BR");
+}
+
+function getCorStatus(status) {
+    return {
+        CRIADO: "#2196f3",
+        EM_PREPARO: "#ff9800",
+        PREPARANDO: "#ff9800",
+        PRONTO: "#4caf50",
+        EM_TRANSITO: "#009688",
+        EM_ROTA: "#009688",
+        ENTREGUE: "#43a047",
+        CANCELADO: "#f44336"
+    }[status?.toUpperCase()] || "#9e9e9e";
+}
+
+// Funct de Normalizar os dados
+function normalizarItem(item) {
+    return {
+        nome: item.nome ?? "Item",
+        quantidade: Number(item.quantidade ?? 0),
+        preco: Number(item.preco ?? item.preco_unitario ?? 0)
+    };
+}
+
+
+// ===== API =====
+async function carregarDetalhesPedido() {
+    const pedidoId = obterIdPedido();
+    if (!pedidoId) return mostrarErro("Pedido não encontrado.");
+
+    try {
+        const res = await apiRequest(`/orders/${pedidoId}`, {
+            method: "GET",
+            headers: authHeadersJson()
+        });
+
+        if (!res.ok) {
+            throw new Error(res.error || "Erro ao buscar pedido");
+        }
+
+        const pedido = res.data;
+
+        // ===== DADOS DO PEDIDO =====
+        document.getElementById("pedidoId").textContent = pedido.id ?? pedido.order_id;
+        document.getElementById("pedidoData").textContent = formatarData(pedido.created_at);
+
+        const statusEl = document.getElementById("pedidoStatus");
+        statusEl.textContent = pedido.status;
+        statusEl.style.background = getCorStatus(pedido.status);
+
+        document.getElementById("pedidoTotal").textContent =
+            `R$ ${(Number(pedido.total) || 0).toFixed(2)}`;
+
+        document.getElementById("enderecoEntrega").textContent =
+            pedido.endereco_entrega || "Não informado";
+
+        // ===== ITENS =====
+        const itensEl = document.getElementById("itensPedido");
+        itensEl.innerHTML = "";
+
+        let subtotal = 0;
+
+        (pedido.items || []).forEach(rawItem => {
+            const item = {
+                nome: rawItem.nome ?? "Item",
+                quantidade: Number(rawItem.quantidade ?? 0),
+                preco: Number(rawItem.preco ?? rawItem.preco_unitario ?? 0)
+            };
+
+            const sub = item.preco * item.quantidade;
+            subtotal += sub;
+
+            itensEl.innerHTML += `
+                <div class="item-pedido">
+                    <strong>${item.nome}</strong>
+                    <span>${item.quantidade} x R$ ${item.preco.toFixed(2)}</span>
+                    <span>R$ ${sub.toFixed(2)}</span>
+                </div>
+            `;
+        });
+
+        // ===== RESUMO =====
+        const taxaEntrega = 5.00;
+
+        document.getElementById("subtotal").textContent =
+            `R$ ${subtotal.toFixed(2)}`;
+
+        document.getElementById("taxaEntrega").textContent =
+            `R$ ${taxaEntrega.toFixed(2)}`;
+
+        document.getElementById("totalPedido").textContent =
+            `R$ ${(subtotal + taxaEntrega).toFixed(2)}`;
+
+        // ===== VISIBILIDADE =====
+        document.getElementById("carregando").style.display = "none";
+        document.getElementById("conteudoPedido").style.display = "block";
+
+    } catch (err) {
+        console.error(err);
+        mostrarErro("Erro ao carregar pedido.");
+    }
+}
+
+
+function mostrarErro(msg) {
+    document.getElementById("carregando").style.display = "none";
+    const erro = document.getElementById("erroPedido");
+    erro.style.display = "block";
+    erro.querySelector("p").textContent = msg;
+}
+
+// ===== INIT =====
+document.addEventListener("DOMContentLoaded", carregarDetalhesPedido);

@@ -3,565 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <title>Meu Perfil - FoodJanu</title>
-    <link rel="stylesheet" href="../Shared/style.css">
-    <link rel="stylesheet" href="./cliente.css">
-    <style>
-        .form-group {
-            margin-bottom: 15px;
-        }
+    <link rel="stylesheet" href="{{ url_for('static', filename='cliente.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        .form-group input:disabled {
-            background-color: #f5f5f5;
-            color: #777;
-        }
-
-        .form-group input.editable {
-            background-color: #fff;
-            color: #333;
-            border-color: #4CAF50;
-        }
-
-        .button-group {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-        .button-group button {
-            padding: 10px 20px;
-            margin: 0 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .button-group button.primary {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .button-group button.primary:hover {
-            background-color: #45a049;
-        }
-
-        .button-group button.secondary {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .button-group button.secondary:hover {
-            background-color: #d32f2f;
-        }
-
-        .avatar-section {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .avatar-section img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #4CAF50;
-        }
-
-        .empresa-section {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            border-left: 5px solid #4CAF50;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
 </head>
+
 <body class="cliente-page">
-    <div class="cliente-container">
-        <header class="topo">
-            <a href="home.html" class="logo">
-                <div class="logo-img">🍽️</div>
-                <span>FoodJanu</span>
-            </a>
-            <div class="perfil-area">
-                <div class="perfil-icon" onclick="toggleMenuPerfil()" id="perfilIcon">👤</div>
-                <div id="menuPerfil" class="menu-perfil hidden">
-                    <button onclick="window.location.href='home.html'">🏠 Início</button>
-                    <button onclick="window.location.href='orders.html'">📦 Meus Pedidos</button>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 5px 0;">
-                    <button onclick="logout()"><!--COLCOAR ALGUM ICONE OU EMOJI p SAIR--> Sair</button>
-                </div>
+<div class="cliente-container">
+
+    <!-- TOPO -->
+    <header class="topo">
+        <a href="{{ url_for('client_home') }}" class="logo">
+            <!-- LOGO IMAGEM -->
+            <img 
+                src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+                alt="Logo JanuFood"
+                class="logo-img"
+            >
+
+            <span>JanuFood</span>
+        </a>
+
+        <div class="perfil-area">
+            <div class="perfil-icon" id="perfilIcon">👤</div>
+
+            <div id="menuPerfil" class="menu-perfil hidden">
+                <button id="btnInicio">🏠 Início</button>
+                <button id="btnPedidos">📦 Meus Pedidos</button>
+                <hr>
+                <button id="btnLogout">🚪 Sair</button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <section class="section">
-            <h2>👤 Meu Perfil</h2>
-            
-            <div style="max-width: 600px; margin: 0 auto;">
-                <!-- Formulário de Edição do Perfil -->
-                <form id="profileForm">
-                    <!-- Foto de Perfil -->
-                    <div class="avatar-section">
-                        <img id="profileAvatar" 
-                             src="../Shared/default-avatar.png" 
-                             alt="Foto de Perfil">
-                        <input type="file" id="profileFotoInput" accept="image/*" style="display: none;">
-                        <button type="button" onclick="document.getElementById('profileFotoInput').click()" 
-                                style="margin-top: 10px; padding: 5px 10px;" class="primary">
-                            Alterar Foto
-                        </button>
-                    </div>
 
-                    <!-- Campos Básicos do USER -->
-                    <div class="form-group">
-                        <label for="profileNome">Nome</label>
-                        <input type="text" id="profileNome" disabled>
-                    </div>
+    <!-- CONTEÚDO -->
+    <section class="section">
+        <h2>👤 Meu Perfil</h2>
 
-                    <div class="form-group">
-                        <label for="profileEmail">Email</label>
-                        <input type="email" id="profileEmail" disabled>
-                    </div>
+        <form id="profileForm">
 
-                    <div class="form-group">
-                        <label for="profileTelefone">Telefone</label>
-                        <input type="text" id="profileTelefone" disabled>
-                    </div>
-
-                    <h3>Endereço Pessoal</h3>
-                    <div class="form-group">
-                        <label for="profileEstado">Estado</label>
-                        <input type="text" id="profileEstado" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="profileCidade">Cidade</label>
-                        <input type="text" id="profileCidade" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="profileBairro">Bairro</label>
-                        <input type="text" id="profileBairro" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="profileRua">Rua</label>
-                        <input type="text" id="profileRua" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="profileNumero">Número</label>
-                        <input type="text" id="profileNumero" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="profileComplemento">Complemento</label>
-                        <input type="text" id="profileComplemento" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="profileCep">CEP</label>
-                        <input type="text" id="profileCep" disabled>
-                    </div>
-
-                    <!-- Seção da Empresa (apenas para tipo_usuario== empresa) -->
-                    <div id="empresaSection" class="empresa-section hidden">
-                        <h3>Dados da Empresa</h3>
-                        
-                        <div class="form-group">
-                            <label for="empresaLogo">Logo da Empresa</label>
-                            <div style="margin-bottom: 10px;">
-                                <img id="empresaLogoImg" src="" alt="Logo da Empresa" style="max-width: 100px; max-height: 100px;">
-                            </div>
-                            <input type="file" id="empresaLogoInput" accept="image/*" style="display: none;">
-                            <button type="button" onclick="document.getElementById('empresaLogoInput').click()" 
-                                    style="margin-top: 10px; padding: 5px 10px;" class="primary">
-                                Alterar Logo
-                            </button>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaNomeFantasia">Nome Fantasia</label>
-                            <input type="text" id="empresaNomeFantasia" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaCategoria">Categoria</label>
-                            <input type="text" id="empresaCategoria" disabled>
-                        </div>
-
-                        <h4>Endereço da Empresa</h4>
-                        <div class="form-group">
-                            <label for="empresaEstado">Estado</label>
-                            <input type="text" id="empresaEstado" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaCidade">Cidade</label>
-                            <input type="text" id="empresaCidade" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaBairro">Bairro</label>
-                            <input type="text" id="empresaBairro" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaRua">Rua</label>
-                            <input type="text" id="empresaRua" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaNumero">Número</label>
-                            <input type="text" id="empresaNumero" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaComplemento">Complemento</label>
-                            <input type="text" id="empresaComplemento" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="empresaCep">CEP</label>
-                            <input type="text" id="empresaCep" disabled>
-                        </div>
-                    </div>
-
-                    <!-- Botões -->
-                    <div class="button-group">
-                        <button type="button" onclick="enableEditMode()" id="editProfileBtn" class="primary">
-                            ✏️ Editar Perfil
-                        </button>
-                        <button type="button" onclick="saveProfile()" id="saveProfileBtn" class="primary hidden">
-                            💾 Salvar Alterações
-                        </button>
-                        <button type="button" onclick="cancelEdit()" id="cancelEditBtn" class="secondary hidden">
-                            ❌ Cancelar
-                        </button>
-                    </div>
-                </form>
-                
-                <button onclick="window.location.href='home.html'" style="margin-top: 30px;" class="primary">
-                    ← Voltar para o Início
+            <!-- AVATAR -->
+            <div class="avatar-section">
+                <img id="profileAvatar" src="/static/default-avatar.png" alt="Foto de perfil">
+                <input type="file" id="profileFotoInput" hidden accept="image/*">
+                <button type="button" id="btnAlterarFoto" class="primary">
+                    Alterar Foto
                 </button>
             </div>
-        </section>
+
+            <!-- DADOS PESSOAIS -->
+            <div class="form-group">
+                <label for="profileNome">Nome</label>
+                <input type="text" id="profileNome" name="nome" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="profileEmail">Email</label>
+                <input type="email" id="profileEmail" name="email" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="profileTelefone">Telefone</label>
+                <input type="tel" id="profileTelefone" name="telefone" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="profileCpf">CPF</label>
+                <input type="text" id="profileCpf" name="cpf" disabled>
+            </div>
+           
+            <!-- ENDEREÇO -->
+            <div class="form-group">
+                <label for="endRua">Rua</label>
+                <input type="text" id="endRua" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="endNumero">Número</label>
+                <input type="text" id="endNumero" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="endBairro">Bairro</label>
+                <input type="text" id="endBairro" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="endCidade">Cidade</label>
+                <input type="text" id="endCidade" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="endEstado">Estado</label>
+                <input type="text" id="endEstado" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="endCep">CEP</label>
+                <input type="text" id="endCep" disabled>
+            </div>
+
+            <!-- BOTÕES -->
+            <div class="button-group">
+                <button type="button" id="editProfileBtn" class="primary">✏️ Editar</button>
+                <button type="button" id="saveProfileBtn" class="primary hidden">💾 Salvar</button>
+                <button type="button" id="cancelEditBtn" class="secondary hidden">❌ Cancelar</button>
+            </div>
+            <!-- BOTÃO VOLTAR -->
+            <div class="button-group" style="margin-bottom: 10px;">
+                <button type="button" id="btnVoltarHome" class="btn-voltar-home">Voltar</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<!-- RODAPÉ da PAGE -->
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
+</footer>
+
+<!-- MODAL p/ Avisos, Sucesso e Erro -->
+<div id="modalMensagem" class="modal hidden">
+    <div class="modal-conteudo" style="max-width: 480px;">
+
+        <div class="modal-header">
+            <h3 id="modalMensagemTitulo">Mensagem</h3>
+            <button class="fechar-modal" id="fecharModalMensagem">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <p id="modalMensagemTexto" style="margin-bottom: 20px; color: #444;"></p>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="btnCancelarMensagem" class="btn-voltar" style="flex: 1;">
+                    Cancelar
+                </button>
+
+                <button id="btnConfirmarMensagem" class="btn-finalizar" style="flex: 1;">
+                    OK
+                </button>
+            </div>
+        </div>
+
     </div>
+</div>
 
-    <!-- RODAPE da PAGE-->
-    <footer class="rodape">
-        <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
-    </footer>
-
-    <!-- CODIGOS JS -->
-    <script type="module">
-        import { apiRequest } from '../Shared/api.js';
-        import {logout} from '../Shared/auth.js'
-        // =========================== Components de Interface DOM ===========================
-        const profileForm = document.getElementById('profileForm');
-        const profileNome = document.getElementById('profileNome');
-        const profileEmail = document.getElementById('profileEmail');
-        const profileTelefone = document.getElementById('profileTelefone');
-        const profileEstado = document.getElementById('profileEstado');
-        const profileCidade = document.getElementById('profileCidade');
-        const profileBairro = document.getElementById('profileBairro');
-        const profileRua = document.getElementById('profileRua');
-        const profileNumero = document.getElementById('profileNumero');
-        const profileComplemento = document.getElementById('profileComplemento');
-        const profileCep = document.getElementById('profileCep');
-        const profileAvatar = document.getElementById('profileAvatar');
-        const profileFotoInput = document.getElementById('profileFotoInput');
-        
-        // elementos da empresa
-        const empresaSection = document.getElementById('empresaSection');
-        const empresaNomeFantasia = document.getElementById('empresaNomeFantasia');
-        const empresaCategoria = document.getElementById('empresaCategoria');
-        const empresaEstado = document.getElementById('empresaEstado');
-        const empresaCidade = document.getElementById('empresaCidade');
-        const empresaBairro = document.getElementById('empresaBairro');
-        const empresaRua = document.getElementById('empresaRua');
-        const empresaNumero = document.getElementById('empresaNumero');
-        const empresaComplemento = document.getElementById('empresaComplemento');
-        const empresaCep = document.getElementById('empresaCep');
-        const empresaLogoImg = document.getElementById('empresaLogoImg');
-        const empresaLogoInput = document.getElementById('empresaLogoInput');
-        
-        // buttons
-        const editProfileBtn = document.getElementById('editProfileBtn');
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-
-        // Carregar dados do perfil
-        async function loadProfile() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/frontend/Index/index.html';
-                    return;
-                }
-
-                const res = await apiRequest('/auth/me', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!res.ok) {
-                    alert('Erro ao carregar perfil: ' + (res.error || 'Erro desconhecido'));
-                    return;
-                }
-
-                const data = res.data;
-
-                // Preencher dados básicos
-                profileNome.value = data.nome || '';
-                profileEmail.value = data.email || '';
-                profileTelefone.value = data.telefone || '';
-
-                // Preencher endereço
-                if (data.endereco) {
-                    profileEstado.value = data.endereco.estado || '';
-                    profileCidade.value = data.endereco.cidade || '';
-                    profileBairro.value = data.endereco.bairro || '';
-                    profileRua.value = data.endereco.rua || '';
-                    profileNumero.value = data.endereco.numero || '';
-                    profileComplemento.value = data.endereco.complemento || '';
-                    profileCep.value = data.endereco.cep || '';
-                }
-
-                // Foto de perfil
-                if (data.url_foto) {profileAvatar.src = `http://localhost:5000${data.url_foto}`;}
-
-                // Se for empresa
-                if (data.tipo_usuario === 'empresa' && data.empresa) {
-                    empresaSection.classList.remove('hidden');
-                    
-                    empresaNomeFantasia.value = data.empresa.nome_fantasia || '';
-                    empresaCategoria.value = data.empresa.categoria || '';
-                    
-                    if (data.empresa.endereco_empresa) {
-                        empresaEstado.value = data.empresa.endereco_empresa.estado || '';
-                        empresaCidade.value = data.empresa.endereco_empresa.cidade || '';
-                        empresaBairro.value = data.empresa.endereco_empresa.bairro || '';
-                        empresaRua.value = data.empresa.endereco_empresa.rua || '';
-                        empresaNumero.value = data.empresa.endereco_empresa.numero || '';
-                        empresaComplemento.value = data.empresa.endereco_empresa.complemento || '';
-                        empresaCep.value = data.empresa.endereco_empresa.cep || '';
-                    }
-
-                    if (data.empresa.url_logo) {empresaLogoImg.src = `http://localhost:5000${data.empresa.url_logo}`;}
-                }
-
-                // Desabilitar todos os campos pelo menos por enquanto
-                disableEditMode();
-
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao carregar perfil. Tente novamente.');
-            }
-        }
-
-        // Habilitar modo de edição
-        function enableEditMode() {
-            // Habilitar campos editáveis
-            const editFields = [
-                profileEmail, profileTelefone, 
-                profileEstado, profileCidade, profileBairro,
-                profileRua, profileNumero, profileComplemento, profileCep
-            ];
-            
-            editFields.forEach(field => {
-                if (field) {
-                    field.disabled = false;
-                    field.classList.add('editable');
-                }
-            });
-
-            // Se for empresa, habilitar campos da empresa também
-            if (!empresaSection.classList.contains('hidden')) {
-                const empresaEditFields = [
-                    empresaNomeFantasia, empresaCategoria,
-                    empresaEstado, empresaCidade, empresaBairro,
-                    empresaRua, empresaNumero, empresaComplemento, empresaCep
-                ];
-                
-                empresaEditFields.forEach(field => {
-                    if (field) {
-                        field.disabled = false;
-                        field.classList.add('editable');
-                    }
-                });
-            }
-
-            // Mostrar/ocultar os buttons
-            editProfileBtn.classList.add('hidden');
-            saveProfileBtn.classList.remove('hidden');
-            cancelEditBtn.classList.remove('hidden');
-        }
-
-        // Desabilitar modo de edição
-        function disableEditMode() {
-            // Desabilitar todos os campos
-            const allFields = [
-                profileEmail, profileTelefone, 
-                profileEstado, profileCidade, profileBairro,
-                profileRua, profileNumero, profileComplemento, profileCep,
-                empresaNomeFantasia, empresaCategoria,
-                empresaEstado, empresaCidade, empresaBairro,
-                empresaRua, empresaNumero, empresaComplemento, empresaCep
-            ];
-            
-            allFields.forEach(field => {
-                if (field) {
-                    field.disabled = true;
-                    field.classList.remove('editable');
-                }
-            });
-
-            // Mostrar/ocultar botões
-            editProfileBtn.classList.remove('hidden');
-            saveProfileBtn.classList.add('hidden');
-            cancelEditBtn.classList.add('hidden');
-        }
-
-        // Cancelar edição
-        function cancelEdit() {
-            loadProfile(); // Recarregar dados originais
-            disableEditMode();
-        }
-
-        // Salvar alterações
-        async function saveProfile() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/frontend/Index/index.html';
-                    return;
-                }
-
-                const formData = new FormData();
-
-                // Adicionar campos da pessoa (que podem ser editados)
-                formData.append('email', profileEmail.value);
-                formData.append('telefone', profileTelefone.value);
-                formData.append('estado', profileEstado.value);
-                formData.append('cidade', profileCidade.value);
-                formData.append('bairro', profileBairro.value);
-                formData.append('rua', profileRua.value);
-                formData.append('numero', profileNumero.value);
-                formData.append('complemento', profileComplemento.value);
-                formData.append('cep', profileCep.value);
-
-                // Foto de perfil
-                if (profileFotoInput.files[0]) {formData.append('foto', profileFotoInput.files[0]);}
-
-                // Se for empresa, adicionar campos da empresa
-                if (!empresaSection.classList.contains('hidden')) {
-                    formData.append('nome_fantasia', empresaNomeFantasia.value);
-                    formData.append('categoria', empresaCategoria.value);
-                    formData.append('emp_estado', empresaEstado.value);
-                    formData.append('emp_cidade', empresaCidade.value);
-                    formData.append('emp_bairro', empresaBairro.value);
-                    formData.append('emp_rua', empresaRua.value);
-                    formData.append('emp_numero', empresaNumero.value);
-                    formData.append('emp_complemento', empresaComplemento.value);
-                    formData.append('emp_cep', empresaCep.value);
-
-                    if (empresaLogoInput.files[0]) {formData.append('logo', empresaLogoInput.files[0]);}
-                }
-
-                // Enviar para o backend
-                const res = await apiRequest('/auth/me', {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
-
-                if (!res.ok) {
-                    alert('Erro ao atualizar perfil: ' + (res.error || 'Erro desconhecido'));
-                    return;
-                }
-
-                alert('Perfil atualizado com sucesso!');
-                loadProfile(); // Recarregar dados atualizados
-                disableEditMode();
-
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao salvar perfil. Tente novamente.');
-            }
-        }
-
-        // Preview de imagens
-        profileFotoInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    profileAvatar.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        empresaLogoInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    empresaLogoImg.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Carregar perfil quando a página carregar
-        document.addEventListener('DOMContentLoaded', loadProfile);
-
-        // Tornar funções disponíveis globalmente
-        window.enableEditMode = enableEditMode;
-        window.saveProfile = saveProfile;
-        window.cancelEdit = cancelEdit;
-    </script>
-
-    <script>
-        // Função para alternar menu do perfil
-        function toggleMenuPerfil() {
-            const menu = document.getElementById('menuPerfil');
-            menu.classList.toggle('hidden');
-        }
-
-        // Fechar menu ao user clicar fora do menu
-        document.addEventListener('click', function(event) {
-            const perfilIcon = document.getElementById('perfilIcon');
-            const menuPerfil = document.getElementById('menuPerfil');
-            
-            if (perfilIcon && menuPerfil && 
-                !perfilIcon.contains(event.target) && 
-                !menuPerfil.contains(event.target)) {
-                menuPerfil.classList.add('hidden');
-            }
-        });
-    </script>
+<script type="module" src="{{ url_for('static', filename='profile.js') }}"></script>
 </body>
 </html>
