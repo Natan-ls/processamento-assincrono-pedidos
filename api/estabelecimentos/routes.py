@@ -53,6 +53,33 @@ def calcular_status_abertura(estabelecimento):
 # ======== FUNCT p/ LISTART TDS ESTABELECIMENTOS ======== 
 @estabelecimentos_bp.route("/", methods=["GET"])
 def list_estabelecimentos():
+    """
+    Lista todos os estabelecimentos cadastrados
+    ---
+    tags:
+      - Estabelecimentos
+    responses:
+      200:
+        description: Lista de restaurantes/lojas retornada com sucesso
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              nome_fantasia:
+                type: string
+              categoria:
+                type: string
+              url_logo:
+                type: string
+              aberto:
+                type: boolean
+                description: Indica se está aberto agora baseado no horário
+              descricao:
+                type: string
+    """    
     estabelecimentos = Estabelecimento.query.all()
     estabelecimentos_list = []
     for e in estabelecimentos:
@@ -72,6 +99,38 @@ def list_estabelecimentos():
 # ======== FUNCT p/ LISTART TDS PRODUTOS DE UM ESTABELECIMENTO ======== 
 @estabelecimentos_bp.route("/<int:estabelecimento_id>/produtos", methods=["GET"])
 def list_produtos(estabelecimento_id):
+    """
+    Lista o cardápio (produtos) de um estabelecimento
+    ---
+    tags:
+      - Produtos
+    parameters:
+      - name: estabelecimento_id
+        in: path
+        type: integer
+        required: true
+        description: ID do estabelecimento
+    responses:
+      200:
+        description: Lista de produtos retornada com sucesso
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              nome:
+                type: string
+              preco:
+                type: number
+              imagem:
+                type: string
+              quantidade_estoque:
+                type: integer
+      404:
+        description: Estabelecimento não encontrado
+    """    
     estabelecimento = Estabelecimento.query.get(estabelecimento_id)
 
     if not estabelecimento:
@@ -96,6 +155,53 @@ def list_produtos(estabelecimento_id):
 #Rota para teste
 @estabelecimentos_bp.route('/<int:estabelecimento_id>', methods=["GET"])
 def listEstabelecimento(estabelecimento_id):
+    """
+    Busca detalhes completos de um estabelecimento (Endereço, Horários, Dono)
+    ---
+    tags:
+      - Estabelecimentos
+    parameters:
+      - name: estabelecimento_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Detalhes do estabelecimento
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+            nome_fantasia:
+              type: string
+            categoria:
+              type: string
+            aberto:
+              type: boolean
+            endereco:
+              type: object
+              properties:
+                rua:
+                  type: string
+                cidade:
+                  type: string
+            horarios:
+              type: array
+              items:
+                type: object
+                properties:
+                  dia_semana:
+                    type: integer
+                  hora_inicio:
+                    type: string
+                  hora_fim:
+                    type: string
+                  ativo:
+                    type: boolean
+      404:
+        description: Estabelecimento não encontrado
+    """    
     estabelecimento = Estabelecimento.query.get(estabelecimento_id)
 
     if not estabelecimento:
@@ -132,6 +238,40 @@ def listEstabelecimento(estabelecimento_id):
 # ======== FUNCT p/ DETALHES DE UM PRODUTO ======== 
 @estabelecimentos_bp.route("/<int:estabelecimento_id>/produtos/<int:produto_id>", methods=["GET"])
 def detalhes_produto(estabelecimento_id, produto_id):
+    """
+    Busca detalhes de um produto específico
+    ---
+    tags:
+      - Produtos
+    parameters:
+      - name: estabelecimento_id
+        in: path
+        type: integer
+        required: true
+      - name: produto_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Produto encontrado
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+            nome:
+              type: string
+            preco:
+              type: number
+            estabelecimento:
+              type: object
+              properties:
+                nome:
+                  type: string
+      404:
+        description: Produto não encontrado
+    """    
     produto = Product.query.filter_by(
         id=produto_id,
         estabelecimento_id=estabelecimento_id

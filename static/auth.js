@@ -2,8 +2,6 @@
 
 import { apiRequest, authHeadersJson } from './api.js';
 import { disableButton, enableButton, log } from './utils.js';
-import { showOrders } from './ui.js';
-import { showLogin } from './ui.js';
 
 // elementos de login
 const loginEmail = document.getElementById("loginEmail");
@@ -64,10 +62,13 @@ export function logout() {
     // Log p Debug
     log("Logout realizado.");
     //Redireciona para a tela inicial
-    window.location.href = "/frontend/Index/index.html";
+    window.location.href = "/";
 }
 
-
+/*function logout() {
+    localStorage.clear();
+    window.location.href = "/";
+}*/
 
 //  função para buscar o tipo de usuário e redirecionar
 async function redirectByUserType() {
@@ -88,9 +89,9 @@ async function redirectByUserType() {
 
         // Redirecionamento baseado no tipo retornado pelo /me
         if (tipo === "cliente") {
-            window.location.href = "/frontend/Client/home.html";
+            window.location.href = "/client/home";
         } else if (tipo === "empresa") {
-            window.location.href = "/frontend/Company/dashboard.html";
+            window.location.href = "/company/dashboard";
         } else {
             log("Tipo de usuário inválido: " + tipo);
         }

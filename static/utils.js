@@ -74,3 +74,14 @@ export function isValidCPF(cpf) {
     
     return digit1 === parseInt(cpf.charAt(9)) && digit2 === parseInt(cpf.charAt(10));
 }
+
+
+/*function toggleMenuPerfil() {
+    menuPerfil.classList.toggle("hidden");
+}*/
+
+// ======== Funct p/ alternar menu do perfil 
+export function toggleMenuPerfil() {
+    const menu = document.getElementById('menuPerfil');
+    if (menu) {menu.classList.toggle('hidden');}
+}

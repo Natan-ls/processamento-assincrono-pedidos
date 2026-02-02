@@ -5,11 +5,12 @@
     <title>FoodJanu - Cliente</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- ================================= CSSs -->
     <!-- CSS Global -->
-    <link rel="stylesheet" href="../Shared/style.css">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- CSS Cliente -->
-    <link rel="stylesheet" href="./cliente.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cliente.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
 </head>
 
 <body class="cliente-page">
@@ -20,9 +21,15 @@
     <header class="topo">
 
         <!-- LOGO -->
-        <a href="home.html" class="logo">
-            <div class="logo-img">🍽️</div>
-            <span>FoodJanu</span>
+        <a href="{{ url_for('client_home') }}" class="logo">
+            <!-- LOGO IMAGEM -->
+            <img 
+                src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+                alt="Logo JanuFood"
+                class="logo-img"
+            >
+
+            <span>JanuFood</span>
         </a>
 
         <!-- CATEGORIAS -->
@@ -94,6 +101,7 @@
 </footer>
 
 <!-- CÓDIFO JS -->
-<script type="module" src="./clientHome.js"></script>
+<script type="module" src="{{ url_for('static', filename='clientHome.js') }}"></script>
+
 </body>
 </html>

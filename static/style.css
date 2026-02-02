@@ -430,3 +430,21 @@ select {
         flex-direction: column;
     }
 }
+
+/*css p ajustar a logo no topo das pages*/
+.logo-img {
+    width: 350px;
+    height: 100px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 18px;
+    color: inherit;
+}
+

@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <title>Produtos - FoodJanu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+        
     <!-- CSS Global -->
-    <link rel="stylesheet" href="../Shared/style.css">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
     <!-- CSS Cliente -->
-    <link rel="stylesheet" href="./cliente.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cliente.css') }}">
     
     <!-- Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
+
 </head>
 
 <body class="cliente-page">
@@ -23,9 +24,15 @@
     <!-- TOPO -->
     <header class="topo">
         <!-- LOGO -->
-        <a href="home.html" class="logo">
-            <div class="logo-img">🍽️</div>
-            <span>FoodJanu</span>
+        <a href="{{ url_for('client_home') }}" class="logo">
+            <!-- LOGO IMAGEM -->
+            <img 
+                src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+                alt="Logo JanuFood"
+                class="logo-img"
+            >
+
+            <span>JanuFood</span>
         </a>
 
         <!-- PERFIL -->
@@ -240,9 +247,9 @@
     <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
 </footer>
 
-<!-- CODIGO JS -->
-<script type="module" src="/frontend/Shared/produtos.js"></script>
-<script type="module" src="/frontend/Shared/main.js"></script>
+<!-- CÓDIGO JS -->
+<script type="module" src="{{ url_for('static', filename='produtos.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 
 </body>
 </html>

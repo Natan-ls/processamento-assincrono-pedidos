@@ -1,4 +1,4 @@
-import { apiRequest, authHeadersJson } from "../Shared/api.js";
+import { apiRequest, authHeadersJson } from "./api.js";
 
 const metodoSelect = document.getElementById("metodoPagamento");
 const btnConfirmar = document.getElementById("btnConfirmarPagamento");
@@ -39,5 +39,5 @@ btnConfirmar.addEventListener("click", async () => {
         "✅ Pagamento registrado com sucesso!\n\n" +
         JSON.stringify(res.data, null, 2);
 
-    setTimeout(() => {window.location.href = "orders.html";}, 2000);
+    setTimeout(() => {window.location.href = "/client/orders";}, 2000);
 });

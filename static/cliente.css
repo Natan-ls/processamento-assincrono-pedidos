@@ -1637,3 +1637,118 @@ body.cliente-page .rodape {
         max-width: none !important;
     }
 }
+
+/* ================= PERFIL ================= */
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-group input:disabled {
+    background-color: #f5f5f5;
+    color: #777;
+}
+
+.form-group input.editable {
+    background-color: #fff;
+    color: #333;
+    border-color: #4CAF50;
+}
+
+.button-group {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.button-group button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button-group button.primary {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.button-group button.primary:hover {
+    background-color: #45a049;
+}
+
+.button-group button.secondary {
+    background-color: #f44336;
+    color: white;
+}
+
+.button-group button.secondary:hover {
+    background-color: #d32f2f;
+}
+
+.avatar-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.avatar-section img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4CAF50;
+}
+
+.empresa-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    border-left: 5px solid #4CAF50;
+}
+
+.hidden {
+    display: none !important;
+}
+/* ================= FORMULÁRIO MAIS PROPORCIONAL ================= */
+#profileForm {
+    max-width: 520px;       /* largura ideal */
+    margin: 0 auto;         /* centraliza */
+    padding: 25px 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+/* ================= BOTÃO VOLTAR HOME ================= */
+.btn-voltar-home {
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-voltar-home:hover {
+    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(30, 136, 229, 0.35);
+}

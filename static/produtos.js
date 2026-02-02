@@ -1,7 +1,8 @@
 //produtos.js
-import { apiRequest, authHeadersJson } from "../Shared/api.js";
-import { log } from "../Shared/utils.js";
-
+import { apiRequest, authHeadersJson } from "./api.js";
+import { log, toggleMenuPerfil } from "./utils.js";
+import { logout } from "./auth.js";
+ 
 // ======================= COMPONENTS da INTERFACE dom =======================
 // elementos principais
 const listaProdutos = document.getElementById("listaProdutos");
@@ -67,7 +68,7 @@ let carrinho = [];
 let produtoSelecionado = null;
 
 // ======================= FUNÇÕES DO MENU DO PERFIL =======================
-function toggleMenuPerfil() {if (menuPerfil) {menuPerfil.classList.toggle("hidden");}}
+//function toggleMenuPerfil() {if (menuPerfil) {menuPerfil.classList.toggle("hidden");}}
 
 function setupFecharMenuFora() {
     document.addEventListener('click', function(event) {
@@ -83,20 +84,20 @@ function setupFecharMenuFora() {
 function setupMenuEventos() {
     if (perfilIcon) {perfilIcon.addEventListener('click', toggleMenuPerfil);}
     
-    if (btnPerfil) {btnPerfil.addEventListener('click', () => {window.location.href = 'profile.html';});}
+    if (btnPerfil) {btnPerfil.addEventListener('click', () => {window.location.href = '/client/profile';});}
     
-    if (btnPedidos) {btnPedidos.addEventListener('click', () => {window.location.href = 'orders.html';});}
+    if (btnPedidos) {btnPedidos.addEventListener('click', () => {window.location.href = '/client/orders';});}
     
     if (btnPagamento) {btnPagamento.addEventListener('click', () => {alert('Página de pagamento em desenvolvimento!');});}
     
     if (btnLogout) {btnLogout.addEventListener('click', logout);}
 }
 
-function logout() {
+/*function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("userType");
-    window.location.href = "/frontend/Index/index.html";
-}
+    window.location.href = "/";
+}*/
 
 function abrirModalMensagem(titulo, mensagem, tipo = "info") {
     return new Promise((resolve) => {
@@ -621,8 +622,8 @@ async function buscarEnderecoCadastrado() {
 
     if (!token) {throw new Error("Usuário não está logado.");}
 
-    // ✅ ROTA CERTA DO SEU BACKEND
-    const res = await fetch("http://localhost:5000/auth/me", {
+    //ROTA DO SEU BACKEND
+/*    const res = await fetch("http://foodjanu.ddns.net:5000/auth/me", {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -633,6 +634,15 @@ async function buscarEnderecoCadastrado() {
 
     if (!res.ok) {throw new Error(data.error || "Erro ao buscar perfil.");}
 
+    if (!data.endereco) {throw new Error("Usuário não possui endereço cadastrado.");}
+*/
+    const res = await apiRequest("/auth/me", {
+        method: "GET",
+        headers: authHeadersJson()
+    });
+
+    if (!res.ok) {throw new Error(res.error || "Erro ao buscar perfil.");}
+    const data = res.data;
     if (!data.endereco) {throw new Error("Usuário não possui endereço cadastrado.");}
 
     //monta o endereço completo
@@ -702,7 +712,7 @@ async function finalizarPedido() {
                 "alerta"
             );
 
-            window.location.href = "/frontend/Index/index.html";
+            window.location.href = "/";
             return;
         }
         
@@ -716,8 +726,8 @@ async function finalizarPedido() {
         
         console.log("Enviando pedido para API...", items);
         
-        // Enviar pedido para a API
-        const res = await fetch("http://localhost:5000/orders/", {
+        /*// Enviar pedido para a API
+        const res = await api("http://foodjanu.ddns.net:5000/orders/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -735,8 +745,25 @@ async function finalizarPedido() {
         
         if (!res.ok) {
             throw new Error(data.error || "Erro ao criar pedido");
-        }
-        
+        }*/
+
+        // Envia pedido para a API
+        const res = await apiRequest("/orders/", {
+            method: "POST",
+            headers: authHeadersJson(),
+            body: JSON.stringify({
+                estabelecimento_id: parseInt(estabelecimentoId),
+                items,
+                endereco_entrega: enderecoEntrega,
+                observacoes: observacaoInput.value.trim()
+            })
+        });
+
+        if (!res.ok) {throw new Error(res.error || "Erro ao criar pedido");}
+
+        const data = res.data;            
+        console.log("Resposta do backend:", data);
+
         // msg de sucesso
         await abrirModalMensagem(
             "✅ Pedido realizado!",
@@ -750,7 +777,13 @@ async function finalizarPedido() {
         
         // Redirecionar para a página de informar o pagamento
         //window.location.href = "orders.html";
-        window.location.href = `pagamento.html?pedidoId=${data.id}`;
+        //window.location.href = `pagamento.html?pedidoId=${data.id}`;
+        const pedidoId = data.order_id || data.id || data.pedido_id || data.id_pedido;
+
+        if (!pedidoId) {throw new Error("Backend não retornou o ID do pedido.");}
+
+        window.location.href = `/client/pagamento?pedidoId=${pedidoId}`;
+
     } catch (error) {
         console.error("Erro ao finalizar pedido:", error);
 
@@ -878,7 +911,7 @@ function inicializar() {
     const token = localStorage.getItem("token");
     if (!token) {
         alert("Você precisa estar logado para acessar esta página!");
-        window.location.href = "../index.html";
+        window.location.href = "/";
         return;
     }
     
@@ -918,7 +951,7 @@ function inicializar() {
     if (btnFinalizarPedido) {btnFinalizarPedido.addEventListener('click', finalizarPedido);}
     
     // Configurar botão de voltar
-    if (btnVoltar) {btnVoltar.addEventListener('click', () => {window.location.href = "home.html";});}
+    if (btnVoltar) {btnVoltar.addEventListener('click', () => {window.location.href = "/client/home";});}
     
     // Resetar estilo do botão quando o modal for fechado
     if (fecharModal) {
