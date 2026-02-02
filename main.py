@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from flasgger import Swagger
 from extensions import db
 from config import Config
 
@@ -20,6 +21,48 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    swagger_config = {
+        "headers": [],
+        "specs": [
+            {
+                "endpoint": 'apispec_1',
+                "route": '/apispec_1.json',
+                "rule_filter": lambda rule: True,  # Documentar todas as rotas
+                "model_filter": lambda tag: True,
+            }
+        ],
+        "static_url_path": "/flasgger_static",
+        "swagger_ui": True,
+        "specs_route": "/apidocs/"  # <--- URL para acessar a doc: localhost:5000/apidocs/
+    }
+
+    template = {
+        "swagger": "2.0",
+        "info": {
+            "title": "API de Processamento de Pedidos",
+            "description": "API para sistema de delivery distribuído com Kafka e Celery",
+            "contact": {
+                "responsibleDeveloper": "Dev Team",
+                "email": "dev@exemplo.com",
+            },
+            "version": "1.0.0"
+        },
+        # Configuração para aceitar JWT no botão "Authorize"
+        "securityDefinitions": {
+            "Bearer": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\""
+            }
+        },
+        "security": [
+            {"Bearer": []}
+        ]
+    }
+
+    Swagger(app, config=swagger_config, template=template)
+
     CORS(
         app,
         resources={r"/*": {"origins": "*"}},
@@ -38,6 +81,21 @@ def create_app():
 
     @app.route("/health")
     def health():
+        """
+        Verificação de saúde da API
+        ---
+        tags:
+          - Infraestrutura
+        responses:
+          200:
+            description: API está online
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: ok
+        """
         return {"status": "ok"}
 
     return app

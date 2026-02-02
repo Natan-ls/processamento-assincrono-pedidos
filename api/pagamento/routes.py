@@ -8,7 +8,45 @@ pagamento_bp = Blueprint("pagamento", __name__)
 
 @pagamento_bp.route("/pagamentos/<int:pedido_id>", methods=["POST"])
 def criar_pagamento(pedido_id):
-
+    """
+    Registra/Simula o pagamento de um pedido
+    ---
+    tags:
+      - Pagamento
+    parameters:
+      - name: pedido_id
+        in: path
+        type: integer
+        required: true
+        description: ID do pedido a ser pago
+      - in: body
+        name: body
+        required: true
+        description: Dados do pagamento
+        schema:
+          type: object
+          required:
+            - metodo
+          properties:
+            metodo:
+              type: string
+              example: "PIX"
+              enum: ["PIX", "CREDITO", "DEBITO"]
+    responses:
+      201:
+        description: Pagamento aprovado e registrado
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+            pagamento_id:
+              type: integer
+            evento:
+              type: string
+      400:
+        description: Método de pagamento não informado
+    """
     data = request.get_json()
     metodo = data.get("metodo")
 

@@ -37,6 +37,66 @@ def criar_endereco(data, prefixo=None):
 ## --- Regsitro De Cliente --- 
 @auth_bp.route("/register/cliente", methods=["POST"])
 def register_cliente():
+    """
+    Registra um novo cliente (Pessoa Física)
+    ---
+    tags:
+      - Autenticação
+    consumes:
+      - multipart/form-data
+    parameters:
+      - name: nome
+        in: formData
+        type: string
+        required: true
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+        format: password
+      - name: cpf
+        in: formData
+        type: string
+        required: true
+      - name: telefone
+        in: formData
+        type: string
+        required: true
+      - name: foto
+        in: formData
+        type: file
+        description: Foto de perfil do usuário
+      # Campos de Endereço
+      - name: rua
+        in: formData
+        type: string
+      - name: numero
+        in: formData
+        type: string
+      - name: bairro
+        in: formData
+        type: string
+      - name: cidade
+        in: formData
+        type: string
+      - name: estado
+        in: formData
+        type: string
+      - name: cep
+        in: formData
+        type: string
+    responses:
+      201:
+        description: Usuário criado com sucesso
+      400:
+        description: Erro de validação nos dados
+      409:
+        description: Usuário já existe
+    """
     data = request.form
     file = request.files.get("foto")
 
@@ -125,6 +185,95 @@ def register_cliente():
 ## --- Regsitro De Empresa --- 
 @auth_bp.route("/register/empresa", methods=["POST"])
 def register_empresa():
+    """
+    Registra uma nova Empresa e seu Responsável
+    ---
+    tags:
+      - Autenticação
+    consumes:
+      - multipart/form-data
+    parameters:
+      # Dados do Responsável
+      - name: nome
+        in: formData
+        description: Nome do responsável
+        required: true
+        type: string
+      - name: cpf
+        in: formData
+        required: true
+        type: string
+      - name: telefone
+        in: formData
+        required: true
+        type: string
+      
+      # Login
+      - name: email
+        in: formData
+        required: true
+        type: string
+      - name: password
+        in: formData
+        required: true
+        type: string
+        format: password
+
+      # Dados da Empresa
+      - name: nome_fantasia
+        in: formData
+        required: true
+        type: string
+      - name: cnpj
+        in: formData
+        required: true
+        type: string
+      - name: categoria
+        in: formData
+        required: true
+        type: string
+        description: Ex Lanches, Bebidas, etc.
+      - name: logo
+        in: formData
+        type: file
+        required: true
+        description: Logo da empresa (Obrigatório)
+
+      # Endereço do Responsável (Prefixo resp_)
+      - name: resp_rua
+        in: formData
+        type: string
+      - name: resp_cidade
+        in: formData
+        type: string
+      - name: resp_estado
+        in: formData
+        type: string
+      - name: resp_cep
+        in: formData
+        type: string
+      
+      # Endereço da Empresa (Prefixo emp_)
+      - name: emp_rua
+        in: formData
+        type: string
+      - name: emp_cidade
+        in: formData
+        type: string
+      - name: emp_estado
+        in: formData
+        type: string
+      - name: emp_cep
+        in: formData
+        type: string
+    responses:
+      201:
+        description: Empresa cadastrada com sucesso
+      400:
+        description: Dados inválidos ou faltando logo
+      409:
+        description: CNPJ, CPF ou Email já cadastrados
+    """
     data = request.form
     file_logo = request.files.get("logo")
 
@@ -266,6 +415,45 @@ def register_empresa():
 # ============= FUNÇÕES DE LOGIN ============= # 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    """
+    Realiza o login do usuário (Cliente ou Empresa)
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - email
+            - password
+          properties:
+            email:
+              type: string
+              example: usuario@email.com
+            password:
+              type: string
+              example: Senha123@
+    responses:
+      200:
+        description: Login realizado com sucesso
+        schema:
+          type: object
+          properties:
+            access_token:
+              type: string
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                tipo_usuario:
+                  type: string
+      401:
+        description: Credenciais inválidas
+    """
     if not request.is_json:
         return jsonify({"error": "Requisição deve ser JSON"}), 400
 
@@ -304,6 +492,35 @@ def login():
 @auth_bp.route("/me", methods=["GET"])
 @jwt_required
 def me():
+    """
+    Retorna os dados do perfil do usuário logado
+    ---
+    tags:
+      - Perfil
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: Dados do perfil recuperados com sucesso
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+            nome:
+              type: string
+            email:
+              type: string
+            tipo_usuario:
+              type: string
+            url_foto:
+              type: string
+            empresa:
+              type: object
+              description: Retornado apenas se tipo_usuario for 'empresa'
+      404:
+        description: Usuário não encontrado
+    """
     user_id = request.user_id
 
     user = User.query.get(user_id)
@@ -349,6 +566,62 @@ def me():
 @auth_bp.route("/me", methods=["PUT"])
 @jwt_required
 def update_me():
+    """
+    Atualiza dados do perfil do usuário
+    ---
+    tags:
+      - Perfil
+    security:
+      - Bearer: []
+    consumes:
+      - multipart/form-data
+    parameters:
+      - name: email
+        in: formData
+        type: string
+        required: false
+      - name: telefone
+        in: formData
+        type: string
+        required: false
+      - name: foto
+        in: formData
+        type: file
+        description: Nova foto de perfil (Cliente)
+      
+      # Dados de Endereço (Pessoa/Cliente)
+      - name: rua
+        in: formData
+        type: string
+      - name: cidade
+        in: formData
+        type: string
+      
+      # Campos específicos de Empresa
+      - name: nome_fantasia
+        in: formData
+        type: string
+        description: Apenas para usuários do tipo empresa
+      - name: logo
+        in: formData
+        type: file
+        description: Nova logo (Apenas empresa)
+      
+      # Endereço Empresa (prefixo emp_)
+      - name: emp_rua
+        in: formData
+        type: string
+      - name: emp_cidade
+        in: formData
+        type: string
+    responses:
+      200:
+        description: Perfil atualizado com sucesso
+      403:
+        description: Tentativa de alterar campo bloqueado (CPF, CNPJ)
+      409:
+        description: Email já em uso
+    """
     user_id = request.user_id
     user = User.query.get(user_id)
 
@@ -494,7 +767,15 @@ def update_me():
 
 @auth_bp.route('/atualizar-senha', methods=['GET'])
 def atualizarSenha():
-
+    """
+    Rota de teste para resetar senhas (DEV ONLY)
+    ---
+    tags:
+      - DevTools
+    responses:
+      200:
+        description: Senhas resetadas para 'teste'
+    """
     usuarioEmpresa = []
     for id in range(1,3):
         usuario = User.query.get(id)
