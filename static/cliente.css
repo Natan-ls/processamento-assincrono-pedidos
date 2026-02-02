@@ -48,7 +48,7 @@ body.cliente-page {
     height: 40px;
     object-fit: cover;
     border-radius: 10px;
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #ff0000 100%);
     padding: 8px;
 }
 
@@ -98,10 +98,10 @@ body.cliente-page {
 }
 
 .cat-btn.active {
-    background: #1e88e5;
+    background: #e92525cb;
     color: white;
     font-weight: 600;
-    border-color: #1e88e5;
+    border-color: #e92525cb;
 }
 
 /* ============================= BUSCA =============================*/
@@ -125,7 +125,7 @@ body.cliente-page {
 
 .busca input:focus {
     outline: none;
-    border-color: #1e88e5;
+    border-color: #e92525cb;
     box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
 }
 
@@ -150,7 +150,7 @@ body.cliente-page {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #ff0000 100%);
     color: white;
     padding: 10px;
     display: flex;
@@ -268,7 +268,7 @@ body.cliente-page {
 }
 
 .card-estabelecimento:hover {
-    border-color: #1e88e5;
+    border-color: #e92525cb;
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(30, 136, 229, 0.15);
 }
@@ -305,7 +305,7 @@ body.cliente-page {
 .card-estabelecimento .categoria {
     display: inline-block;
     background: #e3f2fd;
-    color: #1e88e5;
+    color: #e92525cb;
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 11px;
@@ -359,7 +359,7 @@ body.cliente-page {
 }
 
 .card-produto:hover {
-    border-color: #1e88e5;
+    border-color: #e92525cb;
     background: white;
     transform: translateY(-2px);
 }
@@ -373,7 +373,7 @@ body.cliente-page {
 .card-produto .preco {
     font-size: 16px;
     font-weight: 600;
-    color: #1e88e5;
+    color: #e92525cb;
     margin: 8px 0;
 }
 
@@ -405,7 +405,7 @@ body.cliente-page {
 }
 
 .rodape span {
-    color: #1e88e5;
+    color: #e92525cb;
     font-weight: bold;
 }
 
@@ -529,7 +529,7 @@ body.cliente-page {
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #1e88e5;
+    border: 3px solid #e92525cb;
     margin-bottom: 10px;
     background: linear-gradient(135deg, #f5f5f5 0%, #e9ecef 100%);
 }
@@ -546,7 +546,7 @@ body.cliente-page {
     color: #333;
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #1e88e5;
+    border-bottom: 2px solid #e92525cb;
     font-size: 18px;
     font-weight: 600;
 }
@@ -587,7 +587,7 @@ body.cliente-page {
 
 .form-input.editable {
     background-color: white;
-    border-color: #1e88e5;
+    border-color: #e92525cb;
     color: #333;
 }
 
@@ -640,12 +640,12 @@ body.cliente-page {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #f80202 100%);
     color: white;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #1976d2 0%, #0a3d91 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, rgb(255, 0, 0)cb 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
 }
@@ -683,11 +683,11 @@ body.cliente-page {
     border-radius: 8px;
     padding: 20px;
     margin-top: 20px;
-    border-left: 4px solid #1e88e5;
+    border-left: 4px solid #e92525cb;
 }
 
 #empresaSection h3 {
-    color: #1e88e5;
+    color: #e92525cb;
     border-bottom: none;
     margin-top: 0;
 }
@@ -813,12 +813,12 @@ input[type="tel"], input[type="text"][id*="Cep"] {font-family: 'Courier New', mo
 .form-pedido select:focus, 
 .form-pedido input:focus {
     outline: none;
-    border-color: #1e88e5;
+    border-color: #e92525cb;
 }
 
 /* buttons da page de produtos */
 .btn-add-carrinho {
-    background: #1e88e5;
+    background: #e92525cb;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -831,7 +831,7 @@ input[type="tel"], input[type="text"][id*="Cep"] {font-family: 'Courier New', mo
 }
 
 .btn-add-carrinho:hover {
-    background: #1976d2;
+    background: #e92525cb;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
 }
@@ -935,7 +935,7 @@ body.cliente-page .rodape {
 }
 
 .produto-item:hover {
-    border-color: #1e88e5;
+    border-color: #e92525cb;
     transform: translateY(-2px);
     box-shadow: 0 5px 20px rgba(30, 136, 229, 0.15);
 }
@@ -961,7 +961,7 @@ body.cliente-page .rodape {
 .produto-preco {
     font-size: 18px;
     font-weight: 700;
-    color: #1e88e5;
+    color: #e92525cb;
     margin: 8px 0;
 }
 
@@ -979,7 +979,7 @@ body.cliente-page .rodape {
 }
 
 .btn-ver-detalhes {
-    background: #1e88e5;
+    background: #e92525cb;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -994,7 +994,7 @@ body.cliente-page .rodape {
 }
 
 .btn-ver-detalhes:hover {
-    background: #1976d2;
+    background: #e92525cb;
     transform: translateY(-2px);
 }
 
@@ -1116,7 +1116,7 @@ body.cliente-page .rodape {
 .preco-detalhe {
     font-size: 28px;
     font-weight: 700;
-    color: #1e88e5;
+    color: #e92525cb;
     margin: 15px 0;
 }
 
@@ -1139,7 +1139,7 @@ body.cliente-page .rodape {
     padding: 15px;
     background: #f8f9fa;
     border-radius: 8px;
-    border-left: 4px solid #1e88e5;
+    border-left: 4px solid #e92525cb;
 }
 
 /* forme no modal */
@@ -1195,8 +1195,8 @@ body.cliente-page .rodape {
 }
 
 .btn-quantidade:hover {
-    border-color: #1e88e5;
-    color: #1e88e5;
+    border-color: #e92525cb;
+    color: #e92525cb;
 }
 
 .quantidade-controle input {
@@ -1211,7 +1211,7 @@ body.cliente-page .rodape {
 
 .quantidade-controle input:focus {
     outline: none;
-    border-color: #1e88e5;
+    border-color: #e92525cb;
 }
 
 .btn-adicionar-carrinho {
@@ -1255,7 +1255,7 @@ body.cliente-page .rodape {
 
 .carrinho-header {
     padding: 20px;
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #ff0000 100%);
     color: white;
     display: flex;
     justify-content: space-between;
@@ -1272,7 +1272,7 @@ body.cliente-page .rodape {
 
 .carrinho-contador {
     background: white;
-    color: #1e88e5;
+    color: #e92525cb;
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -1332,7 +1332,7 @@ body.cliente-page .rodape {
     background: #f8f9fa;
     padding: 5px 8px;
     border-radius: 4px;
-    border-left: 3px solid #1e88e5;
+    border-left: 3px solid #e92525cb;
 }
 
 .carrinho-item-detalhes {
@@ -1581,7 +1581,7 @@ body.cliente-page .rodape {
 }
 
 .item-pedido-preco {
-    color: #1e88e5;
+    color: #e92525cb;
     font-weight: 600;
     font-size: 16px;
 }
@@ -1598,7 +1598,7 @@ body.cliente-page .rodape {
     background: #e3f2fd;
     padding: 4px 10px;
     border-radius: 6px;
-    color: #1e88e5;
+    color: #e92525cb;
 }
 
 .resumo-linha {
@@ -1736,7 +1736,7 @@ body.cliente-page .rodape {
 }
 /* ================= BOTÃO VOLTAR HOME ================= */
 .btn-voltar-home {
-    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #e92525cb 100%);
     color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
@@ -1748,7 +1748,7 @@ body.cliente-page .rodape {
 }
 
 .btn-voltar-home:hover {
-    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #e92525cb 100%);
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(30, 136, 229, 0.35);
 }

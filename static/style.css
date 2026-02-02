@@ -6,7 +6,7 @@
 body {
     margin: 0;
     height: 100vh;
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #e92525cb 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -26,7 +26,7 @@ body {
 
 .logo-section {
     flex: 0 0 40%;
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #e92525cb 100%);
     color: white;
     display: flex;
     flex-direction: column;
@@ -106,14 +106,14 @@ input, select {
 
 input:focus, select:focus {
     outline: none;
-    border-color: #1e88e5;
+    border-color: #e92525 ;
     box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
 }
 
 button {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #e92525cb 0%, #e92525cb 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -143,14 +143,14 @@ button.secondary:hover {
 .link {
     text-align: center;
     margin-top: 20px;
-    color: #1e88e5;
+    color: #e92525cb;
     cursor: pointer;
     font-weight: 500;
     transition: color 0.3s ease;
 }
 
 .link:hover {
-    color: #0d47a1;
+    color: #e90808d7;
     text-decoration: underline;
 }
 
@@ -189,13 +189,13 @@ pre {
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #1e88e5;
+    border: 4px solid #e92525cb;
     background: #f0f0f0;
     transition: all 0.3s ease;
 }
 
 .avatar-upload label:hover img {
-    border-color: #0d47a1;
+    border-color: #e92525cb;
     transform: scale(1.05);
 }
 
@@ -203,7 +203,7 @@ pre {
     position: absolute;
     bottom: 0;
     right: 0;
-    background: #1e88e5;
+    background: #e92525cb;
     color: white;
     width: 36px;
     height: 36px;
@@ -218,7 +218,7 @@ pre {
 }
 
 .avatar-upload label:hover .avatar-edit {
-    background: #0d47a1;
+    background: #e92525cb;
     transform: scale(1.1);
 }
 
@@ -227,7 +227,7 @@ pre {
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
-    border-left: 4px solid #1e88e5;
+    border-left: 4px solid #e92525cb;
 }
 
 .endereco-container h4 {
@@ -285,11 +285,11 @@ hr {
     padding: 20px;
     border-radius: 10px;
     margin-top: 20px;
-    border-left: 4px solid #1e88e5;
+    border-left: 4px solid #e92525cb;
 }
 
 #empresaSection h3 {
-    color: #1e88e5;
+    color: #e92525cb;
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 20px;
@@ -317,7 +317,7 @@ hr {
 }
 
 #saveProfileBtn {
-    background: #1e88e5;
+    background: #e92525cb;
 }
 
 #cancelEditBtn {
@@ -327,11 +327,11 @@ hr {
 .editable {
     background: #fff !important;
     cursor: text !important;
-    border: 1px solid #1e88e5 !important;
+    border: 1px solid #e92525cb !important;
 }
 
 .editable:focus {
-    outline: 2px solid #1e88e5;
+    outline: 2px solid #e92525cb;
 }
 
 /* Estilo para selects */
