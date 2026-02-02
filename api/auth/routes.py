@@ -274,6 +274,7 @@ def register_empresa():
       409:
         description: CNPJ, CPF ou Email já cadastrados
     """    
+
     data = request.form
     file_logo = request.files.get("logo")
 
@@ -520,7 +521,7 @@ def me():
               description: Retornado apenas se tipo_usuario for 'empresa'
       404:
         description: Usuário não encontrado
-    """    
+    """
     user_id = request.user_id
 
     user = User.query.get(user_id)
@@ -621,7 +622,7 @@ def update_me():
         description: Tentativa de alterar campo bloqueado (CPF, CNPJ)
       409:
         description: Email já em uso
-    """    
+    """
     user_id = request.user_id
     user = User.query.get(user_id)
 

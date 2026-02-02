@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template
 from flask_cors import CORS
+from flasgger import Swagger
 from extensions import db
 from config import Config
 from flasgger import Swagger
@@ -128,6 +129,21 @@ def create_app():
 # ======= HEALTH =======
     @app.route("/health")
     def health():
+        """
+        Verificação de saúde da API
+        ---
+        tags:
+          - Infraestrutura
+        responses:
+          200:
+            description: API está online
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: ok
+        """
         return {"status": "ok"}
 
     return app
