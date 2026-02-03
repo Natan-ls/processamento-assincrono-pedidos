@@ -113,10 +113,12 @@ async function virarVip(plano) {
         });
 
         if (!res.ok) {
-            alert(res.error || "Erro ao virar VIP");
+            const errorMsg = res.error || res.data?.error || "Erro ao virar VIP";
+            alert(`${errorMsg}`);
             return;
-        }
-
+        } 
+        const data = res.data || res;
+        console.log("VIP ativado:", data);
         alert("🎉 Parabéns! Você agora é VIP!");
         log("Usuário virou VIP");
 
