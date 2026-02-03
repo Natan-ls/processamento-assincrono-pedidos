@@ -2,6 +2,10 @@ from functools import wraps
 from flask import request, jsonify, current_app
 import jwt
 
+from extensions import db
+from api.models.user import User
+
+
 def jwt_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -24,13 +28,37 @@ def jwt_required(f):
             )
 
             request.user_id = payload["sub"]
-            request.pessoa_id = payload["pessoa_id"]
+            request.pessoa_id = payload.get("pessoa_id")
 
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token expirado"}), 401
 
         except jwt.InvalidTokenError:
             return jsonify({"error": "Token inválido"}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+def vip_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        # O jwt_required PRECISA rodar antes
+        user_id = getattr(request, "user_id", None)
+
+        if not user_id:
+            return jsonify({"error": "Usuário não autenticado"}), 401
+
+        user = db.session.get(User, user_id)
+
+        if not user:
+            return jsonify({"error": "Usuário não encontrado"}), 404
+
+        # Ajuste o nome do campo conforme seu model User
+        if not getattr(user, "is_vip", False):
+            return jsonify({"error": "Usuário não é VIP"}), 403
 
         return f(*args, **kwargs)
 

@@ -1,19 +1,21 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from flasgger import Swagger
+
 from extensions import db
 from config import Config
-from flasgger import Swagger
 
-
-# ======= BLUEPRINTS da API ======= 
+# ======= BLUEPRINTS da API =======
 from api.auth.routes import auth_bp
 from api.orders.routes import orders_bp
 from api.estabelecimentos.routes import estabelecimentos_bp
 from api.pagamento.routes import pagamento_bp
 
-# ======= MODELS p/ Garantir o REGISTRO no SQLAlchemy =======
+# ======= DECORATORS =======
+from api.auth.decorators import jwt_required, vip_required
+
+# ======= MODELS (registro no SQLAlchemy) =======
 from api.models.user import User
 from api.models.estabelecimento import Estabelecimento
 from api.models.produto import Product
@@ -21,8 +23,6 @@ from api.models.order import Order, OrderItem
 from api.models.endereco import Endereco
 from api.models.horarioFuncionamento import HorarioFuncionamento
 
-# IP p acessar o SITE  hospedado na ec2 aws --> http://foodjanu.ddns.net:5000/ 
-# IP caso queiram utilizar  no local host -->  http://localhost:5000
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -33,71 +33,67 @@ def create_app():
         template_folder=os.path.join(BASE_DIR, "frontend"),
         static_folder=os.path.join(BASE_DIR, "static")
     )
-    
+
     app.config.from_object(Config)
 
-# ======= SWAGGER =======
-    swagger_config = {
-        "headers": [],
-        "specs": [
-            {
-                "endpoint": 'apispec_1',
-                "route": '/apispec_1.json',
-                "rule_filter": lambda rule: True,  # Documentar todas as rotas
-                "model_filter": lambda tag: True,
-            }
-        ],
-        "static_url_path": "/flasgger_static",
-        "swagger_ui": True,
-        "specs_route": "/apidocs/"  # <--- URL para acessar a doc: localhost:5000/apidocs/
-    }
-
-    template = {
+    # ======= SWAGGER =======
+    Swagger(app, template={
         "swagger": "2.0",
         "info": {
             "title": "API de Processamento de Pedidos",
-            "description": "API para sistema de delivery distribuído com Kafka e Celery",
-            "contact": {
-                "responsibleDeveloper": "Dev Team",
-                "email": "dev@exemplo.com",
-            },
+            "description": "API para sistema de delivery distribuído",
             "version": "1.0.0"
         },
-        # Configuração para aceitar JWT no botão "Authorize"
         "securityDefinitions": {
             "Bearer": {
                 "type": "apiKey",
                 "name": "Authorization",
-                "in": "header",
-                "description": "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\""
+                "in": "header"
             }
         },
-        "security": [
-            {"Bearer": []}
-        ]
-    }
-    Swagger(app, config=swagger_config, template=template)
+        "security": [{"Bearer": []}]
+    })
 
-# ======= CORs =======
+    # ======= CORS GLOBAL (ÚNICO) =======
     CORS(
         app,
         resources={r"/*": {"origins": "*"}},
-        supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     )
 
-# ======= DATABASE =======
+    # ======= DATABASE =======
     db.init_app(app)
 
-# ======= BLUEPRINTs da API =======
+    # ======= BLUEPRINTS =======
     app.register_blueprint(auth_bp)
     app.register_blueprint(orders_bp)
-    app.register_blueprint(estabelecimentos_bp)  
+    app.register_blueprint(estabelecimentos_bp)
     app.register_blueprint(pagamento_bp)
 
+    # =====================================================
+    # ================= ROTAS DE API ======================
+    # =====================================================
 
-# ======= ROTAS das PAGES FRONEND =======
+    # ---- PRE-FLIGHT (SEM JWT) ----
+    @app.route("/users/vip", methods=["OPTIONS"])
+    def users_vip_options():
+        return "", 200
+
+    # ---- ROTA PROTEGIDA ----
+    @app.route("/users/vip", methods=["GET"])
+    @jwt_required
+    @vip_required
+    def users_vip():
+        return jsonify({
+            "message": "Usuário VIP confirmado",
+            "user_id": request.user_id
+        }), 200
+
+    # =====================================================
+    # ================= FRONTEND ==========================
+    # =====================================================
+
     @app.route("/")
     def index():
         return render_template("Index/index.html")
@@ -126,27 +122,13 @@ def create_app():
     def client_order_details():
         return render_template("Client/detalhesPedido.html")
 
-# ======= HEALTH =======
+    # ======= HEALTH =======
     @app.route("/health")
     def health():
-        """
-        Verificação de saúde da API
-        ---
-        tags:
-          - Infraestrutura
-        responses:
-          200:
-            description: API está online
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  example: ok
-        """
         return {"status": "ok"}
 
     return app
+
 
 app = create_app()
 

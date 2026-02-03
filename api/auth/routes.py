@@ -17,6 +17,7 @@ from api.models.enums import CategoriaEstabelecimento
 from api.models.endereco import Endereco
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+#auth_bp = Blueprint("auth", __name__, url_prefix="/auth/users/vip")  #users/vip adicionado
 
 # ================== FUNÇÕES AUXILIARES ================== #
 def criar_endereco(data, prefixo=None):
@@ -478,7 +479,8 @@ def login():
             "access_token": token,
             "user": {
                 "id": user.id,
-                "tipo_usuario": user.tipo_usuario            
+                "tipo_usuario": user.tipo_usuario,
+                "is_vip": user.vip_ativo()            
             }
         }), 200
 
