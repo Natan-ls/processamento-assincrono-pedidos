@@ -171,10 +171,10 @@ INSERT INTO pessoa(endereco_id, nome, cpf, telefone) VALUES
 
 
 INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario) VALUES 
-    (1, 'joao@gmail.com', 'teste', 'Colaborador'),
-    (2, 'marcospizza@gmail.com', 'teste', 'Colaborador'),
-    (3, 'mateus@gmail.com', 'teste', 'Colaborador'),
-    (4, 'andre@gmail.com', 'teste', 'Colaborador');
+    (1, 'joao@gmail.com', 'teste', 'empresa'),
+    (2, 'marcospizza@gmail.com', 'teste', 'empresa'),
+    (3, 'mateus@gmail.com', 'teste', 'empresa'),
+    (4, 'andre@gmail.com', 'teste', 'empresa');
 
 
 INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria) VALUES 
@@ -197,20 +197,20 @@ INSERT INTO produto (estabelecimento_id, nome_item, preco_unidade, quantidade_es
 
 
 INSERT INTO horario_funcionamento (estabelecimento_id, dia_semana, ativo, hora_inicio, hora_fim) VALUES
-    (1, 0, TRUE, '18:00', '23:00'), -- Domingo
-    (1, 1, TRUE, '18:00', '23:00'), -- Segunda
-    (1, 2, TRUE, '18:00', '23:00'), -- Terça
-    (1, 3, TRUE, '18:00', '23:00'), -- Quarta
-    (1, 4, TRUE, '18:00', '23:00'), -- Quinta
-    (1, 5, TRUE, '18:00', '23:59'), -- Sexta
-    (1, 6, TRUE, '18:00', '00:00'), -- Sábado
-    (2, 0, TRUE, '17:30', '22:30'),
-    (2, 1, TRUE, '17:30', '22:30'),
-    (2, 2, TRUE, '17:30', '22:30'),
-    (2, 3, TRUE, '17:30', '22:30'),
-    (2, 4, TRUE, '17:30', '22:30'),
-    (2, 5, TRUE, '17:30', '22:30'),
-    (2, 6, TRUE, '17:30', '22:30'),
+    (1, 0, TRUE, '18:00', '03:00'), -- Domingo
+    (1, 1, TRUE, '18:00', '03:00'), -- Segunda
+    (1, 2, TRUE, '18:00', '03:00'), -- Terça
+    (1, 3, TRUE, '18:00', '03:00'), -- Quarta
+    (1, 4, TRUE, '18:00', '03:00'), -- Quinta
+    (1, 5, TRUE, '18:00', '03:00'), -- Sexta
+    (1, 6, TRUE, '18:00', '03:00'), -- Sábado
+    (2, 0, TRUE, '17:30', '02:30'),
+    (2, 1, TRUE, '17:30', '02:30'),
+    (2, 2, TRUE, '17:30', '02:30'),
+    (2, 3, TRUE, '17:30', '02:30'),
+    (2, 4, TRUE, '17:30', '02:30'),
+    (2, 5, TRUE, '17:30', '02:30'),
+    (2, 6, TRUE, '17:30', '02:30'),
     (3, 0, TRUE, '09:30', '22:30'),--PIMENTA MINEIRA Dom
     (3, 1, TRUE, '09:30', '22:30'),-- Seg
     (3, 2, TRUE, '09:30', '22:30'),-- Terc
