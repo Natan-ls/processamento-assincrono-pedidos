@@ -49,6 +49,7 @@ class OrderItem(db.Model):
     produto_id = db.Column(db.Integer, db.ForeignKey("produto.id"), nullable=False)
     quantidade = db.Column(db.Integer, nullable=False)
     preco_unitario = db.Column(db.Numeric(10, 2), nullable=False)
+    observacao = db.Column(db.Text, nullable=True)
 
     ## Relacionamento da tabela c/ o produto permitindo assim acessar os dados da outra tabela
     produto = db.relationship("Product")
@@ -60,5 +61,6 @@ class OrderItem(db.Model):
             "nome": self.produto.nome_item if self.produto else "Produto não encontrado",
             "quantidade": self.quantidade,
             "preco_unitario": float(self.preco_unitario),
-            "subtotal": float(self.quantidade * self.preco_unitario)
+            "subtotal": float(self.quantidade * self.preco_unitario),
+            "observacao": self.observacao
         }

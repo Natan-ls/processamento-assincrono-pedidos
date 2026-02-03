@@ -17,6 +17,8 @@ from api.models.enums import CategoriaEstabelecimento
 from api.models.endereco import Endereco
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+#auth_bp = Blueprint("auth", __name__, url_prefix="/auth/users/vip")  #users/vip adicionado
+
 
 # ================== FUNÇÕES AUXILIARES ================== #
 def criar_endereco(data, prefixo=None):
@@ -474,14 +476,25 @@ def login():
     try:
         token = generate_token(user)
 
+        empresa_configurada = True
+        if user.tipo_usuario == "empresa":
+            estabelecimento = Estabelecimento.query.filter_by(
+                user_id=user.id
+            ).first()
+
+            # segurança extra
+            empresa_configurada = bool(estabelecimento and estabelecimento.configurado)
+
+
         return jsonify({
             "access_token": token,
             "user": {
                 "id": user.id,
-                "tipo_usuario": user.tipo_usuario            
+                "tipo_usuario": user.tipo_usuario,
+                "empresa_configurada": empresa_configurada,
+                "is_vip": user.vip_ativo()            
             }
         }), 200
-
     except Exception as e:
         return jsonify({
             "error": "Erro ao gerar token",
@@ -778,7 +791,7 @@ def atualizarSenha():
         description: Senhas resetadas para 'teste'
     """
     usuarioEmpresa = []
-    for id in range(1,3):
+    for id in range(1,5):
         usuario = User.query.get(id)
 
         if usuario:
@@ -786,5 +799,4 @@ def atualizarSenha():
             usuario.set_password("teste")
             db.session.commit()
             usuarioEmpresa.append({'nome':usuario.email, 'password':usuario.password_hash})
-
     return jsonify(usuarioEmpresa),200

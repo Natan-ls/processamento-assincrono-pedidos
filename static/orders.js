@@ -1,4 +1,7 @@
 // orders.js
+import { formatarTaxaEntrega } from "./utils.js";
+import { apiRequest, authHeadersJson } from "./api.js";
+
 document.addEventListener("DOMContentLoaded", () => {
     configurarMenuPerfil();
     configurarNavegacaoExtra();
@@ -14,26 +17,32 @@ async function carregarPedidos() {
             return;
         }
 
-        const res = await fetch("/orders/", {
+        /*const res = await fetch("/orders/", {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
+        });*/
+        const res = await apiRequest("/orders/", {
+            headers: authHeadersJson()
         });
 
-        const data = await res.json();
+
+        const data = res.data;
         const listaPedidos = document.getElementById("listaPedidos");
 
-        if (!res.ok || !data.length) {
+        if (!res.ok || !res.data.length) {
             listaPedidos.innerHTML = "<p>Você ainda não fez nenhum pedido.</p>";
             return;
         }
 
-        let html = '<div class="pedidos-lista">';
+        /*let html = '<div class="pedidos-lista">';
 
         data.forEach(pedido => {
             const status = pedido.status || "CRIADO";
             const dataPedido = formatarData(pedido.created_at);
-
+            const taxaEntrega = await buscarTaxaEntrega(
+                pedido.estabelecimento_id
+            );
             html += `
                 <div class="pedido-card">
                     <h3>Pedido #${pedido.id}</h3>
@@ -44,6 +53,7 @@ async function carregarPedidos() {
                             ${formatarStatus(status)}
                         </span>
                     </p>
+                    <p><strong>Taxa de entrega:</strong> ${formatarTaxaEntrega(taxaEntrega)}</p>
                     <p><strong>Total:</strong> R$ ${Number(pedido.valor_total || 0).toFixed(2)}</p>
 
                     <button class="btn-detalhes" data-id="${pedido.id}">
@@ -54,7 +64,42 @@ async function carregarPedidos() {
         });
 
         html += "</div>";
-        listaPedidos.innerHTML = html;
+        listaPedidos.innerHTML = html;*/
+        const pedidosHtml = await Promise.all(
+            data.map(async (pedido) => {
+                const status = pedido.status || "CRIADO";
+                const dataPedido = formatarData(pedido.created_at);
+
+                const taxaEntrega = await buscarTaxaEntrega(
+                    pedido.estabelecimento_id
+                );
+
+                return `
+                    <div class="pedido-card">
+                        <h3>Pedido #${pedido.id}</h3>
+                        <p><strong>Data:</strong> ${dataPedido}</p>
+                        <p>
+                            <strong>Status:</strong>
+                            <span class="status" style="background:${getCorStatus(status)}">
+                                ${formatarStatus(status)}
+                            </span>
+                        </p>
+                        <p><strong>Taxa de entrega:</strong> ${formatarTaxaEntrega(taxaEntrega)}</p>
+                        <p><strong>Total:</strong> R$ ${Number(pedido.valor_total || 0).toFixed(2)}</p>
+
+                        <button class="btn-detalhes" data-id="${pedido.id}">
+                            🔍 Detalhes
+                        </button>
+                    </div>
+                `;
+            })
+        );
+
+        listaPedidos.innerHTML = `
+            <div class="pedidos-lista">
+                ${pedidosHtml.join("")}
+            </div>
+        `;
 
         // Eventos dos botões "Detalhes"
         document.querySelectorAll(".btn-detalhes").forEach(btn => {
@@ -147,4 +192,25 @@ function formatarStatus(status) {
         ENTREGUE: "ENTREGUE",
         CANCELADO: "CANCELADO"
     }[status.toUpperCase()] || status;
+}
+
+
+async function buscarTaxaEntrega(estabelecimentoId, token) {
+    try {
+        const res = await apiRequest(
+            `/estabelecimentos/${estabelecimentoId}`,
+            {
+                method: "GET",
+                headers: authHeadersJson()
+            }
+        );
+
+        if (!res.ok) return 0;
+
+        const data = await res.json();
+        return Number(data.taxa_entrega || 0);
+    } catch (e) {
+        console.warn("Erro ao buscar taxa de entrega:", e);
+        return 0;
+    }
 }

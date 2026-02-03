@@ -86,14 +86,20 @@ def list_estabelecimentos():
         estabelecimento_dict = {
             "id": e.id,
             "nome_fantasia": e.nome_fantasia,
-            "categoria": e.categoria.value,
+            "categoria": (e.categoria.value if hasattr(e.categoria, "value")else e.categoria),
             "url_logo": e.url_logo,
-            "aberto": calcular_status_abertura(e),
+            "taxa_entrega": e.taxa_entrega,  # Taxa de Entrega do estabelecimento
+            "aberto": calcular_status_abertura(e), # chama a funct p verificar se está aberto ou fechado
             "descricao": f"Pizzaria de qualidade em {e.endereco.cidade}" if not e.endereco is None else "Estabelecimento de comida"
         }
         estabelecimentos_list.append(estabelecimento_dict)
     
-    return jsonify(estabelecimentos_list)
+    #return jsonify(estabelecimentos_list)
+    return jsonify({
+        "ok": True,
+        "data": estabelecimentos_list
+    })
+
 
 
 # ======== FUNCT p/ LISTART TDS PRODUTOS DE UM ESTABELECIMENTO ======== 

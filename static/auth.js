@@ -85,17 +85,32 @@ async function redirectByUserType() {
         }
 
         const perfil = res.data;
-        const tipo = perfil.tipo_usuario;
-
+        //const tipo = perfil.tipo_usuario;
         // Redirecionamento baseado no tipo retornado pelo /me
-        if (tipo === "cliente") {
+        /*if (tipo === "cliente") {
             window.location.href = "/client/home";
         } else if (tipo === "empresa") {
             window.location.href = "/company/dashboard";
         } else {
             log("Tipo de usuário inválido: " + tipo);
+        }*/
+
+        if (perfil.tipo_usuario === "cliente") {
+            window.location.href = "/client/home";
+            return;
         }
 
+        const path = window.location.pathname;
+
+        if (perfil.tipo_usuario === "empresa") {
+            if (!perfil.empresa_configurada && path !== "/company/onboarding") {
+                window.location.href = "/company/onboarding";
+            } else if (perfil.empresa_configurada && path !== "/company/dashboard") {
+                window.location.href = "/company/dashboard";
+            }
+        }        
+
+        log("Tipo de usuário inválido.");            
     } catch (error) {
         console.error("Erro no redirecionamento:", error);
         log("Erro ao carregar perfil.");

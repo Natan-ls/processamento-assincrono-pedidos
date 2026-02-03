@@ -7,6 +7,7 @@ import api.messaging.constantes as constants
 import api.messaging.producer as producer
 from datetime import datetime, timezone
 from api.models.produto import Product
+from api.models.estabelecimento import Estabelecimento
 
 orders_bp = Blueprint("orders", __name__, url_prefix="/orders")
 
@@ -94,43 +95,57 @@ def create_order():
     if not items_data or not isinstance(items_data, list):
         return jsonify({"error": "O pedido deve conter uma lista de itens"}), 400
 
-    try:
+    # busca o estabelecimento e taxa de entrega do mesmo
+    estabelecimento = Estabelecimento.query.get(data["estabelecimento_id"])
+    if not estabelecimento:
+        return jsonify({"error": "Estabelecimento não encontrado"}), 404
+
+    taxa_entrega = estabelecimento.taxa_entrega
+
+    try:        
+        subtotal = 0
+  
         new_order = Order(## cria o pedido no BD
             pessoa_id=request.pessoa_id, ##faz autencticação do user via jwwt
             estabelecimento_id=data["estabelecimento_id"],
             status=OrderStatus.CRIADO.value,
-            valor_total=0,
-            endereco_entrega=endereco_entrega
+            endereco_entrega=endereco_entrega,
+            valor_total=0
         )
-        
-        total = 0
+        db.session.add(new_order) ## salva no BD
+        db.session.commit()
+
         for item in items_data:
             quantidade = int(item["quantidade"])
             preco = float(item["preco"])
+            observacao = item.get("observacao")
+ 
+            subtotal += quantidade * preco ## att o valor do pedido
 
             order_item = OrderItem(##cria os items do pedido
+                pedido_id=new_order.id,
                 produto_id=item["produto_id"],
                 quantidade=quantidade,
-                preco_unitario=preco
+                preco_unitario=preco,
+                observacao=observacao
             )
-            new_order.items.append(order_item)## add item no pedido
-            total += quantidade * preco ## att o valor do pedido
-
-        new_order.valor_total = total
-
-        db.session.add(new_order) ## salva no BD
+            db.session.add(order_item)
+        valor_total = subtotal + float(taxa_entrega)
+        new_order.valor_total = valor_total
         db.session.commit()
 
         # === Envio do evento para Kafka (nova forma) ===
         evento = {
             "tipo_evento": constants.PEDIDO_CRIADO,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+           "timestamp": datetime.now(timezone.utc).isoformat(),
             "dados": {
                 "pedido_id": new_order.id,
                 "pessoa_id": request.pessoa_id,
                 "endereco_entrega": endereco_entrega,
                 "itens": [item.to_dict() for item in new_order.items],
-                "total": float(total)
+                "subtotal": float(subtotal),
+                "taxa_entrega": float(taxa_entrega),
+                "total": float(valor_total)
             }
         }
         producer.publicar_evento(constants.PEDIDO_CRIADO, evento)
@@ -139,7 +154,6 @@ def create_order():
             "message": "Pedido criado com sucesso",
             "order_id": new_order.id,
             "status": new_order.status,
-            "total": float(total),
             "endereco_entrega": endereco_entrega
         }), 201
     

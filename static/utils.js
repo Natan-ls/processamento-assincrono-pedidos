@@ -85,3 +85,6 @@ export function toggleMenuPerfil() {
     const menu = document.getElementById('menuPerfil');
     if (menu) {menu.classList.toggle('hidden');}
 }
+
+// ======= Funct p/ Retornar a Taxa de Entrega
+export function formatarTaxaEntrega(valor) {return valor === 0 ? "Grátis" : `R$ ${valor.toFixed(2)}`;}

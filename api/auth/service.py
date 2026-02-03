@@ -6,6 +6,7 @@ def generate_token(user) -> str:
     payload = {
         "sub": user.id,
         "pessoa_id": user.pessoa_id,
+        "vip": user.vip_ativo(), #VIP NO TOKEN
         "exp": datetime.utcnow() + timedelta(
             seconds=current_app.config["JWT_EXPIRATION_SECONDS"]
         )
@@ -18,19 +19,3 @@ def generate_token(user) -> str:
     )
 
     return token
-
-
-def decode_token(token: str) -> int:
-    try:
-        payload = jwt.decode(
-            token,
-            Config.JWT_SECRET_KEY, 
-            algorithms=["HS256"]
-        )
-        return int(payload["sub"])  # 
-
-    except jwt.ExpiredSignatureError:
-        raise Exception("Token expirado")
-
-    except jwt.InvalidTokenError:
-        raise Exception("Token inválido")

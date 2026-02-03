@@ -8,3 +8,5 @@ confluent-kafka==2.3.0
 flask-cors==4.0.0
 email-validator==2.1.1
 flasgger==0.9.7.1
+gunicorn==21.2.0
+gevent==23.9.1
