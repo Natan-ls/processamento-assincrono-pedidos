@@ -9,7 +9,7 @@ CREATE TABLE endereco (
     cep VARCHAR(10)
 );
 
-CREATE TABLE pessoa (
+CREATE TABLE pessoa (  
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     cpf VARCHAR(14) UNIQUE,
