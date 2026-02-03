@@ -1,17 +1,18 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from flasgger import Swagger
 from extensions import db
 from config import Config
-from flasgger import Swagger
-
 
 # ======= BLUEPRINTS da API ======= 
 from api.auth.routes import auth_bp
 from api.orders.routes import orders_bp
 from api.estabelecimentos.routes import estabelecimentos_bp
 from api.pagamento.routes import pagamento_bp
+
+# ======= DECORATORS =======
+from api.auth.decorators import jwt_required, vip_required
 
 # ======= MODELS p/ Garantir o REGISTRO no SQLAlchemy =======
 from api.models.user import User
@@ -96,6 +97,22 @@ def create_app():
     app.register_blueprint(estabelecimentos_bp)  
     app.register_blueprint(pagamento_bp)
 
+
+# ======= ROTAS DE API =======
+    # ---- PRE-FLIGHT (SEM JWT) ----
+    @app.route("/users/vip", methods=["OPTIONS"])
+    def users_vip_options():
+        return "", 200
+
+    # ---- ROTA PROTEGIDA ----
+    @app.route("/users/vip", methods=["GET"])
+    @jwt_required
+    @vip_required
+    def users_vip():
+        return jsonify({
+            "message": "Usuário VIP confirmado",
+            "user_id": request.user_id
+        }), 200
 
 # ======= ROTAS das PAGES FRONEND =======
     @app.route("/")

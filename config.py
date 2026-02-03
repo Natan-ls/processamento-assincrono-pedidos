@@ -16,3 +16,4 @@ class Config:
         "pool_timeout": 30,
         "pool_recycle": 1800,
     }
+  

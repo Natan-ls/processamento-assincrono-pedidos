@@ -1,6 +1,6 @@
 // api.js -> Configuração central da API
-export const API_URL = "http://foodjanu.ddns.net:5000";
-//export const API_URL = "http://localhost:5000";
+//export const API_URL = "http://foodjanu.ddns.net:5000";
+export const API_URL = "http://localhost:5000";
 
 // Função padrão para fazer requisições
 export async function apiRequest(endpoint, options = {}) {

@@ -11,6 +11,9 @@ class Estabelecimento(db.Model):
     nome_fantasia = db.Column(db.String(255), nullable=False)
     cnpj = db.Column(db.String(18), unique=True, nullable=False)
     categoria = db.Column(Enum(CategoriaEstabelecimento), nullable=False)
+
+    taxa_entrega = db.Column(db.Integer,nullable=False)    
+
     url_logo = db.Column(db.Text)
     url_banner = db.Column(db.Text)
    

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuração da Empresa</title>
+
+    <!-- CSS global -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- CSS específico do onboarding (opcional) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='company.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Configuração da Empresa</h1>
+
+    <div class="steps">
+        <span class="step active" data-step="1">Empresa</span>
+        <span class="step" data-step="2">Horários</span>
+        <span class="step" data-step="3">Produtos</span>
+        <span class="step" data-step="4">Finalizar</span>
+    </div>
+
+    <!-- STEP 1 -->
+    <section class="step-content" id="step-1">
+        <h2>Dados da Empresa</h2>
+        <label>Taxa de entrega (R$)</label>
+        <input type="number" id="taxaEntrega" step="0.01" min="0">
+        <button onclick="nextStep()">Próximo</button>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step-content hidden" id="step-2">
+        <h2>Horário de Funcionamento</h2>
+        <div id="horariosContainer"></div>
+        <button onclick="prevStep()">Voltar</button>
+        <button onclick="saveHorarios()">Salvar e continuar</button>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step-content hidden" id="step-3">
+        <h2>Cadastro de Produtos</h2>
+
+        <input type="text" id="produtoNome" placeholder="Nome">
+        <input type="text" id="produtoDescricao" placeholder="Descrição">
+        <input type="number" id="produtoPreco" placeholder="Preço" step="0.01">
+        <input type="number" id="produtoEstoque" placeholder="Estoque">
+        <input type="file" id="produtoImagem">
+
+        <button onclick="addProduto()">Adicionar Produto</button>
+        <ul id="listaProdutos"></ul>
+
+        <button onclick="prevStep()">Voltar</button>
+        <button onclick="nextStep()">Continuar</button>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step-content hidden" id="step-4">
+        <h2>Finalizar Configuração</h2>
+        <p>Confirme para ativar sua empresa no sistema.</p>
+        <button onclick="finalizarOnboarding()">Finalizar</button>
+    </section>
+</div>
+
+<!-- JS -->
+<script type="module"
+        src="{{ url_for('static', filename='/onboarding.js') }}">
+</script>
+
+</body>
+</html>

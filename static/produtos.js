@@ -1,6 +1,6 @@
 //produtos.js
 import { apiRequest, authHeadersJson } from "./api.js";
-import { log, toggleMenuPerfil } from "./utils.js";
+import { log, toggleMenuPerfil, formatarTaxaEntrega } from "./utils.js";
 import { logout } from "./auth.js";
  
 // ======================= COMPONENTS da INTERFACE dom =======================
@@ -66,6 +66,7 @@ let estabelecimentoInfo = null;
 let produtos = [];
 let carrinho = [];
 let produtoSelecionado = null;
+let taxaEntregaValor = 0;
 
 // ======================= FUNÇÕES DO MENU DO PERFIL =======================
 //function toggleMenuPerfil() {if (menuPerfil) {menuPerfil.classList.toggle("hidden");}}
@@ -92,12 +93,6 @@ function setupMenuEventos() {
     
     if (btnLogout) {btnLogout.addEventListener('click', logout);}
 }
-
-/*function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userType");
-    window.location.href = "/";
-}*/
 
 function abrirModalMensagem(titulo, mensagem, tipo = "info") {
     return new Promise((resolve) => {
@@ -189,6 +184,7 @@ async function carregarEstabelecimentoEProdutos() {
         if (resEst.ok) {
             estabelecimentoInfo = resEst.data;
             estabelecimentoNome = estabelecimentoInfo.nome_fantasia || "Estabelecimento";
+            taxaEntregaValor = Number(estabelecimentoInfo.taxa_entrega) || 0;    
             tituloProdutos.textContent = `🛒 ${estabelecimentoNome}`;
             infoEstabelecimento.textContent = estabelecimentoInfo.descricao || "Bem-vindo!";
         } else {
@@ -592,11 +588,11 @@ function atualizarCarrinho() {
     });
     
     // Calcular totais
-    const taxa = 5.00; // Taxa fixa de entrega
+    const taxa = taxaEntregaValor; // Taxa de entrega
     const total = subtotal + taxa;
     
     subtotalValor.textContent = subtotal.toFixed(2);
-    taxaEntrega.textContent = taxa.toFixed(2);
+    taxaEntrega.textContent = formatarTaxaEntrega(taxa);
     totalValor.textContent = total.toFixed(2);
     
     // Mostrar seção de total
@@ -623,19 +619,6 @@ async function buscarEnderecoCadastrado() {
     if (!token) {throw new Error("Usuário não está logado.");}
 
     //ROTA DO SEU BACKEND
-/*    const res = await fetch("http://foodjanu.ddns.net:5000/auth/me", {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {throw new Error(data.error || "Erro ao buscar perfil.");}
-
-    if (!data.endereco) {throw new Error("Usuário não possui endereço cadastrado.");}
-*/
     const res = await apiRequest("/auth/me", {
         method: "GET",
         headers: authHeadersJson()
@@ -675,9 +658,9 @@ async function finalizarPedido() {
         );
         return;
     }
-    // Calcular total
+    // Calcular total do PEDIDO
     const subtotal = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-    const taxa = 5.00;//Verificar se é necessário (se for necessário tem que mudar o backend e adicoanr a coluna no BD)
+    const taxa = taxaEntregaValor;
     const total = subtotal + taxa;
     
     // Pergunta endereço de entrega
@@ -695,7 +678,7 @@ async function finalizarPedido() {
         "📦 Confirmar Pedido",
         `Você deseja confirmar o pedido no ${estabelecimentoNome}?\n\n` +
         `Subtotal: R$ ${subtotal.toFixed(2)}\n` +
-        `Taxa: R$ ${taxa.toFixed(2)}\n` +
+        `Taxa: ${formatarTaxaEntrega(taxa)}\n` +
         `Total: R$ ${total.toFixed(2)}\n\n` +
         `Itens no carrinho: ${carrinho.length}`,
         "confirmacao"
@@ -725,37 +708,31 @@ async function finalizarPedido() {
         }));
         
         console.log("Enviando pedido para API...", items);
-        
-        /*// Enviar pedido para a API
-        const res = await api("http://foodjanu.ddns.net:5000/orders/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                estabelecimento_id: parseInt(estabelecimentoId),
-                items: items,
-                endereco_entrega: enderecoEntrega,
-                observacoes: observacaoInput.value.trim() // Observações gerais do pedido
-            })
-        });
-        
-        const data = await res.json();
-        
-        if (!res.ok) {
-            throw new Error(data.error || "Erro ao criar pedido");
-        }*/
 
         // Envia pedido para a API
-        const res = await apiRequest("/orders/", {
+        /*const res = await apiRequest("/orders/", {
             method: "POST",
             headers: authHeadersJson(),
             body: JSON.stringify({
                 estabelecimento_id: parseInt(estabelecimentoId),
                 items,
                 endereco_entrega: enderecoEntrega,
-                observacoes: observacaoInput.value.trim()
+                //observacoes: observacaoInput.value.trim()
+            })
+        });*/
+
+        const res = await apiRequest("/orders/", {
+            method: "POST",
+            headers: authHeadersJson(),
+            body: JSON.stringify({
+                estabelecimento_id: Number(estabelecimentoId),
+                endereco_entrega: enderecoEntrega,
+
+                subtotal: Number(subtotal.toFixed(2)),
+                taxa_entrega: Number(taxa.toFixed(2)),
+                valor_total: Number(total.toFixed(2)),
+
+                items: items
             })
         });
 
@@ -776,8 +753,6 @@ async function finalizarPedido() {
         atualizarCarrinho();
         
         // Redirecionar para a página de informar o pagamento
-        //window.location.href = "orders.html";
-        //window.location.href = `pagamento.html?pedidoId=${data.id}`;
         const pedidoId = data.order_id || data.id || data.pedido_id || data.id_pedido;
 
         if (!pedidoId) {throw new Error("Backend não retornou o ID do pedido.");}

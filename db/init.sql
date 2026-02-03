@@ -29,8 +29,10 @@ CREATE TABLE usuario (
     email VARCHAR(255) UNIQUE NOT NULL,        -- Email
     password_hash TEXT NOT NULL,                -- Senha do lclient (HASH, não criptrografado)
     tipo_usuario VARCHAR(50) NOT NULL,
+    -- colunas p VIP
+    is_vip BOOLEAN NOT NULL DEFAULT FALSE,
+    vip_until TIMESTAMP NULL,    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     CONSTRAINT fk_usuario_pessoa
         FOREIGN KEY (pessoa_id)
         REFERENCES pessoa(id)
@@ -43,6 +45,7 @@ CREATE TABLE estabelecimento (
     cnpj VARCHAR(18) UNIQUE NOT NULL,
     categoria VARCHAR(100),
     endereco_id INTEGER NOT NULL,
+    taxa_entrega INTEGER NOT NULL,
     url_logo TEXT, 
     url_banner TEXT,
     pessoa_id INTEGER NOT NULL,
@@ -114,6 +117,7 @@ CREATE TABLE itens_pedido (
     produto_id INTEGER NOT NULL,                -- Produto do pedido
     quantidade INTEGER NOT NULL CHECK (quantidade > 0),
     preco_unitario NUMERIC(10,2) NOT NULL CHECK (preco_unitario >= 0),
+    observacao TEXT, 
 
     CONSTRAINT fk_itens_pedido_pedido
         FOREIGN KEY (pedido_id)
@@ -177,11 +181,11 @@ INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario) VALUES
     (4, 'andre@gmail.com', 'teste', 'empresa');
 
 
-INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria) VALUES 
-    (1, 3, 'Pizzaria do João', '12345678000190', 'FAST_FOOD'),
-    (2, 4,'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD'),
-    (3, 5,'Pimenta Mineira', '00398308000137', 'RESTAURANTE'),
-    (4, 6,'Drogaria Santo Antonio', '23565792000147', 'FARMACIA');
+INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria, taxa_entrega) VALUES 
+    (1, 3, 'Pizzaria do João', '12345678000190', 'FAST_FOOD', 5),
+    (2, 4,'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD', 7),
+    (3, 5,'Pimenta Mineira', '00398308000137', 'RESTAURANTE', 10),
+    (4, 6,'Drogaria Santo Antonio', '23565792000147', 'FARMACIA', 0);
 
 INSERT INTO produto (estabelecimento_id, nome_item, preco_unidade, quantidade_estoque) VALUES
     (1, 'Pizza Calabresa', 45.00, 50),

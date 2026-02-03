@@ -24,6 +24,10 @@ body {
     overflow: hidden;
 }
 
+/* .main-container p{
+    text-shadow: 1px 1px 1px black;
+} */
+
 .logo-section {
     flex: 0 0 40%;
     background: linear-gradient(135deg, #e92525cb 0%, #e92525cb 100%);

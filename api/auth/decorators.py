@@ -1,6 +1,9 @@
 from functools import wraps
 from flask import request, jsonify, current_app
 import jwt
+from extensions import db
+from api.models.user import User 
+from datetime import datetime, timezone
 
 def jwt_required(f):
     @wraps(f)
@@ -22,9 +25,8 @@ def jwt_required(f):
                 current_app.config["SECRET_KEY"],
                 algorithms=["HS256"]
             )
-
             request.user_id = payload["sub"]
-            request.pessoa_id = payload["pessoa_id"]
+            request.pessoa_id = payload.get("pessoa_id")
 
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token expirado"}), 401
@@ -34,4 +36,41 @@ def jwt_required(f):
 
         return f(*args, **kwargs)
 
+    return decorated
+
+def vip_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        # O jwt_required PRECISA rodar antes
+        user_id = getattr(request, "user_id", None)
+
+        if not user_id:
+            return jsonify({"error": "Usuário não autenticado"}), 401
+
+        user = db.session.get(User, user_id)
+
+        if not user:
+            return jsonify({"error": "Usuário não encontrado"}), 404
+
+        # USEr ñ é VIP
+         # Ajuste o nome do campo conforme seu model User
+        if not getattr(user, "is_vip", False):
+            return jsonify({"error": "Usuário não é VIP"}), 403
+
+        # VIP com expiração
+        if user.vip_until is not None:
+            now = datetime.utcnow()
+
+            if user.vip_until < now:
+                return jsonify({
+                    "error": "VIP expirado",
+                    "vip_until": user.vip_until.isoformat()
+                }), 403
+
+        # Ajuste o nome do campo conforme seu model User
+        if not getattr(user, "is_vip", False):
+            return jsonify({"error": "Usuário não é VIP"}), 403
+
+        return f(*args, **kwargs)
     return decorated
