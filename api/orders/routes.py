@@ -141,6 +141,7 @@ def create_order():
             "dados": {
                 "pedido_id": new_order.id,
                 "pessoa_id": request.pessoa_id,
+                "estabelecimento_id": new_order.estabelecimento_id,
                 "endereco_entrega": endereco_entrega,
                 "itens": [item.to_dict() for item in new_order.items],
                 "subtotal": float(subtotal),
