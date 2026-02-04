@@ -106,9 +106,10 @@ export function setupMenuEventos(elements) {
             });
 
             if (res.ok && res.data?.is_vip) {
-                alert("⭐ Você já é VIP!");
+                abrirModalVipAtivo(res.data?.vip_until);
                 return;
             }
+
 
             abrirModalVip();
         } catch {
@@ -122,16 +123,115 @@ export function setupMenuEventos(elements) {
 /* ======== VIP ======== */
 
 export function abrirModalVip() {
-    const escolha = prompt(
-        "Escolha o plano VIP:\n\n1 - VIP 1 mês\n2 - VIP 1 ano\n3 - VIP eterno"
-    );
-    if (!escolha) return;
+    let modal = document.getElementById("modalVip");
 
-    let plano = escolha === "1" ? "1_mes" : escolha === "2" ? "1_ano" : escolha === "3" ? "eterno" : null;
-    if (!plano) return alert("Opção inválida.");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "modalVip";
+        modal.className = "modal";
 
-    virarVip(plano);
+        modal.innerHTML = `
+            <div class="modal-conteudo vip-modal">
+                <div class="modal-header">
+                    <h3>⭐ Escolha seu plano VIP</h3>
+                    <button class="fechar-modal" id="fecharVip">&times;</button>
+                </div>
+
+                <div class="modal-body vip-planos">
+
+                    <div class="vip-card" data-plano="1_mes">
+                        <h4>VIP 1 Mês</h4>
+                        <p class="vip-preco">R$ 30,00</p>
+                        <span class="vip-desc">Acesso VIP por 30 dias</span>
+                        <button class="vip-btn">Escolher</button>
+                    </div>
+
+                    <div class="vip-card destaque" data-plano="1_ano">
+                        <div class="vip-badge">Mais popular</div>
+                        <h4>VIP 1 Ano</h4>
+                        <p class="vip-preco">R$ 300,00</p>
+                        <span class="vip-desc">Economize 2 meses</span>
+                        <button class="vip-btn">Escolher</button>
+                    </div>
+
+                    <div class="vip-card" data-plano="eterno">
+                        <h4>VIP Eterno</h4>
+                        <p class="vip-preco">R$ 990,00</p>
+                        <span class="vip-desc">Pagamento único</span>
+                        <button class="vip-btn">Escolher</button>
+                    </div>
+
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.querySelector("#fecharVip").onclick = () =>
+            modal.classList.add("hidden");
+
+        modal.querySelectorAll(".vip-card").forEach(card => {
+            card.querySelector(".vip-btn").onclick = () => {
+                const plano = card.dataset.plano;
+                modal.classList.add("hidden");
+                virarVip(plano);
+            };
+        });
+    }
+
+    modal.classList.remove("hidden");
 }
+
+export function abrirModalVipAtivo(vipUntil = null) {
+    let modal = document.getElementById("modalVipAtivo");
+
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "modalVipAtivo";
+        modal.className = "modal";
+
+        modal.innerHTML = `
+            <div class="modal-conteudo vip-modal ativo">
+                <div class="modal-header">
+                    <h3>⭐ VIP Ativo</h3>
+                    <button class="fechar-modal" id="fecharVipAtivo">&times;</button>
+                </div>
+
+                <div class="modal-body vip-ativo-body">
+                    <div class="vip-icone">👑</div>
+
+                    <p class="vip-msg">
+                        Você faz parte do <strong>Clube VIP</strong> 🎉
+                    </p>
+
+                    <ul class="vip-beneficios">
+                        <li>✔ Descontos exclusivos</li>
+                        <li>✔ Promoções antecipadas</li>
+                        <li>✔ Prioridade nos pedidos</li>
+                    </ul>
+
+                    <p class="vip-validade">
+                        ${vipUntil
+                ? `Válido até <strong>${formatarDataVip(vipUntil)}</strong>`
+                : "VIP sem data de expiração"
+            }
+                    </p>
+
+                    <button class="vip-btn fechar">Fechar</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.querySelector("#fecharVipAtivo").onclick =
+            modal.querySelector(".vip-btn.fechar").onclick =
+            () => modal.classList.add("hidden");
+    }
+
+    modal.classList.remove("hidden");
+}
+
 
 export async function virarVip(plano) {
     try {
@@ -146,10 +246,19 @@ export async function virarVip(plano) {
             return alert(errorMsg);
         }
 
-        alert("🎉 Parabéns! Você agora é VIP!");
+        abrirModalVipAtivo(res.data?.vip_until);
         log("Usuário virou VIP");
+
     } catch (err) {
         console.error(err);
         alert("Erro de conexão ao virar VIP");
     }
+}
+
+export function formatarDataVip(data) {
+    if (!data) return null;
+
+    // força leitura correta sem timezone bug
+    const [ano, mes, dia] = data.split("T")[0].split("-");
+    return `${dia}/${mes}/${ano}`;
 }
