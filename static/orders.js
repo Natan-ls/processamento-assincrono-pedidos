@@ -1,12 +1,7 @@
 // orders.js
-import { formatarTaxaEntrega } from "./utils.js";
 import { apiRequest, authHeadersJson } from "./api.js";
-
-document.addEventListener("DOMContentLoaded", () => {
-    configurarMenuPerfil();
-    configurarNavegacaoExtra();
-    carregarPedidos();
-});
+import { log, formatarTaxaEntrega, getMenuElements, setupMenuEventos, setupFecharMenuFora, abrirModalVip } from "./utils.js";
+import { logout } from "./auth.js";
 
 // ================= PEDIDOS =================
 async function carregarPedidos() {
@@ -17,16 +12,7 @@ async function carregarPedidos() {
             return;
         }
 
-        /*const res = await fetch("/orders/", {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });*/
-        const res = await apiRequest("/orders/", {
-            headers: authHeadersJson()
-        });
-
-
+        const res = await apiRequest("/orders/", {headers: authHeadersJson()});
         const data = res.data;
         const listaPedidos = document.getElementById("listaPedidos");
 
@@ -34,37 +20,6 @@ async function carregarPedidos() {
             listaPedidos.innerHTML = "<p>Você ainda não fez nenhum pedido.</p>";
             return;
         }
-
-        /*let html = '<div class="pedidos-lista">';
-
-        data.forEach(pedido => {
-            const status = pedido.status || "CRIADO";
-            const dataPedido = formatarData(pedido.created_at);
-            const taxaEntrega = await buscarTaxaEntrega(
-                pedido.estabelecimento_id
-            );
-            html += `
-                <div class="pedido-card">
-                    <h3>Pedido #${pedido.id}</h3>
-                    <p><strong>Data:</strong> ${dataPedido}</p>
-                    <p>
-                        <strong>Status:</strong>
-                        <span class="status" style="background:${getCorStatus(status)}">
-                            ${formatarStatus(status)}
-                        </span>
-                    </p>
-                    <p><strong>Taxa de entrega:</strong> ${formatarTaxaEntrega(taxaEntrega)}</p>
-                    <p><strong>Total:</strong> R$ ${Number(pedido.valor_total || 0).toFixed(2)}</p>
-
-                    <button class="btn-detalhes" data-id="${pedido.id}">
-                        🔍 Detalhes
-                    </button>
-                </div>
-            `;
-        });
-
-        html += "</div>";
-        listaPedidos.innerHTML = html;*/
         const pedidosHtml = await Promise.all(
             data.map(async (pedido) => {
                 const status = pedido.status || "CRIADO";
@@ -73,7 +28,6 @@ async function carregarPedidos() {
                 const taxaEntrega = await buscarTaxaEntrega(
                     pedido.estabelecimento_id
                 );
-
                 return `
                     <div class="pedido-card">
                         <h3>Pedido #${pedido.id}</h3>
@@ -84,14 +38,27 @@ async function carregarPedidos() {
                                 ${formatarStatus(status)}
                             </span>
                         </p>
+                        ${
+                            status === "AGUARDANDO_PAGAMENTO" && pedido.pagamento_timer
+                                ? `<p class="timer-info">⏳ Expira em: ${formatarTempoRestante(pedido.pagamento_timer)}</p>`
+                                : ""
+                        }                        
                         <p><strong>Taxa de entrega:</strong> ${formatarTaxaEntrega(taxaEntrega)}</p>
                         <p><strong>Total:</strong> R$ ${Number(pedido.valor_total || 0).toFixed(2)}</p>
 
-                        <button class="btn-detalhes" data-id="${pedido.id}">
-                            🔍 Detalhes
-                        </button>
+                        <div class="button-group">
+                            <button class="btn-detalhes" data-id="${pedido.id}">
+                                🔍 Detalhes
+                            </button>
+                            ${
+                                status === "AGUARDANDO_PAGAMENTO"
+                                    ? `<button class="btn-pagar" data-id="${pedido.id}">💳 Pagar Agora</button>`
+                                    : ""
+                            }
+                        </div>
                     </div>
                 `;
+
             })
         );
 
@@ -108,44 +75,22 @@ async function carregarPedidos() {
                 window.location.href = `/client/order?id=${id}`;
             });
         });
+        // Eventos dos botões "Pagar Agora"
+        document.querySelectorAll(".btn-pagar").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-id");
+                // Redireciona para a página de pagamento
+                window.location.href = `/client/pagamento?pedidoId=${id}`;
+            });
+        });
 
+        
     } catch (err) {
         console.error(err);
         document.getElementById("listaPedidos").innerHTML =
             "<p>Erro ao carregar pedidos.</p>";
     }
 }
-
-// ================= MENU PERFIL =================
-function configurarMenuPerfil() {
-    const perfilIcon = document.getElementById("perfilIcon");
-    const menuPerfil = document.getElementById("menuPerfil");
-
-    perfilIcon?.addEventListener("click", () => {
-        menuPerfil.classList.toggle("hidden");
-    });
-
-    document.addEventListener("click", (e) => {
-        if (
-            menuPerfil &&
-            !menuPerfil.contains(e.target) &&
-            !perfilIcon.contains(e.target)
-        ) {
-            menuPerfil.classList.add("hidden");
-        }
-    });
-
-    document.getElementById("btnInicio")?.addEventListener("click", () => {
-        window.location.href = "/client/home";
-    });
-
-    document.getElementById("btnPerfil")?.addEventListener("click", () => {
-        window.location.href = "/client/profile";
-    });
-
-    document.getElementById("btnLogout")?.addEventListener("click", logout);
-}
-
 
 // ================= NAVEGAÇÃO EXTRA =================
 function configurarNavegacaoExtra() {
@@ -155,18 +100,35 @@ function configurarNavegacaoExtra() {
 }
 
 
-// ================= HELPERS =================
-function logout() {
-    localStorage.clear();
-    window.location.href = "/";
-}
-
 function formatarData(data) {
     if (!data) return new Date().toLocaleString("pt-BR");
     if (!data.endsWith("Z")) data += "Z";
     const d = new Date(data);
     return isNaN(d) ? new Date().toLocaleString("pt-BR") : d.toLocaleString("pt-BR");
 }
+
+// ================= Funct p/ Retornar o tempo p TIMER do PAGAMENTO acabar =================
+function formatarTempoRestante(expiraEm) {
+    if (!expiraEm) return "—";
+
+    if (!expiraEm.endsWith("Z")) expiraEm += "Z";
+    const agora = new Date();
+    const expira = new Date(expiraEm);
+ 
+    const diffMs = expira - agora;
+
+    if (diffMs <= 0) {
+        return "EXPIRADO";
+    }
+
+    const totalSegundos = Math.floor(diffMs / 1000);
+    const minutos = Math.floor(totalSegundos / 60);
+    const segundos = totalSegundos % 60;
+    if (minutos < 2)
+        return `⚠️ ${minutos}m ${segundos}s`;
+    return `${minutos}m ${segundos}s`;
+}
+
 
 function getCorStatus(status) {
     return {
@@ -214,3 +176,22 @@ async function buscarTaxaEntrega(estabelecimentoId, token) {
         return 0;
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    // ===================== MENU DO PERFIL =====================
+    // Pega elementos do menu do utils
+    const menuElements = getMenuElements();
+
+    // Configura os eventos do menu
+    setupMenuEventos(menuElements, { abrirModalVip, logout });
+
+    // Fecha menu ao clicar fora
+    setupFecharMenuFora(menuElements.menuPerfil, menuElements.perfilIcon);
+
+    configurarNavegacaoExtra();
+    carregarPedidos();
+    setInterval(() => { //a cada 30segs ele atualiza a lista d epedidos
+        carregarPedidos();
+    }, 30000);
+
+});

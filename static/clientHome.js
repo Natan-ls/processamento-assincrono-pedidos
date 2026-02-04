@@ -1,7 +1,7 @@
 import { apiRequest, authHeadersJson } from "./api.js";
-import { log } from "./utils.js";
+import { log, formatarTaxaEntrega, getMenuElements, setupMenuEventos, setupFecharMenuFora, abrirModalVip } from "./utils.js";
 import { logout } from "./auth.js";
-import { formatarTaxaEntrega } from "./utils.js";
+
 // ============================= Components da INTERFACE dom =============================
 
 // ======= elementos da page principal
@@ -9,127 +9,11 @@ const lista = document.getElementById("listaEstabelecimentos");
 const buscaInput = document.getElementById("buscaInput");
 const categoriaBtns = document.querySelectorAll(".cat-btn");
 
-// ======= Elementos do menu do perfil
-const perfilIcon = document.getElementById("perfilIcon");
-const menuPerfil = document.getElementById("menuPerfil");
-const btnPerfil = document.getElementById("btnPerfil");
-const btnPagamento = document.getElementById("btnPagamento");
-const btnPedidos = document.getElementById("btnPedidos");
-const btnVip = document.getElementById("btnVip"); // VIP
-const btnLogout = document.getElementById("btnLogout");
-
 // ============================= VARIÁVEIS DE ESTADO =============================
 let estabelecimentos = [];
 let categoriaFiltro = "";
 
-// ============================= FUNÇÕES DO MENU DO PERFIL =============================
-
-// ======= alternar menu do perfil
-function toggleMenuPerfil() {
-    if (menuPerfil) {
-        menuPerfil.classList.toggle("hidden");
-    }
-}
-
-// ======= fechar menu ao clicar fora
-function setupFecharMenuFora() {
-    document.addEventListener("click", function (event) {
-        if (
-            menuPerfil &&
-            perfilIcon &&
-            !perfilIcon.contains(event.target) &&
-            !menuPerfil.contains(event.target)
-        ) {
-            menuPerfil.classList.add("hidden");
-        }
-    });
-}
-
-// ======= configurar eventos do menu
-function setupMenuEventos() {
-    if (perfilIcon) {
-        perfilIcon.addEventListener("click", toggleMenuPerfil);
-    }
-
-    if (btnPerfil) {
-        btnPerfil.addEventListener("click", () => {
-            window.location.href = "/client/profile";
-        });
-    }
-
-    if (btnPedidos) {
-        btnPedidos.addEventListener("click", () => {
-            window.location.href = "/client/orders";
-        });
-    }
-
-    if (btnPagamento) {
-        btnPagamento.addEventListener("click", () => {
-            alert("Página de pagamento em desenvolvimento!");
-        });
-    }
-
-    // ⭐ VIP — botão virar VIP
-    if (btnVip) {
-        btnVip.addEventListener("click", abrirModalVip);
-    }
-
-    if (btnLogout) {
-        btnLogout.addEventListener("click", logout);
-    }
-}
-
-// ============================= VIP =============================
-
-// ⭐ Abrir modal simples de VIP
-function abrirModalVip() {
-    const escolha = prompt(
-        "Escolha o plano VIP:\n\n1 - VIP 1 mês\n2 - VIP 1 ano\n3 - VIP eterno"
-    );
-
-    if (!escolha) return;
-
-    let plano = null;
-
-    if (escolha === "1") plano = "1_mes";
-    if (escolha === "2") plano = "1_ano";
-    if (escolha === "3") plano = "eterno";
-
-    if (!plano) {
-        alert("Opção inválida.");
-        return;
-    }
-
-    virarVip(plano);
-}
-
-// ⭐ Chamada para o backend virar VIP
-async function virarVip(plano) {
-    try {
-        const res = await apiRequest("/users/vip", {
-            method: "POST",
-            headers: authHeadersJson(),
-            body: JSON.stringify({ plano })
-        });
-
-        if (!res.ok) {
-            const errorMsg = res.error || res.data?.error || "Erro ao virar VIP";
-            alert(`${errorMsg}`);
-            return;
-        } 
-        const data = res.data || res;
-        console.log("VIP ativado:", data);
-        alert("🎉 Parabéns! Você agora é VIP!");
-        log("Usuário virou VIP");
-
-    } catch (err) {
-        console.error(err);
-        alert("Erro de conexão ao virar VIP");
-    }
-}
-
 // ============================= ESTABELECIMENTOS =============================
-
 // ======= carregar estabelecimentos
 async function carregarEstabelecimentos() {
     try {
@@ -170,8 +54,11 @@ function renderizarEstabelecimentos(listaDados) {
     listaDados.forEach(est => {
         const card = document.createElement("div");
         card.className = "card-estabelecimento";
-
+        console.log(est.nome_fantasia, est.url_banner);//Log p testar se a img ta carregando ou vai carregar
         card.innerHTML = `
+            <div class="banner">
+                <img src="${est.url_banner}" alt="Banner ${est.nome_fantasia}">
+            </div>
             <h3>${est.nome_fantasia}</h3>
             <p>${obterNomeCategoria(est.categoria)}</p>
             <p class="taxa-entrega">Taxa de Entrega: ${formatarTaxaEntrega(est.taxa_entrega)}</p>    
@@ -251,13 +138,19 @@ function inicializar() {
         return;
     }
 
-    setupMenuEventos();
-    setupFecharMenuFora();
+    // ===================== MENU DO PERFIL =====================
+    // Pega elementos do menu do utils
+    const menuElements = getMenuElements();
+
+    // Configura os eventos do menu
+    setupMenuEventos(menuElements, { abrirModalVip, logout });
+
+    // Fecha menu ao clicar fora
+    setupFecharMenuFora(menuElements.menuPerfil, menuElements.perfilIcon);
+
     setupCategorias();
 
-    if (buscaInput) {
-        buscaInput.addEventListener("input", aplicarFiltros);
-    }
+    if (buscaInput) {buscaInput.addEventListener("input", aplicarFiltros);}
 
     carregarEstabelecimentos();
 }

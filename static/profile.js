@@ -1,5 +1,6 @@
 import { apiRequest, API_URL, authHeadersFormData } from '/static/api.js';
-import { logout } from '/static/auth.js';
+import { logout } from './auth.js';
+import { log, toggleMenuPerfil, formatarTaxaEntrega, getMenuElements, setupMenuEventos, setupFecharMenuFora, abrirModalVip } from "./utils.js";
 
 /* ================= DOM ================= */
 const perfilIcon = document.getElementById('perfilIcon');
@@ -60,15 +61,19 @@ function abrirModalMensagem(titulo, mensagem) {
     });
 }
 
-/* ================= MENU ================= */
-perfilIcon.addEventListener('click', () => {
-    menuPerfil.classList.toggle('hidden');
-});
+/* ================= MENU DO PERFIL ===================== */
+document.addEventListener('DOMContentLoaded', () => {
+    // Pega elementos do menu do utils
+    const menuElements = getMenuElements();
 
-document.addEventListener('click', (e) => {
-    if (!perfilIcon.contains(e.target) && !menuPerfil.contains(e.target)) {
-        menuPerfil.classList.add('hidden');
-    }
+    // Configura os eventos do menu
+    setupMenuEventos(menuElements, { abrirModalVip, logout });
+
+    // Fecha menu ao clicar fora
+    setupFecharMenuFora(menuElements.menuPerfil, menuElements.perfilIcon);
+
+    // Carrega o perfil
+    loadProfile();
 });
 
 /* ================= NAVEGAÇÃO ================= */

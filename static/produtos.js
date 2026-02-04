@@ -1,8 +1,7 @@
 //produtos.js
 import { apiRequest, authHeadersJson } from "./api.js";
-import { log, toggleMenuPerfil, formatarTaxaEntrega } from "./utils.js";
+import { log, toggleMenuPerfil, formatarTaxaEntrega, getMenuElements, setupMenuEventos, setupFecharMenuFora, abrirModalVip } from "./utils.js";
 import { logout } from "./auth.js";
- 
 // ======================= COMPONENTS da INTERFACE dom =======================
 // elementos principais
 const listaProdutos = document.getElementById("listaProdutos");
@@ -34,14 +33,6 @@ const totalValor = document.getElementById("totalValor");
 const totalCarrinho = document.getElementById("totalCarrinho");
 const btnFinalizarPedido = document.getElementById("btnFinalizarPedido");
 
-// Menu perfil
-const perfilIcon = document.getElementById("perfilIcon");
-const menuPerfil = document.getElementById("menuPerfil");
-const btnPerfil = document.getElementById("btnPerfil");
-const btnPagamento = document.getElementById("btnPagamento");
-const btnPedidos = document.getElementById("btnPedidos");
-const btnLogout = document.getElementById("btnLogout");
-
 // ======================= MODAL do ENDEREÇO de ENTREGA =======================
 const modalEndereco = document.getElementById("modalEndereco");
 const fecharModalEndereco = document.getElementById("fecharModalEndereco");
@@ -68,31 +59,7 @@ let carrinho = [];
 let produtoSelecionado = null;
 let taxaEntregaValor = 0;
 
-// ======================= FUNÇÕES DO MENU DO PERFIL =======================
-//function toggleMenuPerfil() {if (menuPerfil) {menuPerfil.classList.toggle("hidden");}}
 
-function setupFecharMenuFora() {
-    document.addEventListener('click', function(event) {
-        if (menuPerfil && perfilIcon && 
-            !perfilIcon.contains(event.target) && 
-            !menuPerfil.contains(event.target) && 
-            !menuPerfil.classList.contains('hidden')) {
-            menuPerfil.classList.add('hidden');
-        }
-    });
-}
-
-function setupMenuEventos() {
-    if (perfilIcon) {perfilIcon.addEventListener('click', toggleMenuPerfil);}
-    
-    if (btnPerfil) {btnPerfil.addEventListener('click', () => {window.location.href = '/client/profile';});}
-    
-    if (btnPedidos) {btnPedidos.addEventListener('click', () => {window.location.href = '/client/orders';});}
-    
-    if (btnPagamento) {btnPagamento.addEventListener('click', () => {alert('Página de pagamento em desenvolvimento!');});}
-    
-    if (btnLogout) {btnLogout.addEventListener('click', logout);}
-}
 
 function abrirModalMensagem(titulo, mensagem, tipo = "info") {
     return new Promise((resolve) => {
@@ -891,11 +858,16 @@ function inicializar() {
     }
     
     console.log("Usuário logado, token:", token ? "Presente" : "Ausente");
+
+    // ===================== MENU DO PERFIL =====================
+    // Pega elementos do menu do utils
+    const menuElements = getMenuElements();
+    // Configura os eventos do menu
+    setupMenuEventos(menuElements, { abrirModalVip, logout });
+    // Fecha menu ao clicar fora
+    setupFecharMenuFora(menuElements.menuPerfil, menuElements.perfilIcon);
     
-    // Configurar menu do perfil
-    setupMenuEventos();
-    setupFecharMenuFora();
-    
+
     // Configurar eventos do modal
     if (fecharModal) {
         fecharModal.addEventListener('click', fecharModalProduto);
