@@ -88,6 +88,7 @@ def list_estabelecimentos():
             "nome_fantasia": e.nome_fantasia,
             "categoria": (e.categoria.value if hasattr(e.categoria, "value")else e.categoria),
             "url_logo": e.url_logo,
+            "url_banner": e.url_banner,
             "taxa_entrega": e.taxa_entrega,  # Taxa de Entrega do estabelecimento
             "aberto": calcular_status_abertura(e), # chama a funct p verificar se está aberto ou fechado
             "descricao": f"Pizzaria de qualidade em {e.endereco.cidade}" if not e.endereco is None else "Estabelecimento de comida"

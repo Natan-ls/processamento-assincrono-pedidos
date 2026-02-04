@@ -37,11 +37,10 @@
 
         <!-- PERFIL -->
         <div class="perfil-area">
-            <div class="perfil-icon" id="perfilIcon">
-                👤
-            </div>
+            <div class="perfil-icon" id="perfilIcon">👤</div>
             <!-- MENU FLUTUANTE -->
             <div id="menuPerfil" class="menu-perfil hidden">
+                <!-- IMPORTANTE: TEM COMO opção REMOVER tds os onclick, e controlar via JS -->
                 <button class="menu-item" id="btnPerfil">
                     <span class="menu-icon">👤</span>
                     <span>Perfil</span>
@@ -51,15 +50,20 @@
                     <span>Pagamento</span>
                 </button>
                 <button class="menu-item" id="btnPedidos">
-                    <span class="menu-icon">📦</span>
+                    <span class="menu-icon">📝</span>
                     <span>Pedidos</span>
                 </button>
+                <button class="menu-item" id="btnVip">
+                    <span class="menu-icon">⭐</span>
+                    <span>Virar VIP</span>
+                </button>
+                
                 <button class="menu-item" id="btnLogout">
-                    <span class="menu-icon">🚪</span>
+                    <span class="menu-icon"><!--COLCOAR ALGUM ICONE OU EMOJI Q REPRESENTE SAIR-->></span>
                     <span>Sair</span>
                 </button>
             </div>
-        </div>
+        </div> 
     </header>
 
     <!-- PRODUTOS -->
