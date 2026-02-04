@@ -791,7 +791,7 @@ def atualizarSenha():
         description: Senhas resetadas para 'teste'
     """
     usuarioEmpresa = []
-    for id in range(1,5):
+    for id in range(1,6):
         usuario = User.query.get(id)
 
         if usuario:

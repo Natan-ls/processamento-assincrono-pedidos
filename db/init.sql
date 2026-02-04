@@ -164,21 +164,25 @@ INSERT INTO endereco(estado, cidade, rua, numero, cep) VALUES
     ('MG', 'Januária', 'Rua Central', '548', '39480000'),
     ('MG', 'Januária', 'Cônego Ramiro', '5414', '39480000'),
     ('MG', 'Januária', 'Barão de São Romaão', '1973', '39480000'),
-    ('MG', 'Januária', 'Gaspar Dutra', '52', '39480000');
+    ('MG', 'Januária', 'Gaspar Dutra', '52', '39480000'),
+    ('MG', 'MDC', 'Gaspar Dutra', '52', '39480000');
+    
 
 
 INSERT INTO pessoa(endereco_id, nome, cpf, telefone) VALUES 
     (1, 'João', '97242721091', '(38)12344321'),
     (2, 'Marcos', '36636846011', '(38)45677654'),
     (3, 'Mateus', '36436876031', '(37)36217594'),
-    (4, 'Andre', '30436936095', '(31)36267993');
+    (4, 'Andre', '30436936095', '(31)36267993'),
+    (5, 'rafa', '16080097699', '(31)36267993');
 
 
 INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario) VALUES 
     (1, 'joao@gmail.com', 'teste', 'empresa'),
     (2, 'marcospizza@gmail.com', 'teste', 'empresa'),
     (3, 'mateus@gmail.com', 'teste', 'empresa'),
-    (4, 'andre@gmail.com', 'teste', 'empresa');
+    (4, 'andre@gmail.com', 'teste', 'empresa'),
+    (5, 'rafa@gmail.com', 'teste', 'cliente');
 
 
 INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria, taxa_entrega) VALUES 
