@@ -42,7 +42,7 @@ def vip_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
 
-        # O jwt_required PRECISA rodar antes
+        # jwt_required PRECISA rodar antes
         user_id = getattr(request, "user_id", None)
 
         if not user_id:
@@ -53,24 +53,20 @@ def vip_required(f):
         if not user:
             return jsonify({"error": "Usuário não encontrado"}), 404
 
-        # USEr ñ é VIP
-         # Ajuste o nome do campo conforme seu model User
-        if not getattr(user, "is_vip", False):
+        # Verifica se é VIP (regra central)
+        if not user.vip_ativo():
             return jsonify({"error": "Usuário não é VIP"}), 403
 
-        # VIP com expiração
+        # (Opcional) Mensagem mais específica se quiser detalhar expiração
         if user.vip_until is not None:
             now = datetime.utcnow()
-
             if user.vip_until < now:
                 return jsonify({
                     "error": "VIP expirado",
                     "vip_until": user.vip_until.isoformat()
                 }), 403
 
-        # Ajuste o nome do campo conforme seu model User
-        if not getattr(user, "is_vip", False):
-            return jsonify({"error": "Usuário não é VIP"}), 403
-
         return f(*args, **kwargs)
+
     return decorated
+

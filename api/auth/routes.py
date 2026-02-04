@@ -552,7 +552,8 @@ def me():
         "email": user.email,
         "telefone": pessoa.telefone,
         "endereco": pessoa.endereco.to_dict() if pessoa.endereco else None,
-        "url_foto": pessoa.url_foto_perfil
+        "url_foto": pessoa.url_foto_perfil,
+        "is_vip": user.vip_ativo()
     }
 
     # ===== se for uma empresa, adiciona os dados do estabelecimento se ñ só os dados do cliente normal

@@ -98,7 +98,24 @@ export function setupMenuEventos(elements) {
     btnPerfil?.addEventListener("click", () => window.location.href = "/client/profile");
     btnPedidos?.addEventListener("click", () => window.location.href = "/client/orders");
     btnPagamento?.addEventListener("click", () => alert("Página de pagamento em desenvolvimento!"));
-    btnVip?.addEventListener("click", abrirModalVip);
+    btnVip?.addEventListener("click", async () => {
+        try {
+            const res = await apiRequest("/auth/me", {
+                method: "GET",
+                headers: authHeadersJson()
+            });
+
+            if (res.ok && res.data?.is_vip) {
+                alert("⭐ Você já é VIP!");
+                return;
+            }
+
+            abrirModalVip();
+        } catch {
+            abrirModalVip();
+        }
+    });
+
     btnLogout?.addEventListener("click", logout);
 }
 
