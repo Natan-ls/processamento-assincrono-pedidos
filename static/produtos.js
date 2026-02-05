@@ -1,8 +1,7 @@
 //produtos.js
 import { apiRequest, authHeadersJson } from "./api.js";
-import { log, toggleMenuPerfil, formatarTaxaEntrega } from "./utils.js";
+import { log, toggleMenuPerfil, formatarTaxaEntrega, getMenuElements, setupMenuEventos, setupFecharMenuFora, abrirModalVip } from "./utils.js";
 import { logout } from "./auth.js";
- 
 // ======================= COMPONENTS da INTERFACE dom =======================
 // elementos principais
 const listaProdutos = document.getElementById("listaProdutos");
@@ -25,6 +24,10 @@ const diminuirQtde = document.getElementById("diminuirQtde");
 const aumentarQtde = document.getElementById("aumentarQtde");
 const btnAdicionarModal = document.getElementById("btnAdicionarModal");
 
+const btnDescontoVip = document.getElementById("btnDescontoVip");
+const vipDescontoInfo = document.getElementById("vipDescontoInfo");
+
+
 // Carrinho
 const carrinhoItens = document.getElementById("carrinhoItens");
 const contadorCarrinho = document.getElementById("contadorCarrinho");
@@ -33,14 +36,6 @@ const taxaEntrega = document.getElementById("taxaEntrega");
 const totalValor = document.getElementById("totalValor");
 const totalCarrinho = document.getElementById("totalCarrinho");
 const btnFinalizarPedido = document.getElementById("btnFinalizarPedido");
-
-// Menu perfil
-const perfilIcon = document.getElementById("perfilIcon");
-const menuPerfil = document.getElementById("menuPerfil");
-const btnPerfil = document.getElementById("btnPerfil");
-const btnPagamento = document.getElementById("btnPagamento");
-const btnPedidos = document.getElementById("btnPedidos");
-const btnLogout = document.getElementById("btnLogout");
 
 // ======================= MODAL do ENDEREÇO de ENTREGA =======================
 const modalEndereco = document.getElementById("modalEndereco");
@@ -67,32 +62,27 @@ let produtos = [];
 let carrinho = [];
 let produtoSelecionado = null;
 let taxaEntregaValor = 0;
+let descontoVipAtivo = false;
+let usuarioVip = false;
 
-// ======================= FUNÇÕES DO MENU DO PERFIL =======================
-//function toggleMenuPerfil() {if (menuPerfil) {menuPerfil.classList.toggle("hidden");}}
+const DESCONTO_VIP = 0.20;
 
-function setupFecharMenuFora() {
-    document.addEventListener('click', function(event) {
-        if (menuPerfil && perfilIcon && 
-            !perfilIcon.contains(event.target) && 
-            !menuPerfil.contains(event.target) && 
-            !menuPerfil.classList.contains('hidden')) {
-            menuPerfil.classList.add('hidden');
+
+async function carregarStatusVip() {
+    try {
+        usuarioVip = await usuarioEhVip();
+
+        if (usuarioVip && btnDescontoVip) {
+            btnDescontoVip.disabled = false;
+            btnDescontoVip.textContent = "⭐ Aplicar desconto VIP";
         }
-    });
+
+    } catch {
+        usuarioVip = false;
+    }
 }
 
-function setupMenuEventos() {
-    if (perfilIcon) {perfilIcon.addEventListener('click', toggleMenuPerfil);}
-    
-    if (btnPerfil) {btnPerfil.addEventListener('click', () => {window.location.href = '/client/profile';});}
-    
-    if (btnPedidos) {btnPedidos.addEventListener('click', () => {window.location.href = '/client/orders';});}
-    
-    if (btnPagamento) {btnPagamento.addEventListener('click', () => {alert('Página de pagamento em desenvolvimento!');});}
-    
-    if (btnLogout) {btnLogout.addEventListener('click', logout);}
-}
+
 
 function abrirModalMensagem(titulo, mensagem, tipo = "info") {
     return new Promise((resolve) => {
@@ -144,11 +134,11 @@ function abrirModalMensagem(titulo, mensagem, tipo = "info") {
 async function carregarEstabelecimentoEProdutos() {
     try {
         console.log("Iniciando carregamento de produtos...");
-        
+
         // pega o ID da URL
         const urlParams = new URLSearchParams(window.location.search);
         estabelecimentoId = urlParams.get('estabelecimentoId');
-        
+
         if (!estabelecimentoId) {
             console.error("Erro: ID do estabelecimento não encontrado na URL");
             listaProdutos.innerHTML = '<div class="erro">❌ Erro: Estabelecimento não encontrado.</div>';
@@ -168,7 +158,7 @@ async function carregarEstabelecimentoEProdutos() {
             //  Se a rota falhar, busca todos e filtra
             console.warn("Rota direta falhou, tentando fallback local...");
             const todosProdutos = await apiRequest(`/produtos`, { method: "GET" });
-            
+
             if (todosProdutos.ok && Array.isArray(todosProdutos.data)) {
                 produtos = todosProdutos.data.filter(p => p.estabelecimento_id == estabelecimentoId);
                 console.log(`Filtrados ${produtos.length} produtos localmente.`);
@@ -184,7 +174,7 @@ async function carregarEstabelecimentoEProdutos() {
         if (resEst.ok) {
             estabelecimentoInfo = resEst.data;
             estabelecimentoNome = estabelecimentoInfo.nome_fantasia || "Estabelecimento";
-            taxaEntregaValor = Number(estabelecimentoInfo.taxa_entrega) || 0;    
+            taxaEntregaValor = Number(estabelecimentoInfo.taxa_entrega) || 0;
             tituloProdutos.textContent = `🛒 ${estabelecimentoNome}`;
             infoEstabelecimento.textContent = estabelecimentoInfo.descricao || "Bem-vindo!";
         } else {
@@ -193,7 +183,7 @@ async function carregarEstabelecimentoEProdutos() {
 
         //Mostrar na tela
         renderizarProdutos(produtos);
-        
+
     } catch (error) {
         console.error("Erro crítico:", error);
         listaProdutos.innerHTML = `
@@ -240,16 +230,16 @@ function criarDadosMock() {
 function getStatusEstoque(estoque) {
     const estoqueNum = parseInt(estoque) || 0;
     if (estoqueNum > 0) {
-        return { 
+        return {
             texto: `Disponível`,
             cor: '#2e7d32',
-            disponivel: true 
+            disponivel: true
         };
     } else {
-        return { 
+        return {
             texto: 'Esgotado',
             cor: '#f44336',
-            disponivel: false 
+            disponivel: false
         };
     }
 }
@@ -260,9 +250,9 @@ function renderizarProdutos(produtosLista) {
         console.error("Elemento listaProdutos não encontrado!");
         return;
     }
-    
+
     console.log(`Renderizando ${produtosLista.length} produtos`);
-    
+
     if (produtosLista.length === 0) {
         listaProdutos.innerHTML = `
             <div class="sem-resultados">
@@ -275,30 +265,30 @@ function renderizarProdutos(produtosLista) {
     }
 
     listaProdutos.innerHTML = "";
-    
+
     produtosLista.forEach(produto => {
         console.log("Processando produto:", produto);
         const item = document.createElement("div");
         item.className = "produto-item";
         item.dataset.id = produto.id;
-        
+
         // Verificar campos do produto
         const nomeProduto = produto.nome || produto.nome_item || "Produto sem nome";
         const precoProduto = produto.preco || produto.preco_unidade || 0;
         const descricaoProduto = produto.descricao || `Produto de ${estabelecimentoNome || "estabelecimento"}`;
-        
+
         // Verificar se há imagem, senão usar placeholder
         let imagemUrl = produto.imagem || produto.url_imagem;
         if (!imagemUrl || imagemUrl === "") {
             imagemUrl = `https://via.placeholder.com/100/e9ecef/6c757d?text=${encodeURIComponent(nomeProduto.substring(0, 10))}`;
         }
-                
+
         const estoqueProduto = produto.quantidade_estoque !== undefined ? produto.quantidade_estoque : 0;
         const statusEstoque = getStatusEstoque(estoqueProduto);
-        
+
         // Determinar se o botão deve estar habilitado
         const botaoDesabilitado = !statusEstoque.disponivel;
-        
+
         item.innerHTML = `
             <img src="${imagemUrl}" alt="${nomeProduto}" class="produto-imagem" 
                  onerror="this.onerror=null; this.src='https://via.placeholder.com/100/e9ecef/6c757d?text=Produto'">
@@ -320,10 +310,10 @@ function renderizarProdutos(produtosLista) {
                 </div>
             </div>
         `;
-        
+
         listaProdutos.appendChild(item);
     });
-    
+
     // Adicionar eventos aos botões
     setTimeout(() => {
         document.querySelectorAll('.btn-ver-detalhes').forEach(btn => {
@@ -334,7 +324,7 @@ function renderizarProdutos(produtosLista) {
                 abrirModalProduto(produtoId);
             });
         });
-        
+
         document.querySelectorAll('.btn-adicionar-rapido').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -343,7 +333,7 @@ function renderizarProdutos(produtosLista) {
                 adicionarProdutoRapido(produtoId);
             });
         });
-        
+
         // Clicar no item do produto também abre o modal
         document.querySelectorAll('.produto-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -360,36 +350,36 @@ function renderizarProdutos(produtosLista) {
 // ======================= Funct abrirModalProduto =======================
 function abrirModalProduto(produtoId) {
     console.log("Abrindo modal para produto ID:", produtoId);
-    
+
     // Converter para número se necessário
     const idNum = parseInt(produtoId);
     produtoSelecionado = produtos.find(p => p.id === idNum || p.id.toString() === produtoId);
-    
+
     if (!produtoSelecionado) {
         console.error("Produto não encontrado para ID:", produtoId);
         return;
     }
-    
+
     console.log("Produto selecionado:", produtoSelecionado);
     // Preencher modal com informações do produto
     const nomeProduto = produtoSelecionado.nome || produtoSelecionado.nome_item || "Produto sem nome";
     const precoProduto = produtoSelecionado.preco || produtoSelecionado.preco_unidade || 0;
     const descricaoProduto = produtoSelecionado.descricao || `Produto de ${estabelecimentoNome || "estabelecimento"}`;
     const estoqueProduto = (produtoSelecionado.quantidade_estoque !== undefined) ? produtoSelecionado.quantidade_estoque : 0;
-    
+
     // Obter status do estoque
     const statusEstoque = getStatusEstoque(estoqueProduto);
-    
+
     modalTitulo.textContent = nomeProduto;
     modalNome.textContent = nomeProduto;
     modalPreco.textContent = `R$ ${parseFloat(precoProduto).toFixed(2)}`;
-    
+
     // Atualizar exibição do estoque com status
     modalEstoque.textContent = statusEstoque.texto;
     modalEstoque.style.color = statusEstoque.cor;
-    
+
     modalDescricao.textContent = descricaoProduto;
-    
+
     // Controlar botão de adicionar no modal
     if (btnAdicionarModal) {
         if (!statusEstoque.disponivel) {
@@ -404,21 +394,21 @@ function abrirModalProduto(produtoId) {
             btnAdicionarModal.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
         }
     }
-    
+
     // Definir imagem (usar placeholder se não houver)
     let imagemUrl = produtoSelecionado.imagem || produtoSelecionado.url_imagem;
     if (!imagemUrl || imagemUrl === "") {
         imagemUrl = `https://via.placeholder.com/300/e9ecef/6c757d?text=${encodeURIComponent(nomeProduto)}`;
     }
-    
+
     modalImagem.innerHTML = `<img src="${imagemUrl}" alt="${nomeProduto}" 
         style="width:100%; height:100%; border-radius:12px; object-fit:cover;"
         onerror="this.onerror=null; this.src='https://via.placeholder.com/300/e9ecef/6c757d?text=Produto'">`;
-    
+
     // Resetar campos
     observacaoInput.value = '';
     quantidadeModal.value = '1';
-    
+
     // Abrir modal
     modalProduto.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -435,27 +425,27 @@ function fecharModalProduto() {
 // ======================= Funct adicionarProdutoRapido =======================
 function adicionarProdutoRapido(produtoId) {
     console.log("Adicionando produto rápido ID:", produtoId);
-    
+
     // Converter para número se necessário
     const idNum = parseInt(produtoId);
     const produto = produtos.find(p => p.id === idNum || p.id.toString() === produtoId);
-    
+
     if (!produto) {
         console.error("Produto não encontrado para adição rápida:", produtoId);
         return;
     }
-    
+
     // Verificar se há estoque disponível
     const estoqueProduto = produto.quantidade_estoque !== undefined ? produto.quantidade_estoque : 0;
     if (estoqueProduto <= 0) {
         mostrarNotificacao(`${produto.nome || produto.nome_item} está esgotado!`, 'warning');
         return;
     }
-    
+
     const nomeProduto = produto.nome || produto.nome_item || "Produto sem nome";
     const precoProduto = produto.preco || produto.preco_unidade || 0;
     const imagemProduto = produto.imagem || produto.url_imagem || '';
-    
+
     // Adicionar ao carrinho sem observação
     carrinho.push({
         produto_id: produto.id,
@@ -465,7 +455,7 @@ function adicionarProdutoRapido(produtoId) {
         observacao: '',
         imagem: imagemProduto
     });
-    
+
     atualizarCarrinho();
     mostrarNotificacao(`${nomeProduto} adicionado ao carrinho!`);
     console.log("Produto adicionado ao carrinho:", nomeProduto);
@@ -477,35 +467,35 @@ function adicionarDoModal() {
         console.error("Nenhum produto selecionado no modal");
         return;
     }
-    
+
     // Verificar se há estoque disponível
     const estoqueProduto = produtoSelecionado.quantidade_estoque !== undefined ? produtoSelecionado.quantidade_estoque : 0;
     if (estoqueProduto <= 0) {
         mostrarNotificacao(`${produtoSelecionado.nome || produtoSelecionado.nome_item} está esgotado!`, 'warning');
         return;
     }
-    
+
     const observacao = observacaoInput.value.trim();
     const quantidade = parseInt(quantidadeModal.value) || 1;
-    
+
     console.log("Adicionando do modal:", produtoSelecionado.nome, "Quantidade:", quantidade);
-    
+
     // Validar quantidade
     if (quantidade < 1 || quantidade > 20) {
         alert('Quantidade deve ser entre 1 e 20');
         return;
     }
-    
+
     // Verificar se a quantidade solicitada não excede o estoque
     if (quantidade > estoqueProduto) {
         alert(`Quantidade solicitada (${quantidade}) excede o estoque disponível (${estoqueProduto})!`);
         return;
     }
-    
+
     const nomeProduto = produtoSelecionado.nome || produtoSelecionado.nome_item || "Produto sem nome";
     const precoProduto = produtoSelecionado.preco || produtoSelecionado.preco_unidade || 0;
     const imagemProduto = produtoSelecionado.imagem || produtoSelecionado.url_imagem || '';
-    
+
     // Adicionar ao carrinho
     carrinho.push({
         produto_id: produtoSelecionado.id,
@@ -515,90 +505,99 @@ function adicionarDoModal() {
         observacao: observacao,
         imagem: imagemProduto
     });
-    
+
     atualizarCarrinho();
     fecharModalProduto();
     mostrarNotificacao(`${quantidade}x ${nomeProduto} adicionado ao carrinho!`);
     console.log("Produto adicionado do modal:", nomeProduto);
 }
 
+async function usuarioEhVip() {
+    const res = await apiRequest("/auth/me", {
+        method: "GET",
+        headers: authHeadersJson()
+    });
+
+    console.log("Resposta /auth/me:", res.data);
+
+    if (!res.ok) {
+        throw new Error("Erro ao verificar VIP");
+    }
+
+    return res.data?.is_vip === true;
+}
+
 //======================= Funct de Atualizar o carrinho =======================
 function atualizarCarrinho() {
-    if (!carrinhoItens || !contadorCarrinho || !totalValor) {
-        console.error("Elementos do carrinho não encontrados!");
-        return;
-    }
-    
-    console.log("Atualizando carrinho com", carrinho.length, "itens");
-    
-    // Atualizar contador
-    const totalItens = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
-    contadorCarrinho.textContent = totalItens;
-    
-    // Limpar carrinho
+    if (!carrinhoItens || !contadorCarrinho || !totalValor) return;
+
+    contadorCarrinho.textContent = carrinho.reduce(
+        (sum, item) => sum + item.quantidade, 0
+    );
+
     carrinhoItens.innerHTML = "";
-    
+
     if (carrinho.length === 0) {
+        descontoVipAtivo = false;
+        vipDescontoInfo.style.display = "none";
+
+        if (btnDescontoVip) {
+            btnDescontoVip.disabled = false;
+            btnDescontoVip.textContent = "⭐ Aplicar desconto VIP";
+        }
+
         carrinhoItens.innerHTML = `
             <div class="carrinho-vazio">
                 <i class="fas fa-shopping-basket"></i>
                 <p>Seu carrinho está vazio</p>
             </div>
         `;
-        totalCarrinho.classList.add('hidden');
+        totalCarrinho.classList.add("hidden");
         return;
     }
-    
-    // Mostrar itens do carrinho
+
     let subtotal = 0;
-    
+
     carrinho.forEach((item, index) => {
         const itemTotal = item.preco * item.quantidade;
         subtotal += itemTotal;
-        
-        const div = document.createElement("div");
-        div.className = "carrinho-item";
-        
-        div.innerHTML = `
-            <div class="carrinho-item-info">
-                <div class="carrinho-item-nome">${item.nome}</div>
-                ${item.observacao ? `<div class="carrinho-item-observacao">${item.observacao}</div>` : ''}
-                <div class="carrinho-item-detalhes">
-                    <span>R$ ${parseFloat(item.preco).toFixed(2)}</span>
-                    <span>× ${item.quantidade}</span>
-                    <span>= R$ ${itemTotal.toFixed(2)}</span>
+
+        carrinhoItens.insertAdjacentHTML("beforeend", `
+            <div class="carrinho-item">
+                <div>
+                    <strong>${item.nome}</strong><br>
+                    ${item.observacao || ""}
+                </div>
+                <div>
+                    R$ ${itemTotal.toFixed(2)}
+                    <button class="btn-remover-item" data-index="${index}">🗑</button>
                 </div>
             </div>
-            <div class="carrinho-item-acoes">
-                <button class="btn-remover-item" data-index="${index}">
-                    <i class="fas fa-trash"></i>
-                </button>
+        `);
+    });
+
+    document.querySelectorAll(".btn-remover-item").forEach(btn => {
+        btn.onclick = () => removerDoCarrinho(btn.dataset.index);
+    });
+
+    const desconto = descontoVipAtivo ? subtotal * DESCONTO_VIP : 0;
+    const total = subtotal - desconto + taxaEntregaValor;
+
+    if (descontoVipAtivo) {
+        carrinhoItens.insertAdjacentHTML("beforeend", `
+            <div style="color:#2e7d32;">
+                Desconto VIP: - R$ ${desconto.toFixed(2)}
             </div>
-        `;
-        
-        carrinhoItens.appendChild(div);
-    });
-    
-    // Adicionar eventos aos botões de remover
-    document.querySelectorAll('.btn-remover-item').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const index = parseInt(e.target.closest('button').dataset.index);
-            removerDoCarrinho(index);
-        });
-    });
-    
-    // Calcular totais
-    const taxa = taxaEntregaValor; // Taxa de entrega
-    const total = subtotal + taxa;
-    
+        `);
+    }
+
     subtotalValor.textContent = subtotal.toFixed(2);
-    taxaEntrega.textContent = formatarTaxaEntrega(taxa);
+    taxaEntrega.textContent = formatarTaxaEntrega(taxaEntregaValor);
     totalValor.textContent = total.toFixed(2);
-    
-    // Mostrar seção de total
-    totalCarrinho.classList.remove('hidden');
-    console.log("Carrinho atualizado. Subtotal:", subtotal, "Total:", total);
+
+    totalCarrinho.classList.remove("hidden");
 }
+
 
 function removerDoCarrinho(index) {
     if (index >= 0 && index < carrinho.length) {
@@ -616,7 +615,7 @@ async function buscarEnderecoCadastrado() {
 
     const token = localStorage.getItem("token");
 
-    if (!token) {throw new Error("Usuário não está logado.");}
+    if (!token) { throw new Error("Usuário não está logado."); }
 
     //ROTA DO SEU BACKEND
     const res = await apiRequest("/auth/me", {
@@ -624,9 +623,9 @@ async function buscarEnderecoCadastrado() {
         headers: authHeadersJson()
     });
 
-    if (!res.ok) {throw new Error(res.error || "Erro ao buscar perfil.");}
+    if (!res.ok) { throw new Error(res.error || "Erro ao buscar perfil."); }
     const data = res.data;
-    if (!data.endereco) {throw new Error("Usuário não possui endereço cadastrado.");}
+    if (!data.endereco) { throw new Error("Usuário não possui endereço cadastrado."); }
 
     //monta o endereço completo
     const e = data.endereco;
@@ -637,9 +636,6 @@ async function buscarEnderecoCadastrado() {
 
 
 async function finalizarPedido() {
-    console.log("Iniciando finalização de pedido...");
-    
-    //Carrinho vazio
     if (carrinho.length === 0) {
         await abrirModalMensagem(
             "🛒 Carrinho vazio",
@@ -649,7 +645,6 @@ async function finalizarPedido() {
         return;
     }
 
-    //Estabelecimento inválido
     if (!estabelecimentoId) {
         await abrirModalMensagem(
             "❌ Erro",
@@ -658,117 +653,73 @@ async function finalizarPedido() {
         );
         return;
     }
-    // Calcular total do PEDIDO
-    const subtotal = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-    const taxa = taxaEntregaValor;
-    const total = subtotal + taxa;
-    
-    // Pergunta endereço de entrega
-    let enderecoEntrega = "";
 
+    const subtotal = carrinho.reduce(
+        (sum, item) => sum + item.preco * item.quantidade,
+        0
+    );
+
+    const desconto = descontoVipAtivo ? subtotal * DESCONTO_VIP : 0;
+    const taxa = taxaEntregaValor;
+    const total = subtotal - desconto + taxa;
+
+    let enderecoEntrega;
     try {
         enderecoEntrega = await pedirEnderecoEntrega();
-    } catch (err) {
+    } catch {
         mostrarNotificacao("Pedido cancelado.", "warning");
         return;
     }
-    
 
     const confirmado = await abrirModalMensagem(
         "📦 Confirmar Pedido",
-        `Você deseja confirmar o pedido no ${estabelecimentoNome}?\n\n` +
         `Subtotal: R$ ${subtotal.toFixed(2)}\n` +
+        `Desconto VIP: - R$ ${desconto.toFixed(2)}\n` +
         `Taxa: ${formatarTaxaEntrega(taxa)}\n` +
-        `Total: R$ ${total.toFixed(2)}\n\n` +
-        `Itens no carrinho: ${carrinho.length}`,
+        `Total: R$ ${total.toFixed(2)}`,
         "confirmacao"
     );
 
     if (!confirmado) return;
-    
-    try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            await abrirModalMensagem(
-                "🔑 Login necessário",
-                "Você precisa estar logado para finalizar o pedido.",
-                "alerta"
-            );
 
-            window.location.href = "/";
-            return;
-        }
-        
-        // Prepara items p a API
-        const items = carrinho.map(item => ({
-            produto_id: item.produto_id,
-            quantidade: item.quantidade,
-            preco: parseFloat(item.preco),
-            observacao: item.observacao || ''
-        }));
-        
-        console.log("Enviando pedido para API...", items);
+    const items = carrinho.map(item => ({
+        produto_id: item.produto_id,
+        quantidade: item.quantidade,
+        preco: item.preco,
+        observacao: item.observacao || ""
+    }));
 
-        // Envia pedido para a API
-        /*const res = await apiRequest("/orders/", {
-            method: "POST",
-            headers: authHeadersJson(),
-            body: JSON.stringify({
-                estabelecimento_id: parseInt(estabelecimentoId),
-                items,
-                endereco_entrega: enderecoEntrega,
-                //observacoes: observacaoInput.value.trim()
-            })
-        });*/
+    const res = await apiRequest("/orders/", {
+        method: "POST",
+        headers: authHeadersJson(),
+        body: JSON.stringify({
+            estabelecimento_id: Number(estabelecimentoId),
+            endereco_entrega: enderecoEntrega,
+            subtotal: Number(subtotal.toFixed(2)),
+            desconto_vip: Number(desconto.toFixed(2)),
+            taxa_entrega: Number(taxa.toFixed(2)),
+            valor_total: Number(total.toFixed(2)),
+            items
+        })
+    });
 
-        const res = await apiRequest("/orders/", {
-            method: "POST",
-            headers: authHeadersJson(),
-            body: JSON.stringify({
-                estabelecimento_id: Number(estabelecimentoId),
-                endereco_entrega: enderecoEntrega,
-
-                subtotal: Number(subtotal.toFixed(2)),
-                taxa_entrega: Number(taxa.toFixed(2)),
-                valor_total: Number(total.toFixed(2)),
-
-                items: items
-            })
-        });
-
-        if (!res.ok) {throw new Error(res.error || "Erro ao criar pedido");}
-
-        const data = res.data;            
-        console.log("Resposta do backend:", data);
-
-        // msg de sucesso
-        await abrirModalMensagem(
-            "✅ Pedido realizado!",
-            `Seu pedido foi criado com sucesso!\n\nID: ${data.id}\nTotal: R$ ${total.toFixed(2)}`,
-            "alerta"
-        );
-
-        // Limpar carrinho
-        carrinho = [];
-        atualizarCarrinho();
-        
-        // Redirecionar para a página de informar o pagamento
-        const pedidoId = data.order_id || data.id || data.pedido_id || data.id_pedido;
-
-        if (!pedidoId) {throw new Error("Backend não retornou o ID do pedido.");}
-
-        window.location.href = `/client/pagamento?pedidoId=${pedidoId}`;
-
-    } catch (error) {
-        console.error("Erro ao finalizar pedido:", error);
-
-        await abrirModalMensagem(
-            "❌ Erro no Pedido",
-            "Não foi possível criar o pedido:\n\n" + error.message,
-            "alerta"
-        );
+    if (!res.ok) {
+        throw new Error(res.error || "Erro ao criar pedido");
     }
+
+    await abrirModalMensagem(
+        "✅ Pedido realizado!",
+        "Seu pedido foi criado com sucesso!",
+        "alerta"
+    );
+
+    carrinho = [];
+    atualizarCarrinho();
+
+    const pedidoId = res.data?.order_id || res.data?.id;
+    window.location.href = `/client/pagamento?pedidoId=${pedidoId}`;
 }
+
 
 // ======================= Funct de Pedir dereço de entrega do pedido p user =======================
 function pedirEnderecoEntrega() {
@@ -839,7 +790,7 @@ function pedirEnderecoEntrega() {
 // ======================= Funct p mostrar notificação =======================
 function mostrarNotificacao(mensagem, tipo = 'success') {
     console.log("Mostrando notificação:", mensagem, "Tipo:", tipo);
-    
+
     // Criar notificação
     const notificacao = document.createElement('div');
     notificacao.className = `notificacao ${tipo}`;
@@ -859,14 +810,14 @@ function mostrarNotificacao(mensagem, tipo = 'success') {
         align-items: center;
         gap: 10px;
     `;
-    
+
     notificacao.innerHTML = `
         <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
         <span>${mensagem}</span>
     `;
-    
+
     document.body.appendChild(notificacao);
-    
+
     // Remover após 3 segundos
     setTimeout(() => {
         notificacao.style.animation = 'slideOut 0.3s ease';
@@ -879,9 +830,11 @@ function mostrarNotificacao(mensagem, tipo = 'success') {
 }
 
 // ======================= Funct p inciar o sistema =======================
-function inicializar() {
+async function inicializar() {
     console.log("Inicializando página de produtos...");
-    
+
+    await carregarStatusVip();
+
     // Verificar se está logado
     const token = localStorage.getItem("token");
     if (!token) {
@@ -889,21 +842,26 @@ function inicializar() {
         window.location.href = "/";
         return;
     }
-    
+
     console.log("Usuário logado, token:", token ? "Presente" : "Ausente");
-    
-    // Configurar menu do perfil
-    setupMenuEventos();
-    setupFecharMenuFora();
-    
+
+    // ===================== MENU DO PERFIL =====================
+    // Pega elementos do menu do utils
+    const menuElements = getMenuElements();
+    // Configura os eventos do menu
+    setupMenuEventos(menuElements, { abrirModalVip, logout });
+    // Fecha menu ao clicar fora
+    setupFecharMenuFora(menuElements.menuPerfil, menuElements.perfilIcon);
+
+
     // Configurar eventos do modal
     if (fecharModal) {
         fecharModal.addEventListener('click', fecharModalProduto);
     }
-    
+
     // Fechar modal ao clicar fora
-    if (modalProduto) {modalProduto.addEventListener('click', (e) => {if (e.target === modalProduto) {fecharModalProduto();}});}
-    
+    if (modalProduto) { modalProduto.addEventListener('click', (e) => { if (e.target === modalProduto) { fecharModalProduto(); } }); }
+
     // Configurar controle de quantidade
     if (diminuirQtde) {
         diminuirQtde.addEventListener('click', () => {
@@ -911,23 +869,23 @@ function inicializar() {
             if (valor > 1) quantidadeModal.value = valor - 1;
         });
     }
-    
+
     if (aumentarQtde) {
         aumentarQtde.addEventListener('click', () => {
             const valor = parseInt(quantidadeModal.value) || 1;
             if (valor < 20) quantidadeModal.value = valor + 1;
         });
     }
-    
+
     // Configurar botão de adicionar do modal
-    if (btnAdicionarModal) {btnAdicionarModal.addEventListener('click', adicionarDoModal);}
-    
+    if (btnAdicionarModal) { btnAdicionarModal.addEventListener('click', adicionarDoModal); }
+
     // Configurar botão de finalizar pedido
-    if (btnFinalizarPedido) {btnFinalizarPedido.addEventListener('click', finalizarPedido);}
-    
+    if (btnFinalizarPedido) { btnFinalizarPedido.addEventListener('click', finalizarPedido); }
+
     // Configurar botão de voltar
-    if (btnVoltar) {btnVoltar.addEventListener('click', () => {window.location.href = "/client/home";});}
-    
+    if (btnVoltar) { btnVoltar.addEventListener('click', () => { window.location.href = "/client/home"; }); }
+
     // Resetar estilo do botão quando o modal for fechado
     if (fecharModal) {
         fecharModal.addEventListener('click', () => {
@@ -938,10 +896,38 @@ function inicializar() {
                 btnAdicionarModal.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
             }
         });
-    }    
+    }
+
+    if (btnDescontoVip) {
+        btnDescontoVip.addEventListener("click", async () => {
+            try {
+                if (!usuarioVip) {
+                    await abrirModalMensagem(
+                        "⭐ Seja VIP",
+                        "Adquira VIP para ter descontos exclusivos!",
+                        "alerta"
+                    );
+                    return;
+                }
+
+                // já é VIP
+                descontoVipAtivo = true;
+                btnDescontoVip.disabled = true;
+                btnDescontoVip.textContent = "⭐ VIP ativo";
+                vipDescontoInfo.style.display = "block";
+                mostrarNotificacao("🎉 Desconto VIP aplicado!");
+                atualizarCarrinho();
+
+
+            } catch (err) {
+                mostrarNotificacao("Erro ao verificar VIP", "warning");
+            }
+        });
+    }
+
     // Carregar estabelecimento e produtos
     carregarEstabelecimentoEProdutos();
-    
+
     // Adicionar estilos para animações de notificação
     const style = document.createElement('style');
     style.textContent = `
@@ -982,7 +968,7 @@ function inicializar() {
         }
     `;
     document.head.appendChild(style);
-    
+
     console.log("Inicialização completa!");
 }
 // ======================= executa a funct de iniciar o sistema =======================

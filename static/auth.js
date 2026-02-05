@@ -65,11 +65,6 @@ export function logout() {
     window.location.href = "/";
 }
 
-/*function logout() {
-    localStorage.clear();
-    window.location.href = "/";
-}*/
-
 //  função para buscar o tipo de usuário e redirecionar
 async function redirectByUserType() {
     try {

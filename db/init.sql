@@ -96,7 +96,7 @@ CREATE TABLE pedidos (
     status VARCHAR(50) NOT NULL,                -- Status atual do pedido
     valor_total NUMERIC(10,2),                  -- Valor total do pedido    
     endereco_entrega VARCHAR(255) NOT NULL,
-    
+    pagamento_timer TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -149,7 +149,7 @@ CREATE TABLE pagamento (
     status VARCHAR(50) NOT NULL,                -- Exemplo: aprovado, falha, pendente
     valor NUMERIC(10,2) NOT NULL CHECK (valor >= 0),
     processed_at TIMESTAMP,
-
+    metodo VARCHAR(20),
     CONSTRAINT fk_pagamento_pedido
         FOREIGN KEY (pedido_id)
         REFERENCES pedidos(id)
@@ -185,11 +185,12 @@ INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario) VALUES
     (5, 'rafa@gmail.com', 'teste', 'cliente');
 
 
-INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria, taxa_entrega) VALUES 
-    (1, 3, 'Pizzaria do João', '12345678000190', 'FAST_FOOD', 5),
-    (2, 4,'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD', 7),
-    (3, 5,'Pimenta Mineira', '00398308000137', 'RESTAURANTE', 10),
-    (4, 6,'Drogaria Santo Antonio', '23565792000147', 'FARMACIA', 0);
+INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria, taxa_entrega, url_logo, url_banner) VALUES 
+    (1, 3, 'Pizzaria do João', '12345678000190', 'FAST_FOOD', 5, '/static/uploads/logos/pizzamarcos.png', '/static/uploads/logos/pizzamarcosbanner.jpeg'),
+    (2, 4,'Pizzaria do Marcos', '17345677000290', 'FAST_FOOD', 7, '/static/uploads/logos/pizzajoao.png', '/static/uploads/logos/pizzajoaobanner.jpeg'),
+    (3, 5,'Pimenta Mineira', '00398308000137', 'RESTAURANTE', 10, '/static/uploads/logos/pimentamineira.png', '/static/uploads/logos/pimentamineirabanner.jpeg'),
+    (4, 6,'Drogaria Santo Antonio', '23565792000147', 'FARMACIA', 0, '/static/uploads/logos/farmacia.png', '/static/uploads/logos/farmaciabanner.jpeg');
+
 
 INSERT INTO produto (estabelecimento_id, nome_item, preco_unidade, quantidade_estoque) VALUES
     (1, 'Pizza Calabresa', 45.00, 50),

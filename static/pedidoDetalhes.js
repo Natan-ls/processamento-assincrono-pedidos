@@ -2,31 +2,27 @@
 
 import { apiRequest, authHeadersJson } from "./api.js";
 import { logout } from "./auth.js";
-import { toggleMenuPerfil } from "./utils.js";
+import { toggleMenuPerfil, getMenuElements, setupMenuEventos, setupFecharMenuFora, abrirModalVip } from "./utils.js";
 
-// ===== MENU =====
-const perfilIcon = document.getElementById("perfilIcon");
-const menuPerfil = document.getElementById("menuPerfil");
+/* ================= MENU DO PERFIL ===================== */
+document.addEventListener("DOMContentLoaded", () => {
+    // Inicializa menu do perfil usando utils.js
+    const menuElements = getMenuElements(); // pega perfilIcon, menuPerfil, btnPerfil, btnPedidos, btnPagamento, btnVip, btnLogout
 
-perfilIcon?.addEventListener("click", toggleMenuPerfil);
+    setupMenuEventos(menuElements, { abrirModalVip, logout }); // configura todos os eventos do menu
+    setupFecharMenuFora(menuElements.menuPerfil, menuElements.perfilIcon);
 
-document.addEventListener("click", (e) => {
-    if (menuPerfil && !menuPerfil.contains(e.target) && !perfilIcon.contains(e.target)) {
-        menuPerfil.classList.add("hidden");
-    }
+    // Carrega os detalhes do pedido
+    carregarDetalhesPedido();
 });
+
 
 // ===== BOTÕES =====
 document.getElementById("btnInicio")?.addEventListener("click", () => location.href = "/client/home");
-document.getElementById("btnPerfil")?.addEventListener("click", () => location.href = "/client/profile");
-document.getElementById("btnPedidos")?.addEventListener("click", () => location.href = "/client/orders");
 document.getElementById("btnVoltar")?.addEventListener("click", () => history.back());
-document.getElementById("btnLogout")?.addEventListener("click", logout);
 
 // ===== HELPERS =====
-function obterIdPedido() {
-    return new URLSearchParams(window.location.search).get("id");
-}
+function obterIdPedido() {return new URLSearchParams(window.location.search).get("id");}
 
 function formatarData(data) {
     if (!data) return "N/A";

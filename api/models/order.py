@@ -19,6 +19,7 @@ class Order(db.Model):
     endereco_entrega = db.Column(db.String(255), nullable=True)#endereço de entrega do pedido    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime,default=datetime.utcnow,onupdate=datetime.utcnow)
+    pagamento_timer = db.Column(db.DateTime, nullable=True)
 
     ## Relacionamento da tabela c/ o (itens do pedido - pessoa - estabelecimento) permitindo assim acessar os dados da outra tabela
     pessoa = db.relationship("Pessoa", backref="pedidos")
@@ -35,6 +36,10 @@ class Order(db.Model):
             "valor_total": float(self.valor_total),
             "endereco_entrega": self.endereco_entrega,  #end de entrega do pedido            
             "created_at": self.created_at.isoformat() + 'Z', #add o Z p indicar q é UTC
+            "pagamento_expires_at": (
+                self.pagamento_timer.isoformat() + "Z"
+                if self.pagamento_timer else None
+            ),            
             "items": [item.to_dict() for item in self.items]
         }
 
