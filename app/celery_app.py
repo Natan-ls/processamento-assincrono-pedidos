@@ -7,6 +7,7 @@ celery_app = Celery(
     include=[
         "app.tasks.pedidos",
         "app.tasks.pagamento",
+        "app.tasks.usuario",
         
     ]
 )

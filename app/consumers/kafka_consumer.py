@@ -1,7 +1,8 @@
 from confluent_kafka import Consumer
 import json
-from app.tasks.pedidos import handle_pedido_criado
+from app.tasks.pedidos import handle_pedido_status, handle_pedido_criado, handle_pedido_finalizado
 from app.tasks.pagamento import handle_pagamento_evento
+from app.tasks.usuario import handle_usuario_criado
 
 conf = {
     "bootstrap.servers": "kafka:9092",
@@ -10,7 +11,7 @@ conf = {
 }
 
 consumer = Consumer(conf)
-consumer.subscribe(["pedido-criado", "pagamento-evento"])
+consumer.subscribe(["pedido-criado", "pagamento-evento", "pedido-status", "usuario-criado", "pedido-finalizado"])
 
 print("Kafka consumer aguardando mensagens...", flush=True)
 
@@ -29,3 +30,9 @@ while True:
         handle_pedido_criado.delay(evento)
     if evento["tipo_evento"] == "pagamento-evento":
         handle_pagamento_evento.delay(evento)
+    if evento["tipo_evento"] == "pedido-status":
+        handle_pedido_status.delay(evento)
+    if evento["tipo_evento"] == "usuario-criado":
+        handle_usuario_criado.delay(evento)
+    if evento["tipo_evento"] == "pedido-finalizado":
+        handle_pedido_finalizado.delay(evento)

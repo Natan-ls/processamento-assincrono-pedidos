@@ -15,6 +15,9 @@ from api.models.estabelecimento import Estabelecimento
 from api.auth.validators import is_valid_cnpj
 from api.models.enums import CategoriaEstabelecimento
 from api.models.endereco import Endereco
+from datetime import datetime, timezone
+from api.messaging import constantes as constants
+from api.messaging import producer as producer
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 #auth_bp = Blueprint("auth", __name__, url_prefix="/auth/users/vip")  #users/vip adicionado
@@ -174,7 +177,20 @@ def register_cliente():
         )
         user.set_password(password)
         db.session.add(user)
-        db.session.commit()        
+        db.session.commit()
+
+        # Enviar evento para o Kafka
+        evento = {
+            "tipo_evento": constants.USUARIO_CRIADO,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "dados": {
+                "pessoa_id": pessoa.id,
+                "email": user.email,
+                "nome": pessoa.nome
+            }
+        }
+        producer.publicar_evento(constants.USUARIO_CRIADO, evento)
+
         return jsonify({"message": "Usuario Criado com Sucesso"}), 201
     except IntegrityError: # excesão p impedir q caso acconteça de ter 2 requests simultaneos aombos possam acabar sendo validados
         db.session.rollback()
