@@ -1,6 +1,7 @@
 from app.celery_app import celery_app
 from app.email import send_email
 from app import db
+from api.models.enums import StatusPagamento
 
 @celery_app.task(name="app.tasks.pagamento.handle_pagamento_evento")
 def handle_pagamento_evento(evento: dict):
@@ -9,9 +10,9 @@ def handle_pagamento_evento(evento: dict):
     dados = evento["dados"]
     pedido_id = dados["pedido_id"]
     status = dados["status"]
-    valor = dados["valor"]
+    valor = dados["total"]
 
-    if status != "sucesso":
+    if status != StatusPagamento.PAGAMENTO_APROVADO.value:
         print(f"Pagamento falhou para pedido_id={pedido_id}", flush=True)
         return
 
