@@ -131,8 +131,8 @@ async function salvarConfiguracoesEmpresa() {
 ====================================================== */
 document.addEventListener("DOMContentLoaded", () => {
     inicializarTopoEmpresa({
-        categoria: "Empresa",
-        aberto: false,
+        rotaUpdateDados: "/company/onboarding",
+        rotaDashboard: "/company/dashboard",
         rotaProdutos: "/company/produtos"
     });
 

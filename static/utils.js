@@ -307,15 +307,22 @@ export function formatarDataVip(data) {
 }
 
 //==================== FUNCOES de UTILS p EMPRESA 
-
-export function inicializarTopoEmpresa({categoria,aberto,rotaProdutos = "/Company/produtos"}) {
+export function inicializarTopoEmpresa({
+    categoria,
+    aberto,
+    rotaProdutos = "/company/produtos",
+    rotaDashboard = "/company/dashboard",
+    rotaUpdateDados = "/company/onboarding"
+}) {
     /* Categoria */
     const categoriaEl = document.getElementById("empresaCategoria");
-    if (categoriaEl && categoria) {categoriaEl.textContent = categoria;}
+    if (categoriaEl && categoria) {
+        categoriaEl.textContent = categoria;
+    }
 
     /* Status */
     const statusEl = document.getElementById("statusEstabelecimento");
-    if (statusEl) {
+    if (statusEl && typeof aberto === "boolean") {
         if (aberto) {
             statusEl.textContent = "🟢 Aberto";
             statusEl.classList.add("aberto");
@@ -330,8 +337,25 @@ export function inicializarTopoEmpresa({categoria,aberto,rotaProdutos = "/Compan
     /* Botão Produtos */
     const btnProdutos = document.getElementById("btnProdutosTopo");
     if (btnProdutos) {
-        btnProdutos.addEventListener("click", () => {
+        btnProdutos.onclick = () => {
             window.location.href = rotaProdutos;
-        });
+        };
     }
+
+    /* Botão Dashboard */
+    const btnDashboard = document.getElementById("btnDashboardTopo");
+    if (btnDashboard) {
+        btnDashboard.onclick = () => {
+            window.location.href = rotaDashboard;
+        };
+    }
+
+    /* Botão Atualizar Dados */
+    const btnUpdateDados = document.getElementById("btnUpdateDadosTopo");
+    if (btnUpdateDados) {
+        btnUpdateDados.onclick = () => {
+            window.location.href = rotaUpdateDados;
+        };
+    }
+}
 }
