@@ -10,63 +10,103 @@
     <!-- CSS específico do onboarding (opcional) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='company.css') }}">
 </head>
-<body>
+
+<body class="company-page">
+<script type="module"src="{{ url_for('static', filename='/company-guard.js') }}"></script>
 
 <div class="container">
-    <h1>Configuração da Empresa</h1>
+    <!-- TOPO -->
+    <header class="topo">
+        <!-- LOGO -->
+        <a href="{{ url_for('company_onboarding') }}" class="logo">
+            <!-- LOGO IMAGEM -->
+            <img 
+                src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+                alt="Logo JanuFood"
+                class="logo-img"
+            >
+        </a>
 
-    <div class="steps">
-        <span class="step active" data-step="1">Empresa</span>
-        <span class="step" data-step="2">Horários</span>
-        <span class="step" data-step="3">Produtos</span>
-        <span class="step" data-step="4">Finalizar</span>
-    </div>
+        <!-- OPÇÕES DO CENTRO DO TOPO DA TELA -->
+        <nav class="status-acoes">
+            <!-- CATEGORIA DO ESTABELECIMENTO (informativo) -->
+            <span class="empresa-categoria" id="empresaCategoria">Restaurante</span>
 
-    <!-- STEP 1 -->
-    <section class="step-content" id="step-1">
-        <h2>Dados da Empresa</h2>
-        <label>Taxa de entrega (R$)</label>
-        <input type="number" id="taxaEntrega" step="0.01" min="0">
-        <button onclick="nextStep()">Próximo</button>
-    </section>
+            <!-- STATUS DO ESTABELECIMENTO (informativo) -->
+            <span class="status-estabelecimento aberto" id="statusEstabelecimento">🟢 Aberto</span>
 
-    <!-- STEP 2 -->
-    <section class="step-content hidden" id="step-2">
-        <h2>Horário de Funcionamento</h2>
-        <div id="horariosContainer"></div>
-        <button onclick="prevStep()">Voltar</button>
-        <button onclick="saveHorarios()">Salvar e continuar</button>
-    </section>
+            <!-- ATALHO -->
+            <button class="atalho-btn" id="btnProdutosTopo">🍔 Produtos</button>
+        </nav>
 
-    <!-- STEP 3 -->
-    <section class="step-content hidden" id="step-3">
-        <h2>Cadastro de Produtos</h2>
+        <!-- BUSCA -->
+        <div class="busca">
+            <input type="text" id="buscaInput" placeholder="Buscar Pedido por nome usuario ligado ao pedido...">
+        </div>
 
-        <input type="text" id="produtoNome" placeholder="Nome">
-        <input type="text" id="produtoDescricao" placeholder="Descrição">
-        <input type="number" id="produtoPreco" placeholder="Preço" step="0.01">
-        <input type="number" id="produtoEstoque" placeholder="Estoque">
-        <input type="file" id="produtoImagem">
+        <!-- PERFIL -->
+        <div id="menuPerfil" class="menu-perfil hidden">
 
-        <button onclick="addProduto()">Adicionar Produto</button>
-        <ul id="listaProdutos"></ul>
+            <button class="menu-item" id="btnEmpresa">
+                <span class="menu-icon">🏪</span>
+                <span>Minha Empresa</span>
+            </button>
 
-        <button onclick="prevStep()">Voltar</button>
-        <button onclick="nextStep()">Continuar</button>
-    </section>
+            <button class="menu-item" id="btnPerfil">
+                <span class="menu-icon">👤</span>
+                <span>Minha Conta</span>
+            </button>
 
-    <!-- STEP 4 -->
-    <section class="step-content hidden" id="step-4">
-        <h2>Finalizar Configuração</h2>
-        <p>Confirme para ativar sua empresa no sistema.</p>
-        <button onclick="finalizarOnboarding()">Finalizar</button>
+            <button class="menu-item" id="btnProdutos">
+                <span class="menu-icon">🍔</span>
+                <span>Produtos</span>
+            </button>
+
+            <button class="menu-item" id="btnPedidos">
+                <span class="menu-icon">📝</span>
+                <span>Pedidos</span>
+            </button>
+
+            <div class="menu-divider"></div>
+
+            <button class="menu-item logout" id="btnLogout">
+                <span class="menu-icon">🚪</span>
+                <span>Sair</span>
+            </button>
+
+        </div>
+
+    </header>
+    <section class="confgEmpresa">
+        <h1>Configuração da Empresa</h1>
+
+        <div class="steps"><span class="step active" data-step="1">Taxa e Horário De Funcionamento</span></div>
+
+        <!-- STEP 1 -->
+        <section class="step-content" id="step-1">
+
+            <label for="taxaEntrega">Taxa de entrega (R$)</label>
+            <input type="number" id="taxaEntrega" step="1" min="0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+
+            <h3 style="margin-top: 20px;">Horário de Funcionamento</h3>
+            <div id="horariosContainer"></div>
+
+            <div class="form-actions"><button type="button" id="btnContinuarStep1" class="btn-next">Continuar</button></div>
+        </section>
+        <!-- OUTPUT PARA LOGS DPS PODEMOS TIRAR e COLCOAR UM MODAL p/ AS MENSAGENS por ex(cadastro c sucesso, erro ao ciar algo e tals) -->
+        <section class="section">
+            <pre id="output" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e1e5eb; font-size: 13px; max-height: 150px; overflow-y: auto;"></pre>
+        </section>
     </section>
 </div>
+<!-- RODAPÉ da PAGE -->
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
+</footer>
 
 <!-- JS -->
-<script type="module"
-        src="{{ url_for('static', filename='/onboarding.js') }}">
-</script>
+<script type="module"src="{{ url_for('static', filename='/onboarding.js') }}"></script>
 
 </body>
 </html>

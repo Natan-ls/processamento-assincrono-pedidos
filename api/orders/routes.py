@@ -8,9 +8,9 @@ import api.messaging.producer as producer
 from datetime import datetime, timezone, timedelta
 from api.models.produto import Product
 from api.models.estabelecimento import Estabelecimento
+from api.orders.service import atualizar_status_se_necessario
 
 orders_bp = Blueprint("orders", __name__, url_prefix="/orders")
-
 
 # ======== FUNCT p/ CRIAR PEDIDO ======== 
 @orders_bp.route("/", methods=["POST", "OPTIONS"])
@@ -225,6 +225,8 @@ def get_order(order_id):
 
     if not order:
         return jsonify({"error": "Pedido não encontrado"}), 404
+    # 🔄 Atualiza status automaticamente se o tempo tiver vencido
+    atualizar_status_se_necessario(order)
 
     # Buscar informações dos itens com detalhes do produto
     items_detalhados = []
@@ -238,20 +240,34 @@ def get_order(order_id):
             "preco_unitario": float(item.preco_unitario),
             "subtotal": float(item.quantidade * item.preco_unitario)
         })
+    estabelecimento = order.estabelecimento
 
     return jsonify({
-      "order_id": order.id,
-      "estabelecimento_id": order.estabelecimento_id,
-      "status": order.status,
-      "total": float(order.valor_total),
-      "endereco_entrega": order.endereco_entrega,
-      "created_at": order.created_at.isoformat() if order.created_at else None,
-      "pagamento_expires_at": (
-          order.pagamento_timer.isoformat()
-          if order.pagamento_timer else None
-      ),        
-      "items": [item.to_dict() for item in order.items]
+        "id": order.id,
+        "status": order.status,
+        "created_at": (
+            order.created_at.isoformat()
+            if order.created_at else None
+        ),
+        "valor_total": float(order.valor_total),
+        "endereco_entrega": order.endereco_entrega,
+
+        "estabelecimento": {
+            "id": estabelecimento.id,
+            "nome_fantasia": estabelecimento.nome_fantasia,
+            #"telefone": estabelecimento.telefone,
+            "endereco": estabelecimento.endereco.to_dict(),
+            "taxa_entrega": float(order.estabelecimento.taxa_entrega) if order.estabelecimento else 0,
+        } if estabelecimento else None,
+
+        "itens": items_detalhados,
+
+        "pagamento_expires_at": (
+            order.pagamento_timer.isoformat()
+            if order.pagamento_timer else None
+        )
     }), 200
+
 
 # ======== FUNCT p/ LISTART PEDIDO ======== 
 @orders_bp.route("/", methods=["GET", "OPTIONS"])
@@ -289,56 +305,10 @@ def list_orders():
         .order_by(Order.created_at.desc())
         .all()
     )
-
+    # ATUALIZA STATUS AUTOMATICAMENTE
+    for order in orders:
+        atualizar_status_se_necessario(order)
     return jsonify([order.to_dict() for order in orders]), 200
-
-# Aprovar pedido pelo estabelecimento e iniciar preparo
-@orders_bp.route("/<int:pedido_id>/aprovar", methods=["POST"])
-@jwt_required
-def aprovar_pedido(pedido_id):
-    pedido = Order.query.get(pedido_id)
-    if not pedido:
-        return jsonify({"error": "Pedido não encontrado"}), 404
-
-    # Só aprova se estiver em VALIDANDO
-    if pedido.status != OrderStatus.VALIDANDO.value:
-        return jsonify({
-            "error": f"Pedido não está aguardando validação. Status atual: {pedido.status}"
-        }), 400
-
-    try:
-        pedido.status = OrderStatus.PROCESSANDO.value
-        db.session.commit()
-        return jsonify({
-            "message": "Pedido aprovado e em processamento",
-            "pedido_status": pedido.status
-        }), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-
-@orders_bp.route("/<int:pedido_id>/enviar", methods=["POST"])
-@jwt_required
-def enviar_pedido(pedido_id):
-    pedido = Order.query.get(pedido_id)
-    if not pedido:
-        return jsonify({"error": "Pedido não encontrado"}), 404
-
-    if pedido.status != OrderStatus.PROCESSANDO.value:
-        return jsonify({
-            "error": f"Pedido não está em processamento. Status atual: {pedido.status}"
-        }), 400
-
-    try:
-        pedido.status = OrderStatus.EM_ROTA.value
-        db.session.commit()
-        return jsonify({
-            "message": "Pedido em rota",
-            "pedido_status": pedido.status
-        }), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
 
 @orders_bp.route("/<int:pedido_id>/finalizar", methods=["POST"])
 @jwt_required
@@ -355,10 +325,135 @@ def finalizar_pedido(pedido_id):
     try:
         pedido.status = OrderStatus.FINALIZADO.value
         db.session.commit()
+
+        evento = {
+            "tipo_evento": constants.PEDIDO_FINALIZADO,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "dados": {
+                "pedido_id": pedido.id,
+                "total": float(pedido.valor_total)
+            }
+        }
+
+        producer.publicar_evento(constants.PEDIDO_FINALIZADO, evento)
+
         return jsonify({
             "message": "Pedido finalizado",
             "pedido_status": pedido.status
         }), 200
+    
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+@orders_bp.route("/dashboard", methods=["GET"])
+@jwt_required
+def dashboard_pedidos():
+
+    estabelecimento = Estabelecimento.query.filter_by(
+        pessoa_id=request.pessoa_id
+    ).first()
+
+    if not estabelecimento:
+        return jsonify({"error": "Estabelecimento não encontrado"}), 404
+
+    agora = datetime.now(timezone.utc)
+    hoje = agora.date()
+
+    horario = estabelecimento.get_horario_hoje()
+
+    # 🔒 PROTEÇÃO TOTAL
+    if (
+        not horario
+        or not horario.ativo
+        or not horario.hora_inicio
+        or not horario.hora_fim
+    ):
+      return jsonify({
+          "aberto": False,
+          "pedidos": []
+      }), 200
+
+
+    abertura = datetime.combine(
+        hoje,
+        horario.hora_inicio,
+        tzinfo=timezone.utc
+    )
+
+    fechamento = datetime.combine(
+        hoje,
+        horario.hora_fim,
+        tzinfo=timezone.utc
+    )
+
+    #Fecha depois da meia-noite
+    if fechamento <= abertura:
+        fechamento += timedelta(days=1)
+
+    aberto = abertura <= agora <= fechamento
+
+    pedidos_db = (
+        Order.query
+        .filter(
+            Order.estabelecimento_id == estabelecimento.id,
+            Order.created_at >= abertura,
+            Order.created_at <= fechamento
+        )
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+    # 🔧 Garantir que created_at seja timezone-aware (UTC)
+    for pedido in pedidos_db:
+        if pedido.created_at and pedido.created_at.tzinfo is None:
+            pedido.created_at = pedido.created_at.replace(tzinfo=timezone.utc)
+
+    for pedido in pedidos_db:
+        atualizar_status_se_necessario(pedido)
+    pedidos = [
+        {
+            "id": p.id,
+            "status": p.status,
+            "total": float(p.valor_total),
+            "hora": p.created_at.strftime("%H:%M"),
+            "cliente_nome": p.pessoa.nome if p.pessoa else "Cliente"
+        }
+        for p in pedidos_db
+    ]
+
+    return jsonify({
+        "aberto": aberto,
+        "pedidos": pedidos
+    }), 200
+
+@orders_bp.route("/<int:id>/cancelar", methods=["POST"])
+@jwt_required
+def cancelar_pedido(id):
+    pedido = Order.query.filter_by(
+        id=id,
+        pessoa_id=request.pessoa_id
+    ).first()
+    if not pedido:
+        return jsonify({"error": "Pedido não encontrado"}), 404
+    atualizar_status_se_necessario(pedido)
+    
+    if pedido.status == OrderStatus.CANCELADO.value:
+      return jsonify({"error": "Pedido já está cancelado"}), 400
+    
+    if pedido.status == OrderStatus.FINALIZADO.value:
+        return jsonify({"error": "Pedido já finalizado"}), 400
+    
+    if pedido.status not in [
+    OrderStatus.VALIDANDO.value,
+    OrderStatus.PROCESSANDO.value]:
+      return jsonify({
+          "error": f"Pedido não pode ser cancelado no status {pedido.status}"
+      }), 400
+
+    pedido.status = OrderStatus.CANCELADO.value
+    pedido.status_updated_at = datetime.now(timezone.utc)
+    pedido.next_status_at = None
+
+    db.session.commit()
+
+    return jsonify({"message": "Pedido cancelado"}), 200

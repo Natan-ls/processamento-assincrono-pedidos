@@ -69,6 +69,16 @@ async function carregarDetalhesPedido() {
         }
 
         const pedido = res.data;
+        if (pedido.estabelecimento) {
+            document.getElementById("estabelecimentoNome").textContent =
+                pedido.estabelecimento.nome_fantasia || "—";
+
+            document.getElementById("estabelecimentoEndereco").textContent =
+                pedido.estabelecimento.endereco || "—";
+
+            document.getElementById("estabelecimentoTelefone").textContent =
+                pedido.estabelecimento.telefone || "—";
+        }
 
         // ===== DADOS DO PEDIDO =====
         document.getElementById("pedidoId").textContent = pedido.id ?? pedido.order_id;
@@ -79,7 +89,7 @@ async function carregarDetalhesPedido() {
         statusEl.style.background = getCorStatus(pedido.status);
 
         document.getElementById("pedidoTotal").textContent =
-            `R$ ${(Number(pedido.total) || 0).toFixed(2)}`;
+            `R$ ${(Number(pedido.valor_total) || 0).toFixed(2)}`;
 
         document.getElementById("enderecoEntrega").textContent =
             pedido.endereco_entrega || "Não informado";
@@ -90,27 +100,27 @@ async function carregarDetalhesPedido() {
 
         let subtotal = 0;
 
-        (pedido.items || []).forEach(rawItem => {
-            const item = {
-                nome: rawItem.nome ?? "Item",
-                quantidade: Number(rawItem.quantidade ?? 0),
-                preco: Number(rawItem.preco ?? rawItem.preco_unitario ?? 0)
-            };
+        const itens = pedido.itens || pedido.items || [];
 
-            const sub = item.preco * item.quantidade;
+        itens.forEach(rawItem => {
+            const nome = rawItem.nome || "Item";
+            const quantidade = Number(rawItem.quantidade || 0);
+            const preco = Number(rawItem.preco_unitario || 0);
+
+            const sub = preco * quantidade;
             subtotal += sub;
 
             itensEl.innerHTML += `
                 <div class="item-pedido">
-                    <strong>${item.nome}</strong>
-                    <span>${item.quantidade} x R$ ${item.preco.toFixed(2)}</span>
-                    <span>R$ ${sub.toFixed(2)}</span>
+                    <strong>${nome}</strong>
+                    <span>${quantidade} x R$ ${preco.toFixed(2)}</span>
+                    <!--<span>R$ ${sub.toFixed(2)}</span>-->
                 </div>
             `;
         });
 
         // ===== RESUMO =====
-        const taxaEntrega = 5.00;
+        const taxaEntrega = Number(pedido.taxa_entrega || 0);
 
         document.getElementById("subtotal").textContent =
             `R$ ${subtotal.toFixed(2)}`;

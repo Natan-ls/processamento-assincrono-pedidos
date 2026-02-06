@@ -15,7 +15,8 @@ class Product(db.Model):
     preco_unidade = db.Column(db.Numeric(10,2), nullable=False)
     quantidade_estoque = db.Column(db.Integer, nullable=False)
     url_imagem = db.Column(db.Text)
-
+    descricao = db.Column(db.Text, nullable=True) 
+    
     estabelecimento = db.relationship(
         "Estabelecimento",
         back_populates="produtos"

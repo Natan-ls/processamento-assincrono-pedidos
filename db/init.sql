@@ -49,7 +49,7 @@ CREATE TABLE estabelecimento (
     url_logo TEXT, 
     url_banner TEXT,
     pessoa_id INTEGER NOT NULL,
-
+    configurado BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_pessoa_estabelecimento
         FOREIGN KEY (pessoa_id)
         REFERENCES pessoa(id)
@@ -82,7 +82,7 @@ CREATE TABLE produto (
     preco_unidade NUMERIC(10,2) NOT NULL CHECK (preco_unidade >= 0),
     quantidade_estoque INTEGER NOT NULL CHECK (quantidade_estoque >= 0),
     url_imagem TEXT,
-
+    descricao TEXT,
     CONSTRAINT fk_produto_estabelecimento
         FOREIGN KEY (estabelecimento_id)
         REFERENCES estabelecimento(id)
@@ -99,6 +99,8 @@ CREATE TABLE pedidos (
     pagamento_timer TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status_updated_at TIMESTAMP WITH TIME ZONE,
+    next_status_at TIMESTAMP WITH TIME ZONE,
 
     CONSTRAINT fk_pedidos_usuario
         FOREIGN KEY (pessoa_id)
@@ -164,21 +166,24 @@ INSERT INTO endereco(estado, cidade, rua, numero, cep) VALUES
     ('MG', 'Januária', 'Rua Central', '548', '39480000'),
     ('MG', 'Januária', 'Cônego Ramiro', '5414', '39480000'),
     ('MG', 'Januária', 'Barão de São Romaão', '1973', '39480000'),
-    ('MG', 'Januária', 'Gaspar Dutra', '52', '39480000');
+    ('MG', 'Januária', 'Gaspar Dutra', '52', '39480000'),
+    ('MG', 'MDC', 'Gaspar Dutra', '52', '39480000');
 
 
 INSERT INTO pessoa(endereco_id, nome, cpf, telefone) VALUES 
     (1, 'João', '97242721091', '(38)12344321'),
     (2, 'Marcos', '36636846011', '(38)45677654'),
     (3, 'Mateus', '36436876031', '(37)36217594'),
-    (4, 'Andre', '30436936095', '(31)36267993');
+    (4, 'Andre', '30436936095', '(31)36267993'),
+    (5, 'rafa', '16080097699', '(31)36267993');
 
 
 INSERT INTO usuario(pessoa_id, email, password_hash, tipo_usuario) VALUES 
     (1, 'joao@gmail.com', 'teste', 'empresa'),
     (2, 'marcospizza@gmail.com', 'teste', 'empresa'),
     (3, 'mateus@gmail.com', 'teste', 'empresa'),
-    (4, 'andre@gmail.com', 'teste', 'empresa');
+    (4, 'andre@gmail.com', 'teste', 'empresa'),
+    (5, 'rafa@gmail.com', 'teste', 'cliente');
 
 
 INSERT INTO estabelecimento (pessoa_id, endereco_id, nome_fantasia, cnpj, categoria, taxa_entrega, url_logo, url_banner) VALUES 
@@ -223,12 +228,12 @@ INSERT INTO horario_funcionamento (estabelecimento_id, dia_semana, ativo, hora_i
     (3, 4, TRUE, '09:30', '22:30'),--Quinta
     (3, 5, TRUE, '09:30', '22:30'),--Setxa
     (3, 6, TRUE, '09:30', '22:30'),--Sab
-    (4, 0, TRUE, '07:30', '22:30'),--DROGARIA SANTO ANTONIO --dom
-    (4, 1, TRUE, '07:30', '22:30'),--Seg
-    (4, 2, TRUE, '07:30', '22:30'),--terc
-    (4, 3, TRUE, '07:30', '22:30'),--quart
-    (4, 4, TRUE, '07:30', '22:30'),--quint
-    (4, 5, TRUE, '07:30', '22:30'),--setx
-    (4, 6, TRUE, '07:30', '22:30');--sab
+    (4, 0, TRUE, '02:30', '00:30'),--DROGARIA SANTO ANTONIO --dom
+    (4, 1, TRUE, '02:30', '00:30'),--Seg
+    (4, 2, TRUE, '02:30', '00:30'),--terc
+    (4, 3, TRUE, '02:30', '00:30'),--quart
+    (4, 4, TRUE, '02:30', '00:30'),--quint
+    (4, 5, TRUE, '02:30', '00:30'),--setx
+    (4, 6, TRUE, '02:30', '00:30');--sab
 
 

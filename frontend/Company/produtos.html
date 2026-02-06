@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Produtos da Empresa - FoodJanu</title>
+
+    <!-- CSS global -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- CSS específico -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='company.css') }}">
+</head>
+
+<body>
+
+<!-- ================= TOPO ================= -->
+<header class="topo">
+
+    <a href="{{ url_for('company_home') }}" class="logo">
+        <img 
+            src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+            alt="Logo JanuFood"
+            class="logo-img"
+        >
+    </a>
+
+    <nav class="status-acoes">
+        <span class="empresa-categoria" id="empresaCategoria"></span>
+        <span class="status-estabelecimento aberto" id="statusEstabelecimento">🟢 Aberto</span>
+        <button class="atalho-btn" id="btnProdutosTopo">🍔 Produtos</button>
+    </nav>
+
+    <div class="busca">
+        <input 
+            type="text" 
+            id="buscaInput" 
+            placeholder="Buscar produto..."
+        >
+    </div>
+
+    <div id="menuPerfil" class="menu-perfil hidden">
+        <button class="menu-item" id="btnEmpresa">🏪 Minha Empresa</button>
+        <button class="menu-item" id="btnPerfil">👤 Minha Conta</button>
+        <button class="menu-item" id="btnProdutos">🍔 Produtos</button>
+        <button class="menu-item" id="btnPedidos">📝 Pedidos</button>
+        <div class="menu-divider"></div>
+        <button class="menu-item logout" id="btnLogout">🚪 Sair</button>
+    </div>
+
+</header>
+
+<!-- ================= CONTEÚDO ================= -->
+<div class="dashboard-container produtos-dashboard">
+
+    <h1>📦 Produtos do Estabelecimento</h1>
+
+    <div class="acoes-produtos">
+        <button id="btnAbrirModalProduto" class="btn-primary">
+            ➕ Novo Produto
+        </button>
+    </div>
+
+    <div class="card-dashboard">
+        <h2>📋 Produtos cadastrados</h2>
+        <ul id="listaProdutos" class="lista-produtos">
+            <!-- Cards renderizados via JS -->
+        </ul>
+    </div>
+
+</div>
+
+<!-- ================= MODAL PRODUTO ================= -->
+<div id="modalProduto" class="modal hidden">
+
+    <div class="modal-content">
+
+        <!-- Botão X -->
+        <button class="modal-close" id="btnFecharModalProduto">✖</button>
+
+        <div class="modal-header">
+            <h2 id="tituloModalProduto">📦 Produto</h2>
+        </div>
+
+        <div class="modal-body">
+            <label>Nome</label>
+            <input type="text" id="produtoNome">
+
+            <label>Descrição</label>
+            <textarea id="produtoDescricao"></textarea>
+
+            <label>Preço (R$)</label>
+            <input type="number" id="produtoPreco" step="0.01">
+
+            <label>Estoque</label>
+            <input type="number" id="produtoEstoque">
+
+            <label>Imagem</label>
+            <input type="file" id="produtoImagem" accept="image/*">
+        </div>
+
+        <div class="modal-footer">
+            <button id="btnAdicionarProduto" class="btn-primary">
+                Salvar Produto
+            </button>
+        </div>
+
+    </div>
+</div>
+<!-- OUTPUT PARA LOGS DPS PODEMOS TIRAR e COLCOAR UM MODAL p/ AS MENSAGENS por ex(cadastro c sucesso, erro ao ciar algo e tals) -->
+<section class="section">
+    <pre id="output" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e1e5eb; font-size: 13px; max-height: 150px; overflow-y: auto;"></pre>
+</section>
+
+<!-- MODAL p/ Avisos, Confirmações -->
+<div id="modalMensagem" class="modal hidden">
+    <div class="modal-conteudo" style="max-width: 480px;">
+
+        <div class="modal-header">
+            <h3 id="modalMensagemTitulo">Mensagem</h3>
+            <button class="fechar-modal" id="fecharModalMensagem">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <p id="modalMensagemTexto" style="margin-bottom: 20px; color: #444;"></p>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="btnCancelarMensagem" class="btn-voltar" style="flex: 1;">
+                    Cancelar
+                </button>
+
+                <button id="btnConfirmarMensagem" class="btn-finalizar" style="flex: 1;">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- RODAPÉ da PAGE -->
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
+</footer>
+<!-- ================= JS ================= -->
+<script type="module" src="{{ url_for('static', filename='produtosEmpresa.js') }}"></script>
+
+</body>
+</html>

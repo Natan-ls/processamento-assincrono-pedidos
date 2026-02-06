@@ -1,7 +1,7 @@
 from extensions import db
 from api.models.enums import CategoriaEstabelecimento
 from sqlalchemy import Enum
-
+from datetime import datetime
 # ======= MODEL DE ITEM DO PEDIDO ======= 
 class Estabelecimento(db.Model):
     __tablename__ = "estabelecimento" ## name da tabela no BD
@@ -18,6 +18,8 @@ class Estabelecimento(db.Model):
     url_banner = db.Column(db.Text)
    
     pessoa_id = db.Column(db.Integer, db.ForeignKey("pessoa.id"), nullable=False)
+    configurado = db.Column(db.Boolean, default=False)
+    
     endereco_id = db.Column(
         db.Integer,
         db.ForeignKey("endereco.id"),
@@ -48,3 +50,18 @@ class Estabelecimento(db.Model):
         cascade="all, delete-orphan",
         lazy=True
     )
+    def get_horario_hoje(self):
+        """
+        Retorna o horário de funcionamento do estabelecimento
+        conforme o padrão do banco:
+        0 = domingo | 6 = sábado
+        """
+
+        weekday_python = datetime.now().weekday()
+        dia_bd = (weekday_python + 1) % 7
+
+        for horario in self.horarios:
+            if horario.dia_semana == dia_bd:
+                return horario
+
+        return None

@@ -15,6 +15,9 @@ from api.models.estabelecimento import Estabelecimento
 from api.auth.validators import is_valid_cnpj
 from api.models.enums import CategoriaEstabelecimento
 from api.models.endereco import Endereco
+from datetime import datetime, timezone
+from api.messaging import constantes as constants
+from api.messaging import producer as producer
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 #auth_bp = Blueprint("auth", __name__, url_prefix="/auth/users/vip")  #users/vip adicionado
@@ -353,7 +356,7 @@ def register_empresa():
     os.makedirs("static/uploads/logos", exist_ok=True)
     file_logo.save(filepath)
     logo_url = f"/static/uploads/logos/{filename}"
-
+    taxa_entrega = 0
     # ====== Criando a Pessoa Responsavel + Usuario + Estabelecimento ======
     try:
         endereco_pessoa = criar_endereco(data, "resp")
@@ -387,6 +390,7 @@ def register_empresa():
             cnpj=cnpj,
             categoria=categoria_enum,
             endereco_id=endereco_empresa.id,
+            taxa_entrega=taxa_entrega,
             url_logo=logo_url,
             pessoa_id=pessoa.id
         )
@@ -394,26 +398,44 @@ def register_empresa():
         db.session.add(estabelecimento)
         db.session.commit()
 
+        evento = {
+            "tipo_evento": constants.USUARIO_CRIADO,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "dados": {
+                "pessoa_id": pessoa.id,
+                "email": user.email,
+                "nome": pessoa.nome
+            }
+        }
+        producer.publicar_evento(constants.USUARIO_CRIADO, evento)
+
         return jsonify({"message": "Empresa cadastrada com Sucesso!"}), 201
 
+    #except IntegrityError as e:
+    #    db.session.rollback()
+    #    # Verifica se é erro de CNPJ duplicado
+    #    if "cnpj" in str(e).lower():
+    #        return jsonify({"error": "CNPJ já cadastrado"}), 409
+    #    elif "cpf" in str(e).lower():
+    #        return jsonify({"error": "CPF já cadastrado"}), 409
+    #    elif "email" in str(e).lower():
+    #        return jsonify({"error": "Email já cadastrado"}), 409
+    #    else:
+    #        return jsonify({"error": "Erro de integridade no banco de dados"}), 409    
     except IntegrityError as e:
-        db.session.rollback()
-        # Verifica se é erro de CNPJ duplicado
-        if "cnpj" in str(e).lower():
-            return jsonify({"error": "CNPJ já cadastrado"}), 409
-        elif "cpf" in str(e).lower():
-            return jsonify({"error": "CPF já cadastrado"}), 409
-        elif "email" in str(e).lower():
-            return jsonify({"error": "Email já cadastrado"}), 409
-        else:
-            return jsonify({"error": "Erro de integridade no banco de dados"}), 409
-
+      db.session.rollback()
+      print("ERRO DE INTEGRIDADE REAL:", e)
+      return jsonify({
+          "error": "Erro de integridade",
+          "details": str(e)
+      }), 409
     except Exception as e:
         db.session.rollback()
         return jsonify({
             "error": "Erro ao salvar empresa",
             "details": str(e)
         }), 500
+
 
 # ============= FUNÇÕES DE LOGIN ============= # 
 @auth_bp.route("/login", methods=["POST"])
@@ -479,7 +501,7 @@ def login():
         empresa_configurada = True
         if user.tipo_usuario == "empresa":
             estabelecimento = Estabelecimento.query.filter_by(
-                user_id=user.id
+                pessoa_id=user.pessoa_id
             ).first()
 
             # segurança extra
@@ -552,7 +574,8 @@ def me():
         "email": user.email,
         "telefone": pessoa.telefone,
         "endereco": pessoa.endereco.to_dict() if pessoa.endereco else None,
-        "url_foto": pessoa.url_foto_perfil
+        "url_foto": pessoa.url_foto_perfil,
+        "is_vip": user.vip_ativo()
     }
 
     # ===== se for uma empresa, adiciona os dados do estabelecimento se ñ só os dados do cliente normal
@@ -564,6 +587,7 @@ def me():
 
         if not estabelecimento:
             return jsonify({"error": "Estabelecimento não encontrado"}), 404
+        perfil["empresa_configurada"] = bool(estabelecimento.configurado)
 
         perfil["empresa"] = {
             "id": estabelecimento.id,

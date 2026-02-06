@@ -2,14 +2,16 @@ from flask import Blueprint, request, jsonify
 from extensions import db
 from api.models.pagamento import Pagamento
 from api.models.ordem_eventos import OrdemEvento
-from datetime import datetime
+from datetime import datetime, timezone
 from api.models.enums import OrderStatus, StatusPagamento
 from api.models.order import Order
-from datetime import datetime, timezone
+from api.orders.service import gerar_tempo, atualizar_status_se_necessario
+from api.auth.decorators import jwt_required
 
 pagamento_bp = Blueprint("pagamento", __name__)
 
 @pagamento_bp.route("/pagamentos/<int:pedido_id>", methods=["POST"])
+@jwt_required
 def criar_pagamento(pedido_id):
     """
     Registra/Simula o pagamento de um pedido
@@ -55,9 +57,16 @@ def criar_pagamento(pedido_id):
     if not metodo:
         return jsonify({"error": "Método não informado"}), 400
 
-    pedido = Order.query.get(pedido_id)
+    #pedido = Order.query.get(pedido_id)
+    pedido = Order.query.filter_by(
+        id=pedido_id,
+        pessoa_id=request.pessoa_id
+    ).first()
     if not pedido:
         return jsonify({"error": "Pedido não encontrado"}), 404
+
+    # Atualiza status antes de validar pagamento
+    atualizar_status_se_necessario(pedido)
 
     if pedido.status != OrderStatus.AGUARDANDO_PAGAMENTO.value:
         return jsonify({
@@ -79,7 +88,8 @@ def criar_pagamento(pedido_id):
 
         # Atualiza status do pedido para VALIDANDO
         pedido.status = OrderStatus.VALIDANDO.value
-
+        pedido.status_updated_at = agora
+        pedido.next_status_at = agora + gerar_tempo(2, 5)  # ex: 2 a 5 min
         # Criar evento de log
         evento = OrdemEvento(
             pedido_id=pedido_id,
@@ -102,95 +112,5 @@ def criar_pagamento(pedido_id):
         db.session.rollback()
         return jsonify({
             "error": "Falha ao processar pagamento",
-            "details": str(e)
-        }), 500
-
-# =================== Endpoint do estabelecimento confirmando pedido ===================
-@pagamento_bp.route("/pedidos/<int:pedido_id>/confirmar", methods=["POST"])
-def confirmar_pedido(pedido_id):
-    """
-    Estabelecimento confirma o pedido após pagamento
-    """
-    pedido = Order.query.get(pedido_id)
-    if not pedido:
-        return jsonify({"error": "Pedido não encontrado"}), 404
-
-    if pedido.status != OrderStatus.VALIDANDO.value:
-        return jsonify({"error": f"Pedido não está em validação. Status atual: {pedido.status}"}), 400
-
-    try:
-        # Atualiza status do pedido para PROCESSANDO
-        pedido.status = OrderStatus.PROCESSANDO.value
-        db.session.commit()
-
-        return jsonify({
-            "message": "Pedido confirmado pelo estabelecimento!",
-            "pedido_status": pedido.status
-        }), 200
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            "error": "Falha ao confirmar pedido",
-            "details": str(e)
-        }), 500
-
-
-# =================== Endpoint para marcar pedido como EM_ROTA ===================
-@pagamento_bp.route("/pedidos/<int:pedido_id>/em_rota", methods=["POST"])
-def pedido_em_rota(pedido_id):
-    """
-    Atualiza o pedido para EM_ROTA
-    """
-    pedido = Order.query.get(pedido_id)
-    if not pedido:
-        return jsonify({"error": "Pedido não encontrado"}), 404
-
-    if pedido.status != OrderStatus.PROCESSANDO.value:
-        return jsonify({"error": f"Pedido não está em processamento. Status atual: {pedido.status}"}), 400
-
-    try:
-        pedido.status = OrderStatus.EM_ROTA.value
-        db.session.commit()
-
-        return jsonify({
-            "message": "Pedido está a caminho do cliente!",
-            "pedido_status": pedido.status
-        }), 200
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            "error": "Falha ao atualizar status",
-            "details": str(e)
-        }), 500
-
-
-# =================== Endpoint para finalizar pedido ===================
-@pagamento_bp.route("/pedidos/<int:pedido_id>/finalizar", methods=["POST"])
-def finalizar_pedido(pedido_id):
-    """
-    Marca o pedido como FINALIZADO
-    """
-    pedido = Order.query.get(pedido_id)
-    if not pedido:
-        return jsonify({"error": "Pedido não encontrado"}), 404
-
-    if pedido.status != OrderStatus.EM_ROTA.value:
-        return jsonify({"error": f"Pedido não está em rota. Status atual: {pedido.status}"}), 400
-
-    try:
-        pedido.status = OrderStatus.FINALIZADO.value
-        db.session.commit()
-
-        return jsonify({
-            "message": "Pedido finalizado com sucesso!",
-            "pedido_status": pedido.status
-        }), 200
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            "error": "Falha ao finalizar pedido",
             "details": str(e)
         }), 500

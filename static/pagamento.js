@@ -13,6 +13,7 @@ const pedidoId = params.get("pedidoId");
 let pagamentoExpiresAt = null;
 let timerInterval = null;
 let statusInterval = null;
+let modalValidandoAberto = false;
 
 if (!pedidoId) {
     output.innerText = "❌ Pedido não encontrado na URL.";
@@ -67,23 +68,20 @@ async function atualizarStatusPedido() {
                 btnConfirmar.disabled = true;
                 metodoSelect.disabled = true;
                 clearInterval(timerInterval);
-                abrirModal("⏳ Pagamento confirmado! Aguardando o estabelecimento aceitar o pedido...");
+
+                if (!modalValidandoAberto) {
+                    abrirModal("⏳ Pagamento confirmado! Aguardando o estabelecimento aceitar o pedido...");
+                    modalValidandoAberto = true;
+                }
                 break;
 
             case "PROCESSANDO":
-                mensagemStatus += "\n✅ Pedido confirmado pelo estabelecimento!";
+                mensagemStatus += "\n✅ Pedido em Preparo pelo estabelecimento!";
                 btnConfirmar.disabled = true;
                 metodoSelect.disabled = true;
                 clearInterval(timerInterval);
-                clearInterval(statusInterval);
-                abrirModal(`✅ Pedido #${pedidoId} confirmado pelo estabelecimento!`);
-                break;
-
-            case "EM_ROTA":
-                mensagemStatus += "\n🚚 Pedido a caminho do cliente.";
-                btnConfirmar.disabled = true;
-                metodoSelect.disabled = true;
-                clearInterval(timerInterval);
+                //clearInterval(statusInterval);
+                //abrirModal(`✅ Pedido #${pedidoId} confirmado pelo estabelecimento!`);
                 break;
 
             case "FINALIZADO":
@@ -96,13 +94,12 @@ async function atualizarStatusPedido() {
                 break;
 
             case "CANCELADO":
-            case "ERRO":
-                mensagemStatus += "\n❌ Pedido cancelado ou ocorreu erro.";
+                mensagemStatus += "\n❌ Pedido cancelado.";
                 btnConfirmar.disabled = true;
                 metodoSelect.disabled = true;
                 clearInterval(timerInterval);
                 clearInterval(statusInterval);
-                abrirModal(`❌ Pedido #${pedidoId} foi cancelado ou ocorreu um erro.`);
+                abrirModal(`❌ Pedido #${pedidoId} foi cancelado.`);
                 break;
 
             default:
@@ -153,46 +150,7 @@ function iniciarTimer() {
         timerEl.innerText = `⏳ Tempo restante: ${minutos}m ${segundos.toString().padStart(2, "0")}s`;
     }, 1000);
 }
-/*
-// Confirmar pagamento
-btnConfirmar.addEventListener("click", async () => {
-    const metodo = metodoSelect.value;
 
-    if (!metodo) {
-        alert("Selecione um método de pagamento.");
-        return;
-    }
-
-    output.innerText = "⏳ Processando pagamento...";
-
-    try {
-        const res = await apiRequest(`/pagamentos/${pedidoId}`, {
-            method: "POST",
-            headers: authHeadersJson(),
-            body: JSON.stringify({ metodo })
-        });
-
-        if (!res.ok) {
-            output.innerText = "❌ Erro: " + res.error;
-            return;
-        }
-
-        const data = res.data;
-
-        // Bloqueia totalmente a interação após pagamento
-        btnConfirmar.disabled = true;
-        metodoSelect.disabled = true;
-        clearInterval(timerInterval);
-
-        output.innerText = `✅ Pagamento registrado!\nPedido Status: ${data.pedido_status}\nPagamento Status: ${data.pagamento_status}`;
-
-        // Agora só resta esperar a ação do estabelecimento
-    } catch (err) {
-        console.error(err);
-        output.innerText = "❌ Falha ao processar pagamento.";
-    }
-});
-*/
 
 // ============================= INICIALIZAÇÃO =============================
 function inicializar() {
