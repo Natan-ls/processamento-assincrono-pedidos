@@ -125,5 +125,11 @@ Este projeto está fortemente alinhado aos conteúdos abordados na disciplina de
 ---
 
 ### Passo a Passo para a Execução Da Aplicação
+**sudo apt update**
+**sudo apt install docker-compose**
+**git clone https://github.com/Natan-ls/processamento-assincrono-pedidos/**
+**cd processamento-assincrono-pedidoss**
+**docker-compose up --build**
+Entre em: localhost:5000
 ```bash
 
