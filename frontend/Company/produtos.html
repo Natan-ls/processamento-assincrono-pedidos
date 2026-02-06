@@ -9,45 +9,33 @@
 
     <!-- CSS específico -->
     <link rel="stylesheet" href="{{ url_for('static', filename='company.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
+
 </head>
 
 <body>
 
 <!-- ================= TOPO ================= -->
-<header class="topo">
+    <!-- ===== HEADER ===== -->
+    <header class="topo">
+        <a href="{{ url_for('company_home') }}" class="logo">
+            <img src="{{ url_for('static', filename='janufood/janufood-logo.png') }}" class="logo-img">
+            <span>JanuFood</span>
+        </a>
 
-    <a href="{{ url_for('company_home') }}" class="logo">
-        <img 
-            src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
-            alt="Logo JanuFood"
-            class="logo-img"
-        >
-    </a>
+                <!-- OPÇÕES DO CENTRO DO TOPO DA TELA -->
+        <nav class="status-acoes">
+            <!-- STATUS DO ESTABELECIMENTO (informativo) -->
+            <!--<span class="status-estabelecimento aberto" id="statusEstabelecimento">🟢 Aberto</span>
+             ATALHO -->
+            <button class="atalho-btn" id="btnProdutosTopo">Produtos</button>
+            <!-- ATALHO -->
+            <button class="atalho-btn" id="btnDashboardTopo">Dashboard</button>
+            <!-- ATALHO -->
+            <button class="atalho-btn" id="btnUpdateDadosTopo">Atualizar Dados</button>
 
-    <nav class="status-acoes">
-        <span class="empresa-categoria" id="empresaCategoria"></span>
-        <span class="status-estabelecimento aberto" id="statusEstabelecimento">🟢 Aberto</span>
-        <button class="atalho-btn" id="btnProdutosTopo">🍔 Produtos</button>
-    </nav>
-
-    <div class="busca">
-        <input 
-            type="text" 
-            id="buscaInput" 
-            placeholder="Buscar produto..."
-        >
-    </div>
-
-    <div id="menuPerfil" class="menu-perfil hidden">
-        <button class="menu-item" id="btnEmpresa">🏪 Minha Empresa</button>
-        <button class="menu-item" id="btnPerfil">👤 Minha Conta</button>
-        <button class="menu-item" id="btnProdutos">🍔 Produtos</button>
-        <button class="menu-item" id="btnPedidos">📝 Pedidos</button>
-        <div class="menu-divider"></div>
-        <button class="menu-item logout" id="btnLogout">🚪 Sair</button>
-    </div>
-
-</header>
+        </nav>
+    </header>
 
 <!-- ================= CONTEÚDO ================= -->
 <div class="dashboard-container produtos-dashboard">

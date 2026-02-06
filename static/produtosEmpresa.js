@@ -277,8 +277,8 @@ window.excluirProduto = async function (produtoId) {
 document.addEventListener("DOMContentLoaded", () => {
 
     inicializarTopoEmpresa({
-        categoria: window.empresaCategoria || "Empresa",
-        aberto: window.empresaAberta ?? false,
+        rotaUpdateDados: "/company/onboarding",
+        rotaDashboard: "/company/dashboard",
         rotaProdutos: "/company/produtos"
     });
 

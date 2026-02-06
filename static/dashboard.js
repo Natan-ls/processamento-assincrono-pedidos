@@ -1,6 +1,6 @@
 //dashboard.js
 import { apiRequest, authHeadersJson } from "./api.js";
-import { log } from "./utils.js";
+import { log, inicializarTopoEmpresa } from "./utils.js";
 
 const listaPedidos = document.getElementById("listaPedidos");
 const totalPedidosEl = document.getElementById("totalPedidos");
@@ -13,7 +13,14 @@ const statusFuncionamentoEl = document.getElementById("statusFuncionamento");
 // =============================
 document.addEventListener("DOMContentLoaded", () => {
     carregarPedidosDashboard();
+    inicializarTopoEmpresa({
+        rotaUpdateDados: "/company/onboarding",
+        rotaDashboard: "/company/dashboard",
+        rotaProdutos: "/company/produtos"
+    });
 });
+
+
 
 // =============================
 // BUSCAR PEDIDOS DO DIA
