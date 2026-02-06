@@ -181,7 +181,7 @@ export function abrirModalVip() {
 
     modal.classList.remove("hidden");
 }
-
+/*
 export function abrirModalVipAtivo(vipUntil = null) {
     let modal = document.getElementById("modalVipAtivo");
 
@@ -221,10 +221,10 @@ export function abrirModalVipAtivo(vipUntil = null) {
                 </div>
             </div>
         `;
-
+    }
     modal.classList.remove("hidden");
 }
-
+*/
 export function abrirModalVipAtivo(vipUntil = null) {
     let modal = document.getElementById("modalVipAtivo");
 
@@ -271,7 +271,6 @@ export function abrirModalVipAtivo(vipUntil = null) {
             modal.querySelector(".vip-btn.fechar").onclick =
             () => modal.classList.add("hidden");
     }
-
     modal.classList.remove("hidden");
 }
 
@@ -316,9 +315,7 @@ export function inicializarTopoEmpresa({
 }) {
     /* Categoria */
     const categoriaEl = document.getElementById("empresaCategoria");
-    if (categoriaEl && categoria) {
-        categoriaEl.textContent = categoria;
-    }
+    if (categoriaEl && categoria) {categoriaEl.textContent = categoria;}
 
     /* Status */
     const statusEl = document.getElementById("statusEstabelecimento");
@@ -357,5 +354,4 @@ export function inicializarTopoEmpresa({
             window.location.href = rotaUpdateDados;
         };
     }
-}
 }
