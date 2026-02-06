@@ -67,5 +67,3 @@ def vip_required(f):
                 }), 403
 
         return f(*args, **kwargs)
-
-    return decorated

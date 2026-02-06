@@ -110,11 +110,13 @@ export function setupMenuEventos(elements) {
                 return;
             }
 
+
             abrirModalVip();
         } catch {
             abrirModalVip();
         }
     });
+
     btnLogout?.addEventListener("click", logout);
 }
 
@@ -220,6 +222,49 @@ export function abrirModalVipAtivo(vipUntil = null) {
             </div>
         `;
 
+    modal.classList.remove("hidden");
+}
+
+export function abrirModalVipAtivo(vipUntil = null) {
+    let modal = document.getElementById("modalVipAtivo");
+
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "modalVipAtivo";
+        modal.className = "modal";
+
+        modal.innerHTML = `
+            <div class="modal-conteudo vip-modal ativo">
+                <div class="modal-header">
+                    <h3>⭐ VIP Ativo</h3>
+                    <button class="fechar-modal" id="fecharVipAtivo">&times;</button>
+                </div>
+
+                <div class="modal-body vip-ativo-body">
+                    <div class="vip-icone">👑</div>
+
+                    <p class="vip-msg">
+                        Você faz parte do <strong>Clube VIP</strong> 🎉
+                    </p>
+
+                    <ul class="vip-beneficios">
+                        <li>✔ Descontos exclusivos</li>
+                        <li>✔ Promoções antecipadas</li>
+                        <li>✔ Prioridade nos pedidos</li>
+                    </ul>
+
+                    <p class="vip-validade">
+                        ${vipUntil
+                ? `Válido até <strong>${formatarDataVip(vipUntil)}</strong>`
+                : "VIP sem data de expiração"
+            }
+                    </p>
+
+                    <button class="vip-btn fechar">Fechar</button>
+                </div>
+            </div>
+        `;
+
         document.body.appendChild(modal);
 
         modal.querySelector("#fecharVipAtivo").onclick =
@@ -260,7 +305,6 @@ export function formatarDataVip(data) {
     const [ano, mes, dia] = data.split("T")[0].split("-");
     return `${dia}/${mes}/${ano}`;
 }
-
 
 //==================== FUNCOES de UTILS p EMPRESA 
 
