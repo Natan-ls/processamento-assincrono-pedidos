@@ -410,6 +410,17 @@ def register_empresa():
         db.session.add(estabelecimento)
         db.session.commit()
 
+        evento = {
+            "tipo_evento": constants.USUARIO_CRIADO,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "dados": {
+                "pessoa_id": pessoa.id,
+                "email": user.email,
+                "nome": pessoa.nome
+            }
+        }
+        producer.publicar_evento(constants.USUARIO_CRIADO, evento)
+
         return jsonify({"message": "Empresa cadastrada com Sucesso!"}), 201
 
     except IntegrityError as e:

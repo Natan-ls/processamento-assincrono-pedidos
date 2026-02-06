@@ -355,10 +355,23 @@ def finalizar_pedido(pedido_id):
     try:
         pedido.status = OrderStatus.FINALIZADO.value
         db.session.commit()
+
+        evento = {
+            "tipo_evento": constants.PEDIDO_FINALIZADO,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "dados": {
+                "pedido_id": pedido.id,
+                "total": float(pedido.valor_total)
+            }
+        }
+
+        producer.publicar_evento(constants.PEDIDO_FINALIZADO, evento)
+
         return jsonify({
             "message": "Pedido finalizado",
             "pedido_status": pedido.status
         }), 200
+    
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500

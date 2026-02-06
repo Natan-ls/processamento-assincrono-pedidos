@@ -10,7 +10,7 @@ def handle_pedido_finalizado(evento: dict):
     pedido_id = dados["pedido_id"]
     total = dados["total"]
 
-    email = db.get_user_email_by_pessoa_id(pedido_id)
+    email = db.get_user_email_by_pedido_id(pedido_id)
 
     if not email:
         print(f"Email não encontrado para pessoa_id={pedido_id}", flush=True)
@@ -43,7 +43,7 @@ def handle_pedido_status(evento: dict):
     pedido_id = dados["pedido_id"]
     motivo = dados["motivo_cancelamento"]
 
-    email = db.get_user_email_by_pessoa_id(pedido_id)
+    email = db.get_user_email_by_pedido_id(pedido_id)
     
     if not email:
         print(f"Email não encontrado para pessoa_id={pedido_id}", flush=True)
