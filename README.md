@@ -124,12 +124,28 @@ Este projeto está fortemente alinhado aos conteúdos abordados na disciplina de
 
 ---
 
-### Passo a Passo para a Execução Da Aplicação
-**sudo apt update**
-**sudo apt install docker-compose**
-**git clone https://github.com/Natan-ls/processamento-assincrono-pedidos/**
-**cd processamento-assincrono-pedidoss**
-**docker-compose up --build**
-Entre em: localhost:5000
+## 🚀 Tutorial de Instalação
+
+Siga os passos abaixo para executar a aplicação em sua máquina.
+
+### Pré-requisitos
+- Git
+- Docker
+- Docker Compose
+
+> Certifique-se de que o Docker esteja em execução antes de continuar.
+
+### Passo a Passo
+
+No terminal, execute:
+
 ```bash
+sudo apt update
+sudo apt install docker-compose
+git clone https://github.com/Natan-ls/processamento-assincrono-pedidos.git
+cd processamento-assincrono-pedidos
+docker-compose up --build
+
+
+
 
