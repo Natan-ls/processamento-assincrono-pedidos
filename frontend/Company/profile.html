@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil da Empresa - FoodJanu</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='empresa.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
+</head>
+
+<body class="empresa-page">
+<div class="empresa-container">
+
+    <!-- TOPO -->
+    <header class="topo">
+        <a href="{{ url_for('company_dashboard') }}" class="logo">
+            <img 
+                src="{{ url_for('static', filename='janufood/janufood-logo.png') }}"
+                alt="Logo JanuFood"
+                class="logo-img"
+            >
+            <span>JanuFood</span>
+        </a>
+
+        <!-- PERFIL -->
+        <div class="perfil-area">
+            <div class="perfil-icon" id="perfilIcon">🏪</div>
+            <div id="menuPerfil" class="menu-perfil hidden">
+                <button class="menu-item" id="btnPerfil">👤 Perfil</button>
+                <button class="menu-item" id="btnDashboard">📊 Dashboard</button>
+                <button class="menu-item" id="btnPedidos">📦 Pedidos</button>
+                <button class="menu-item" id="btnLogout">🚪 Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <section class="section">
+        <h2>🏪 Perfil da Empresa</h2>
+
+        <form id="profileCompanyForm">
+
+            <!-- LOGO -->
+            <div class="avatar-section">
+                <img id="companyLogo" src="/static/default-store.png" alt="Logo da empresa">
+                <input type="file" id="companyLogoInput" hidden accept="image/*">
+                <button type="button" id="btnAlterarLogo" class="primary">
+                    Alterar Logo
+                </button>
+            </div>
+
+            <!-- DADOS DA EMPRESA -->
+            <div class="form-group">
+                <label>Nome Fantasia</label>
+                <input type="text" id="nomeFantasia" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Razão Social</label>
+                <input type="text" id="razaoSocial" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>CNPJ</label>
+                <input type="text" id="cnpj" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="tel" id="telefone" disabled>
+            </div>
+
+            <!-- RESPONSÁVEL -->
+            <h3>👤 Responsável</h3>
+
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" id="responsavelNome" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>CPF</label>
+                <input type="text" id="responsavelCpf" disabled>
+            </div>
+
+            <!-- ENDEREÇO -->
+            <h3>📍 Endereço</h3>
+
+            <div class="form-group"><label>Rua</label><input id="endRua" disabled></div>
+            <div class="form-group"><label>Número</label><input id="endNumero" disabled></div>
+            <div class="form-group"><label>Bairro</label><input id="endBairro" disabled></div>
+            <div class="form-group"><label>Cidade</label><input id="endCidade" disabled></div>
+            <div class="form-group"><label>Estado</label><input id="endEstado" disabled></div>
+            <div class="form-group"><label>CEP</label><input id="endCep" disabled></div>
+
+            <!-- BOTÕES -->
+            <div class="button-group">
+                <button type="button" id="editBtn" class="primary">✏️ Editar</button>
+                <button type="button" id="saveBtn" class="primary hidden">💾 Salvar</button>
+                <button type="button" id="cancelBtn" class="secondary hidden">❌ Cancelar</button>
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="btnVoltar" class="btn-voltar-home">Voltar</button>
+            </div>
+
+        </form>
+    </section>
+</div>
+
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+</footer>
+
+<script type="module" src="{{ url_for('static', filename='profileCompany.js') }}"></script>
+</body>
+</html>

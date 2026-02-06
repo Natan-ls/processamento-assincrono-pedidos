@@ -1,7 +1,10 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from api.models.estabelecimento import Estabelecimento
 from api.models.produto import Product
 import datetime
+from api.models.user import User
+from api.auth.decorators import jwt_required
+from extensions import db
 estabelecimentos_bp = Blueprint(
     "estabelecimentos",
     __name__,
@@ -299,3 +302,65 @@ def detalhes_produto(estabelecimento_id, produto_id):
             "nome": produto.estabelecimento.nome_fantasia
         }
     })
+
+
+@estabelecimentos_bp.route("/configuracao", methods=["PUT"])
+@jwt_required
+def atualizar_configuracao_estabelecimento():
+    user_id = request.user_id
+
+    user = User.query.get(user_id)
+    if not user or user.tipo_usuario != "empresa":
+        return jsonify({"error": "Acesso não autorizado"}), 403
+
+    estabelecimento = Estabelecimento.query.filter_by(
+        pessoa_id=user.pessoa_id
+    ).first()
+
+    if not estabelecimento:
+        return jsonify({"error": "Estabelecimento não encontrado"}), 404
+
+    data = request.get_json() or {}
+
+    # ======================================================
+    # ATUALIZA TAXA DE ENTREGA
+    # ======================================================
+    if "taxa_entrega" in data:
+        try:
+            estabelecimento.taxa_entrega = int(data["taxa_entrega"])
+        except ValueError:
+            return jsonify({"error": "Taxa de entrega inválida"}), 400
+
+    # ======================================================
+    # ATUALIZA CONFIGURADO
+    # ======================================================
+    if "configurado" in data:
+        estabelecimento.configurado = bool(data["configurado"])
+
+    # ======================================================
+    # REGRA DE NEGÓCIO IMPORTANTE
+    # Se não estiver configurado → fica FECHADO
+    # ======================================================
+    if not estabelecimento.configurado:
+        estabelecimento.aberto = False
+    else:
+        # Se configurado → pode abrir
+        estabelecimento.aberto = True
+
+    # ======================================================
+    # SALVAR
+    # ======================================================
+    try:
+        db.session.commit()
+        return jsonify({
+            "message": "Configuração atualizada com sucesso",
+            "configurado": estabelecimento.configurado,
+            "aberto": estabelecimento.aberto
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Erro ao atualizar configuração",
+            "details": str(e)
+        }), 500

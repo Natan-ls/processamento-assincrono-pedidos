@@ -17,9 +17,18 @@ class Order(db.Model):
     status = db.Column(db.String(50),nullable=False,default=OrderStatus.CRIADO.value)
     valor_total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     endereco_entrega = db.Column(db.String(255), nullable=True)#endereço de entrega do pedido    
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    #created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc)
+    )
+
     updated_at = db.Column(db.DateTime,default=datetime.utcnow,onupdate=datetime.utcnow)
     pagamento_timer = db.Column(db.DateTime, nullable=True)
+
+    status_updated_at = db.Column(db.DateTime(timezone=True),nullable=True)
+
+    next_status_at = db.Column(db.DateTime(timezone=True),nullable=True)
 
     ## Relacionamento da tabela c/ o (itens do pedido - pessoa - estabelecimento) permitindo assim acessar os dados da outra tabela
     pessoa = db.relationship("Pessoa", backref="pedidos")

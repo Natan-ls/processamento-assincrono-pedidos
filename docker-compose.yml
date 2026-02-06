@@ -66,18 +66,6 @@ services:
     networks:
       - pedidos_network
 
-  worker:
-    build: ./worker
-    container_name: worker
-    restart: always
-    depends_on:
-      kafka:
-        condition: service_healthy
-    volumes:
-      - ./worker:/app
-    networks:
-      - pedidos_network
-
   mailpit:
     image: axllent/mailpit:latest
     container_name: mailpit
@@ -88,6 +76,42 @@ services:
       MP_SMTP_AUTH_ACCEPT_ANY: "true"
       MP_SMTP_AUTH_ALLOW_INSECURE: "true"
     restart: unless-stopped
+    networks:
+      - pedidos_network
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - pedidos_network
+
+  celery-worker:
+    build: .
+    container_name: celery_worker
+    command: celery -A app.celery_app.celery_app worker -l info
+    restart: always
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/app
+    networks:
+      - pedidos_network
+
+  kafka-consumer:
+    build: .
+    container_name: kafka_consumer
+    command: python -m app.consumers.kafka_consumer
+    restart: always
+    depends_on:
+      kafka:
+        condition: service_healthy
+      
+    volumes:
+      - .:/app
     networks:
       - pedidos_network
 
