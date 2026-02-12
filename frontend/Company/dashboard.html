@@ -1,11 +1,65 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard da Empresa - FoodJanu</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='company.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='janufood/favicon.ico') }}">
+
 </head>
+
 <body>
-    <h1>Calma calma, ainda nn existe dashboardkkkkkk</h1>
+
+    <!-- ===== HEADER ===== -->
+    <header class="topo">
+        <a href="{{ url_for('company_home') }}" class="logo">
+            <img src="{{ url_for('static', filename='janufood/janufood-logo.png') }}" class="logo-img">
+            <span>JanuFood</span>
+        </a>
+
+                <!-- OPÇÕES DO CENTRO DO TOPO DA TELA -->
+        <nav class="status-acoes">
+            <!-- STATUS DO ESTABELECIMENTO (informativo) -->
+            <!--<span class="status-estabelecimento aberto" id="statusEstabelecimento">🟢 Aberto</span>
+             ATALHO -->
+            <button class="atalho-btn" id="btnProdutosTopo">Produtos</button>
+            <!-- ATALHO -->
+            <button class="atalho-btn" id="btnDashboardTopo">Dashboard</button>
+            <!-- ATALHO -->
+            <button class="atalho-btn" id="btnUpdateDadosTopo">Atualizar Dados</button>
+
+        </nav>
+    </header>
+
+<main class="dashboard-container">
+
+    <h1>📊 Pedidos de Hoje</h1>
+    <p class="info">Mostrando apenas pedidos realizados hoje dentro do horário de funcionamento</p>
+
+    <!-- STATUS -->
+    <div class="dashboard-status">
+        <span id="totalPedidos">0 pedidos</span>
+        <span id="totalEmPreparo">0 em preparo</span>
+        <span id="totalFinalizados">0 finalizados</span>
+    </div>
+
+    <!-- LISTA -->
+    <section class="card-dashboard">
+        <h2>📋 Pedidos Ativos</h2>
+        <ul id="listaPedidos"></ul>
+    </section>
+    <!-- OUTPUT PARA LOGS DPS PODEMOS TIRAR e COLCOAR UM MODAL p/ AS MENSAGENS por ex(cadastro c sucesso, erro ao ciar algo e tals) -->
+    <section class="section">
+        <pre id="output" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e1e5eb; font-size: 13px; max-height: 150px; overflow-y: auto;"></pre>
+    </section>
+</main>
+<!-- RODAPÉ da PAGE -->
+<footer class="rodape">
+    <p>© 2026 <span>FoodJanu</span> - Todos os direitos reservados.</p>
+    <p style="font-size: 12px; margin-top: 5px; color: #999;">Delivery Rápido e Seguro</p>
+</footer>
+<script type="module"src="{{ url_for('static', filename='/dashboard.js') }}"></script>
 </body>
 </html>

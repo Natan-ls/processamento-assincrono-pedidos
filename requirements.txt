@@ -1,4 +1,6 @@
+celery==5.3.6
+kombu==5.3.4
 confluent-kafka==2.3.0
 psycopg2-binary==2.9.9
 python-dotenv==1.0.1
-
+email-validator

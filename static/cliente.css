@@ -1547,6 +1547,7 @@ body.cliente-page .rodape {
     margin: 0 auto;
 }
 
+
 .pedido-header {
     background: white;
     border-radius: 10px;
@@ -1797,6 +1798,9 @@ body.cliente-page .rodape {
 .btn-pagar:hover {
     background-color: #43a047;
 }
+
+
+
 
 /* ================= MODAL VIP ================= */
 

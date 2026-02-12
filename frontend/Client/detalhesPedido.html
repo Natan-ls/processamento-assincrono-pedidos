@@ -30,10 +30,10 @@
                     <span class="menu-icon">👤</span>
                     <span>Perfil</span>
                 </button>
-                <button class="menu-item" id="btnPagamento">
+                <!--<button class="menu-item" id="btnPagamento">
                     <span class="menu-icon">💳</span>
                     <span>Pagamento</span>
-                </button>
+                </button>-->
                 <button class="menu-item" id="btnPedidos">
                     <span class="menu-icon">📝</span>
                     <span>Pedidos</span>
@@ -52,7 +52,7 @@
     </header>
 
     <!-- ===== CONTEÚDO ===== -->
-    <section class="section">
+    <!--<section class="section">
 
         <div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;">
             <button id="btnVoltar">← Voltar</button>
@@ -64,38 +64,42 @@
         </div>
 
         <div id="conteudoPedido" style="display:none;">
+            <div>
+                <div>
 
-            <!-- Pedido -->
-            <div class="card destaque-azul">
-                <h3>Pedido #<span id="pedidoId"></span></h3>
-                <p><strong>Data:</strong> <span id="pedidoData"></span></p>
-                <p><strong>Status:</strong>
-                    <span id="pedidoStatus" class="badge-status"></span>
-                </p>
-                <p><strong>Total:</strong> <span id="pedidoTotal"></span></p>
-            </div>
+                        Pedido 
+                        <div class="card destaque-azul">
+                            <h3>Pedido #<span id="pedidoId" style="margin: 0 0 15px 0; color: #333;"></span></h3>
+                            <p><strong>Data:</strong> <span id="pedidoData"></span></p>
+                            <p><strong>Status:</strong>
+                                <span id="pedidoStatus" class="badge-status"></span>
+                            </p>
+                            <p><strong>Total:</strong> <span id="pedidoTotal"></span></p>
+                        </div>
 
-            <!-- Estabelecimento -->
-            <div class="card">
-                <h3>🏪 Estabelecimento</h3>
-                <p><strong>Nome:</strong> <span id="estabelecimentoNome"></span></p>
-                <p><strong>Endereço:</strong> <span id="estabelecimentoEndereco"></span></p>
-                <p><strong>Telefone:</strong> <span id="estabelecimentoTelefone"></span></p>
-            </div>
+                         Estabelecimento 
+                        <div class="card">
+                            <h3>🏪 Estabelecimento</h3>
+                            <p><strong>Nome:</strong> <span id="estabelecimentoNome"></span></p>
+                            <p><strong>Endereço:</strong> <span id="estabelecimentoEndereco"></span></p>
+                            <p><strong>Telefone:</strong> <span id="estabelecimentoTelefone"></span></p>
+                        </div>
 
-            <!-- Itens -->
+                </div>
+            </div>                
+            < Itens 
             <div class="card">
                 <h3>🛒 Itens do Pedido</h3>
                 <div id="itensPedido"></div>
             </div>
 
-            <!-- Endereço -->
+            < Endereço 
             <div class="card destaque-laranja">
                 <h3>📍 Endereço de Entrega</h3>
                 <p id="enderecoEntrega"></p>
             </div>
 
-            <!-- Resumo -->
+             Resumo 
             <div class="card">
                 <h3>🧾 Resumo</h3>
                 <p>Subtotal: <span id="subtotal"></span></p>
@@ -109,6 +113,92 @@
             <p>Erro ao carregar detalhes do pedido.</p>
         </div>
 
+    </section>-->
+
+    <section class="section">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+            <h2 style="text-align: center;">📋 Detalhes do Pedido</h2>
+            <br>
+            <button onclick="window.history.back()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                ← Voltar
+            </button>
+        </div>
+        
+        <div id="carregando" class="carregando">
+            <p>Carregando detalhes do pedido...</p>
+        </div>
+        
+        <div id="conteudoPedido" style="display: none;">
+            <!-- Informações gerais do pedido -->
+            <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-left: 4px solid #1e88e5;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <h3 style="margin: 0 0 15px 0; color: #333;">Pedido #<span id="pedidoId"></span></h3>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <p style="margin: 0; color: #666;"><strong>Data do Pedido:</strong> <span id="pedidoData"></span></p>
+                            <p style="margin: 0; color: #666;"><strong>Status:</strong> <span id="pedidoStatus" style="padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;"></span></p>
+                            <p style="margin: 0; color: #666;"><strong>Total:</strong> <span id="pedidoTotal" style="color: #1e88e5; font-weight: 600; font-size: 18px;"></span></p>
+                        </div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; min-width: 250px;">
+                        <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">📦 Informações do Estabelecimento</h4>
+                        <p style="margin: 0 0 8px 0; color: #666;"><strong>Nome:</strong> <span id="estabelecimentoNome"></span></p>
+                        <p style="margin: 0 0 8px 0; color: #666;"><strong>Endereço:</strong> <span id="estabelecimentoEndereco"></span></p>
+                        <p style="margin: 0; color: #666;"><strong>Telefone:</strong> <span id="estabelecimentoTelefone"></span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Itens do pedido -->
+            <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">🛒 Itens do Pedido</h3>
+                <div id="itensPedido" style="display: flex; flex-direction: column; gap: 15px;">
+                    <!-- Itens serão carregados aqui -->
+                </div>
+            </div>
+            <!-- Endereço de entrega -->
+            <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-left: 4px solid #ff9800;">
+                <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">📍 Endereço de Entrega</h3>
+                <p id="enderecoEntrega" style="margin: 0; color: #666; font-size: 16px; line-height: 1.5;">
+                    <!-- O endereço será inserido aqui via JavaScript -->
+                </p>
+            </div>
+
+            <!-- Resumo do pedido -->
+            <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">🧾 Resumo do Pedido</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e1e5eb; padding-bottom: 12px;">
+                        <span style="color: #666;">Subtotal dos itens</span>
+                        <span id="subtotal" style="font-weight: 500;">R$ 0,00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e1e5eb; padding-bottom: 12px;">
+                        <span style="color: #666;">Taxa de entrega</span>
+                        <span id="taxaEntrega" style="font-weight: 500;">R$ 0,00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 600; padding-top: 12px; border-top: 2px solid #e1e5eb;">
+                        <span>Total do pedido</span>
+                        <span id="totalPedido" style="color: #1e88e5;">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                    <button onclick="window.print()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                        🖨️ Imprimir Recibo
+                    </button>
+                    <button onclick="window.history.back()" style="padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ← Voltar aos Pedidos
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="erroPedido" class="erro" style="display: none;">
+            <p>Erro ao carregar detalhes do pedido. Tente novamente mais tarde.</p>
+            <button onclick="window.history.back()" style="padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                ← Voltar aos Pedidos
+            </button>
+        </div>
     </section>
 </div>
 

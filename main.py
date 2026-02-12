@@ -11,6 +11,8 @@ from api.auth.routes import auth_bp
 from api.orders.routes import orders_bp
 from api.estabelecimentos.routes import estabelecimentos_bp
 from api.pagamento.routes import pagamento_bp
+from api.horarioFuncionamento.routes import horario_bp
+from api.produto.routes import produto_bp
 
 # ======= DECORATORS =======
 from api.auth.decorators import jwt_required, vip_required
@@ -97,6 +99,8 @@ def create_app():
     app.register_blueprint(orders_bp)
     app.register_blueprint(estabelecimentos_bp)  
     app.register_blueprint(pagamento_bp)
+    app.register_blueprint(horario_bp)
+    app.register_blueprint(produto_bp)
 
 
 # ======= ROTAS DE API =======
@@ -180,11 +184,14 @@ def create_app():
 
 
 
-# ======= ROTAS das PAGES FRONEND =======
+# ===================== ROTAS das PAGES FRONEND =====================
+    
+    # ======= ROTA LOGIN
     @app.route("/")
     def index():
         return render_template("Index/index.html")
 
+    ## === ROTAS p/ USER CLIENTE 
     @app.route("/client/home")
     def client_home():
         return render_template("Client/home.html")
@@ -208,6 +215,28 @@ def create_app():
     @app.route("/client/order")
     def client_order_details():
         return render_template("Client/detalhesPedido.html")
+
+    ## === RPTAs p/ ESTABELECIMENTO
+    @app.route("/company/onboarding")
+    def company_onboarding():
+        return render_template("Company/onboarding.html")
+    
+    @app.route("/company/dashboard")## tela geral onde fica os pedidos do dia
+    def company_home():
+        return render_template("Company/dashboard.html")
+
+    @app.route("/company/produtos")
+    def company_produtos():
+        return render_template("Company/produtos.html")
+
+    @app.route("/company/profile")
+    def company_profile():
+        return render_template("Company/profile.html")
+
+    @app.route("/company/orders")
+    def company_orders():
+        return render_template("Company/orders.html")
+
 
 # ======= HEALTH =======
     @app.route("/health")

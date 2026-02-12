@@ -133,27 +133,24 @@ function formatarTempoRestante(expiraEm) {
 function getCorStatus(status) {
     return {
         CRIADO: "#2196f3",
-        EM_PREPARO: "#ff9800",
-        PREPARANDO: "#ff9800",
-        PRONTO: "#4caf50",
-        EM_TRANSITO: "#009688",
-        EM_ROTA: "#009688",
-        ENTREGUE: "#43a047",
+        AGUARDANDO_PAGAMENTO: "#ff9800",
+        VALIDANDO: "#ffc107",
+        PROCESSANDO: "#03a9f4",
+        FINALIZADO: "#4caf50",
         CANCELADO: "#f44336"
-    }[status.toUpperCase()] || "#9e9e9e";
+    }[status] || "#9e9e9e";
 }
+
 
 function formatarStatus(status) {
     return {
-        CRIADO: "CRIADO",
-        EM_PREPARO: "EM PREPARO",
-        PREPARANDO: "EM PREPARO",
-        PRONTO: "PRONTO PARA ENTREGA",
-        EM_TRANSITO: "EM ROTA",
-        EM_ROTA: "EM ROTA",
-        ENTREGUE: "ENTREGUE",
-        CANCELADO: "CANCELADO"
-    }[status.toUpperCase()] || status;
+        CRIADO: "Criado",
+        AGUARDANDO_PAGAMENTO: "Aguardando Pagamento",
+        VALIDANDO: "Validando Pagamento",
+        PROCESSANDO: "Pedido em Preparo",
+        FINALIZADO: "Pedido Finalizado",
+        CANCELADO: "Cancelado"
+    }[status] || status;
 }
 
 
@@ -169,7 +166,8 @@ async function buscarTaxaEntrega(estabelecimentoId, token) {
 
         if (!res.ok) return 0;
 
-        const data = await res.json();
+        //const data = await res.json();
+        const data = res.data;
         return Number(data.taxa_entrega || 0);
     } catch (e) {
         console.warn("Erro ao buscar taxa de entrega:", e);

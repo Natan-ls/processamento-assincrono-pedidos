@@ -181,7 +181,50 @@ export function abrirModalVip() {
 
     modal.classList.remove("hidden");
 }
+/*
+export function abrirModalVipAtivo(vipUntil = null) {
+    let modal = document.getElementById("modalVipAtivo");
 
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "modalVipAtivo";
+        modal.className = "modal";
+
+        modal.innerHTML = `
+            <div class="modal-conteudo vip-modal ativo">
+                <div class="modal-header">
+                    <h3>⭐ VIP Ativo</h3>
+                    <button class="fechar-modal" id="fecharVipAtivo">&times;</button>
+                </div>
+
+                <div class="modal-body vip-ativo-body">
+                    <div class="vip-icone">👑</div>
+
+                    <p class="vip-msg">
+                        Você faz parte do <strong>Clube VIP</strong> 🎉
+                    </p>
+
+                    <ul class="vip-beneficios">
+                        <li>✔ Descontos exclusivos</li>
+                        <li>✔ Promoções antecipadas</li>
+                        <li>✔ Prioridade nos pedidos</li>
+                    </ul>
+
+                    <p class="vip-validade">
+                        ${vipUntil
+                ? `Válido até <strong>${formatarDataVip(vipUntil)}</strong>`
+                : "VIP sem data de expiração"
+            }
+                    </p>
+
+                    <button class="vip-btn fechar">Fechar</button>
+                </div>
+            </div>
+        `;
+    }
+    modal.classList.remove("hidden");
+}
+*/
 export function abrirModalVipAtivo(vipUntil = null) {
     let modal = document.getElementById("modalVipAtivo");
 
@@ -228,7 +271,6 @@ export function abrirModalVipAtivo(vipUntil = null) {
             modal.querySelector(".vip-btn.fechar").onclick =
             () => modal.classList.add("hidden");
     }
-
     modal.classList.remove("hidden");
 }
 
@@ -261,4 +303,55 @@ export function formatarDataVip(data) {
     // força leitura correta sem timezone bug
     const [ano, mes, dia] = data.split("T")[0].split("-");
     return `${dia}/${mes}/${ano}`;
+}
+
+//==================== FUNCOES de UTILS p EMPRESA 
+export function inicializarTopoEmpresa({
+    categoria,
+    aberto,
+    rotaProdutos = "/company/produtos",
+    rotaDashboard = "/company/dashboard",
+    rotaUpdateDados = "/company/onboarding"
+}) {
+    /* Categoria */
+    const categoriaEl = document.getElementById("empresaCategoria");
+    if (categoriaEl && categoria) {categoriaEl.textContent = categoria;}
+
+    /* Status */
+    const statusEl = document.getElementById("statusEstabelecimento");
+    if (statusEl && typeof aberto === "boolean") {
+        if (aberto) {
+            statusEl.textContent = "🟢 Aberto";
+            statusEl.classList.add("aberto");
+            statusEl.classList.remove("fechado");
+        } else {
+            statusEl.textContent = "🔴 Fechado";
+            statusEl.classList.add("fechado");
+            statusEl.classList.remove("aberto");
+        }
+    }
+
+    /* Botão Produtos */
+    const btnProdutos = document.getElementById("btnProdutosTopo");
+    if (btnProdutos) {
+        btnProdutos.onclick = () => {
+            window.location.href = rotaProdutos;
+        };
+    }
+
+    /* Botão Dashboard */
+    const btnDashboard = document.getElementById("btnDashboardTopo");
+    if (btnDashboard) {
+        btnDashboard.onclick = () => {
+            window.location.href = rotaDashboard;
+        };
+    }
+
+    /* Botão Atualizar Dados */
+    const btnUpdateDados = document.getElementById("btnUpdateDadosTopo");
+    if (btnUpdateDados) {
+        btnUpdateDados.onclick = () => {
+            window.location.href = rotaUpdateDados;
+        };
+    }
 }
