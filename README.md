@@ -2,7 +2,7 @@
 
 Projeto Final da disciplina **Sistemas Distribuídos**. Ministrada pelo Professor Msc [Adriano Antunes](https://github.com/adrianoifnmg)
 
-## Visão Geral
+## Visão Geral 
 
 Este projeto consiste no desenvolvimento de uma **plataforma distribuída de processamento assíncrono de pedidos**, inspirada em sistemas reais como plataformas de delivery e marketplaces digitais (ex.: iFood), com fins **exclusivamente didáticos**.
 
